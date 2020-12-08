@@ -10,6 +10,7 @@ struct ExploringData
 
 };
 
+
 class IMinistry
 {
 public:
@@ -17,7 +18,13 @@ public:
     void removeAllEntities();
 
     virtual void addMinistryAction(Action &act);
+
+    void setExploringData(const ExploringData *exploringData);
+    void setPlayerView(const PlayerView *playerView);
+
 protected:
+    const ExploringData *m_exploringData = nullptr;
+    const PlayerView *m_playerView = nullptr;
 
     std::vector<Entity> m_units;
     std::vector<Entity> m_buildings;
@@ -45,4 +52,17 @@ class IDefenceMinistry : public IMinistry
 public:
 };
 
+class IDistributor
+{
+public:
+    virtual void redistribute(const PlayerView &playerView, ExploringData const &data,
+                              IEconomicsMinistry *economic,
+                              IWarMinistry *war,
+                              IDefenceMinistry *defence);
+protected:
+    virtual void innerDistribute(const PlayerView &playerView, ExploringData const &data);
+    IEconomicsMinistry* 	m_economicMinister = nullptr;
+    IWarMinistry* 			m_warMinister = nullptr;
+    IDefenceMinistry* 		m_defenceMinister = nullptr;
+};
 #endif

@@ -7,15 +7,30 @@ MyStrategy::MyStrategy() {}
 
 Action MyStrategy::getAction(const PlayerView& playerView, DebugInterface* debugInterface)
 {
-    ExploringData data = MainFactory::instance()->getExploringMinister()->getExploringData(playerView);
+    Action result = Action(std::unordered_map<int, EntityAction>());
+    MainFactory *factory = MainFactory::instance();
 
+    ExploringData data = factory->getExploringMinister()->getExploringData(playerView);
 
+    factory->updateMinisters(playerView, data);
 
+    factory->redistributeResources(playerView, data);
 
+    if (factory->getEconomicMinister())
+    {
+        factory->getEconomicMinister()->addMinistryAction(result);
+    }
+    if (factory->getDefenceMinister())
+    {
+        factory->getDefenceMinister()->addMinistryAction(result);
+    }
+    if (factory->getWarMinister())
+    {
+        factory->getWarMinister()->addMinistryAction(result);
+    }
 
-
-
-    return oldGetAction(playerView, debugInterface);
+    return result;
+//    return oldGetAction(playerView, debugInterface);
 }
 
 void MyStrategy::debugUpdate(const PlayerView& playerView, DebugInterface& debugInterface)

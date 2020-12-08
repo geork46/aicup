@@ -2,6 +2,11 @@
 
 void IMinistry::addEntity(const Entity &e)
 {
+    if (!this)
+    {
+        return;
+    }
+
     switch (e.entityType) {
     case EntityType::WALL :
     case EntityType::HOUSE :
@@ -28,5 +33,47 @@ void IMinistry::removeAllEntities()
 }
 
 void IMinistry::addMinistryAction(Action &act)
+{
+}
+
+void IMinistry::setExploringData(const ExploringData *exploringData)
+{
+    m_exploringData = exploringData;
+}
+
+void IMinistry::setPlayerView(const PlayerView *playerView)
+{
+    m_playerView = playerView;
+}
+
+
+void IDistributor::redistribute(const PlayerView &playerView, const ExploringData &data, IEconomicsMinistry *economic, IWarMinistry *war, IDefenceMinistry *defence)
+{
+    m_warMinister = war;
+    m_economicMinister = economic;
+    m_defenceMinister = defence;
+    if (war)
+    {
+        war->removeAllEntities();
+        war->setExploringData(&data);
+        war->setPlayerView(&playerView);
+    }
+    if (economic)
+    {
+        economic->removeAllEntities();
+        economic->setExploringData(&data);
+        economic->setPlayerView(&playerView);
+    }
+    if (defence)
+    {
+        defence->removeAllEntities();
+        defence->setExploringData(&data);
+        defence->setPlayerView(&playerView);
+    }
+
+    innerDistribute(playerView, data);
+}
+
+void IDistributor::innerDistribute(const PlayerView &playerView, const ExploringData &data)
 {
 }

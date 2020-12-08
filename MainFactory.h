@@ -38,7 +38,14 @@ private:
     void initDistributors();
 
     template<class T>
-    void updateMinister(T &oldMinister, T newMinister) { oldMinister = newMinister; }
+    void updateMinister(T &oldMinister, T newMinister) {
+        if (oldMinister != newMinister)
+        {
+            oldMinister->deactivate();
+            oldMinister = newMinister;
+            newMinister->activate();
+        }
+    }
 
     IMinistry* m_ministers[MINISTER_NAME_COUNT];
     IDistributor* m_distributors[DISTRIBUTOR_NAME_COUNT];

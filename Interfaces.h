@@ -12,27 +12,35 @@ struct ExploringData
 
 class IMinistry
 {
+public:
+    void addEntity(Entity const & e);
+    void removeAllEntities();
 
+    virtual void addMinistryAction(Action &act);
+protected:
+
+    std::vector<Entity> m_units;
+    std::vector<Entity> m_buildings;
 };
 
-class IExploringMinistry
+class IExploringMinistry : public IMinistry
 {
 public:
     virtual ExploringData getExploringData(const PlayerView &playerView) = 0;
 };
 
 
-class IEconomicsMinistry
+class IEconomicsMinistry : public IMinistry
 {
 public:
 };
 
-class IWarMinistry
+class IWarMinistry : public IMinistry
 {
 public:
 };
 
-class IDefenceMinistry
+class IDefenceMinistry : public IMinistry
 {
 public:
 };

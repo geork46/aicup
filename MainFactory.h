@@ -8,10 +8,12 @@
 class MainFactory
 {
 public:
-    MainFactory* instance();
+    static MainFactory* instance();
 
 
     IExploringMinistry* getExploringMinister();
+
+
     IEconomicsMinistry* getEconomicMinister();
     IWarMinistry* getWarMinister();
     IDefenceMinistry* getDefenceMinister();

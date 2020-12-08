@@ -22,6 +22,9 @@ public:
     void setExploringData(const ExploringData *exploringData);
     void setPlayerView(const PlayerView *playerView);
 
+    virtual void activate();
+    virtual void deactivate();
+
 protected:
     const ExploringData *m_exploringData = nullptr;
     const PlayerView *m_playerView = nullptr;
@@ -55,6 +58,9 @@ public:
 class IDistributor
 {
 public:
+    virtual void activate();
+    virtual void deactivate();
+
     virtual void redistribute(const PlayerView &playerView, ExploringData const &data,
                               IEconomicsMinistry *economic,
                               IWarMinistry *war,

@@ -46,6 +46,13 @@ void IMinistry::setPlayerView(const PlayerView *playerView)
     m_playerView = playerView;
 }
 
+void IMinistry::activate() {  }
+
+void IMinistry::deactivate() {  }
+
+void IDistributor::activate() {  }
+
+void IDistributor::deactivate() {  }
 
 void IDistributor::redistribute(const PlayerView &playerView, const ExploringData &data, IEconomicsMinistry *economic, IWarMinistry *war, IDefenceMinistry *defence)
 {

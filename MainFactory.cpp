@@ -61,7 +61,7 @@ void MainFactory::initDistributors()
         m_distributors[i] = nullptr;
     }
     m_distributors[DISTRIBUTOR_1] = new DefaultDistributor();
-    m_distributor = m_distributors[DISTRIBUTOR_1];
+    updateMinister(m_distributor, m_distributors[DISTRIBUTOR_1]);
 }
 
 MainFactory::MainFactory()

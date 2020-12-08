@@ -37,6 +37,9 @@ private:
     void initMinisters();
     void initDistributors();
 
+    template<class T>
+    void updateMinister(T &oldMinister, T newMinister) { oldMinister = newMinister; }
+
     IMinistry* m_ministers[MINISTER_NAME_COUNT];
     IDistributor* m_distributors[DISTRIBUTOR_NAME_COUNT];
 

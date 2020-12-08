@@ -16,8 +16,14 @@ void DefaultDistributor::innerDistribute(const PlayerView &playerView, const Exp
         if (entity.entityType == EntityType::BUILDER_BASE || entity.entityType == EntityType::BUILDER_UNIT)
         {
             m_economicMinister->addEntity(entity);
+        } else
+        if (entity.entityType == EntityType::RANGED_BASE || entity.entityType == EntityType::RANGED_UNIT)
+        {
+            m_warMinister->addEntity(entity);
+        } else
+        if (entity.entityType == EntityType::MELEE_BASE || entity.entityType == EntityType::MELEE_UNIT)
+        {
+            m_defenceMinister->addEntity(entity);
         }
-
     }
-
 }

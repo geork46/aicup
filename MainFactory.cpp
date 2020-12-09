@@ -1,6 +1,7 @@
 #include "MainFactory.h"
 
 #include "DefaultDistributor.h"
+#include "DefaultMinistries.h"
 
 MainFactory *MainFactory::m_inst = nullptr;
 
@@ -15,7 +16,7 @@ MainFactory *MainFactory::instance()
 
 IExploringMinistry *MainFactory::getExploringMinister()
 {
-
+    return nullptr;
 }
 
 IEconomicsMinistry *MainFactory::getEconomicMinister()
@@ -52,11 +53,17 @@ void MainFactory::initMinisters()
     {
         m_ministers[i] = nullptr;
     }
+    m_ministers[ECONOMIC_1] = new DefaultEconomicMinister();
+    m_ministers[WAR_1] = new DefaultWarMinister();
+    m_ministers[DEFENCE_1] = new DefaultDefenceMinister();
+    updateMinister(m_economicMinister, m_ministers[ECONOMIC_1]);
+    updateMinister(m_warMinister, m_ministers[WAR_1]);
+    updateMinister(m_defenceMinister, m_ministers[DEFENCE_1]);
 }
 
 void MainFactory::initDistributors()
 {
-    for (int i = 0; i < MINISTER_NAME_COUNT; ++i)
+    for (int i = 0; i < DISTRIBUTOR_NAME_COUNT; ++i)
     {
         m_distributors[i] = nullptr;
     }
@@ -67,4 +74,5 @@ void MainFactory::initDistributors()
 MainFactory::MainFactory()
 {
     initMinisters();
+    initDistributors();
 }

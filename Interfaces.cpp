@@ -84,3 +84,8 @@ void IDistributor::redistribute(const PlayerView &playerView, const ExploringDat
 void IDistributor::innerDistribute(const PlayerView &playerView, const ExploringData &data)
 {
 }
+
+ExploringData IExploringMinistry::getExploringData(const PlayerView &playerView)
+{
+
+}

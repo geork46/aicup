@@ -36,7 +36,7 @@ protected:
 class IExploringMinistry : public IMinistry
 {
 public:
-    virtual ExploringData getExploringData(const PlayerView &playerView) = 0;
+    virtual ExploringData getExploringData(const PlayerView &playerView);
 };
 
 

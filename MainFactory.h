@@ -37,13 +37,19 @@ private:
     void initMinisters();
     void initDistributors();
 
-    template<class T>
-    void updateMinister(T &oldMinister, T newMinister) {
+    template<class T, class TT>
+    void updateMinister(T &oldMinister, TT newMinister) {
         if (oldMinister != newMinister)
         {
-            oldMinister->deactivate();
-            oldMinister = newMinister;
-            newMinister->activate();
+            if (oldMinister)
+            {
+                oldMinister->deactivate();
+            }
+            oldMinister = dynamic_cast<T>(newMinister);
+            if (newMinister)
+            {
+                newMinister->activate();
+            }
         }
     }
 

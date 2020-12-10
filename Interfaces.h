@@ -7,7 +7,19 @@ class PlayerView;
 
 struct ExploringData
 {
+    int buildUnitsCount = 0;
+    int rangedUnitsCount = 0;
+    int meleeUnitsCount = 0;
+    int buildBaseCount = 0;
+    int rangedBaseCount = 0;
+    int meleeBaseCount = 0;
+    int housesCount = 0;
+    int myResourcesCount = 0;
+    int mapResourcesCount = 0;
+    int maxPopulation = 0;
+    int currentPopulation = 0;
 
+    int entityCost[EntityType::TURRET + 1];
 };
 
 

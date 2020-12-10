@@ -6,11 +6,18 @@ DefaultDistributor::DefaultDistributor()
 
 void DefaultDistributor::innerDistribute(const PlayerView &playerView, const ExploringData &data)
 {
+    int population = 0;
     int myId = playerView.myId;
     for (size_t i = 0; i < playerView.entities.size(); i++) {
         const Entity& entity = playerView.entities[i];
         if (entity.playerId == nullptr || *entity.playerId != myId) {
             continue;
+        }
+
+        const EntityProperties& properties = playerView.entityProperties.at(entity.entityType);
+        if (properties.build != nullptr)
+        {
+            population += properties.populationProvide;
         }
 
         if (entity.entityType == EntityType::BUILDER_BASE || entity.entityType == EntityType::BUILDER_UNIT)
@@ -26,4 +33,13 @@ void DefaultDistributor::innerDistribute(const PlayerView &playerView, const Exp
             m_defenceMinister->addEntity(entity);
         }
     }
+
+    int resources = playerView.players[playerView.myId].resource;
+    m_economicMinister->setResourcesCount(resources / 3);
+    m_warMinister->setResourcesCount(resources / 3);
+    m_defenceMinister->setResourcesCount(resources / 3);
+
+    m_economicMinister->setMaxPopulation(population / 3);
+    m_warMinister->setMaxPopulation(population / 3);
+    m_defenceMinister->setMaxPopulation(population / 3);
 }

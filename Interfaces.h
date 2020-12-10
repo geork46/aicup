@@ -25,10 +25,18 @@ public:
     virtual void activate();
     virtual void deactivate();
 
+    int resourcesCount() const;
+    void setResourcesCount(int resourcesCount);
+
+    int maxPopulation() const;
+    void setMaxPopulation(int maxPopulation);
+
 protected:
     const ExploringData *m_exploringData = nullptr;
     const PlayerView *m_playerView = nullptr;
 
+    int m_resourcesCount;
+    int m_maxPopulation;
     std::vector<Entity> m_units;
     std::vector<Entity> m_buildings;
 };

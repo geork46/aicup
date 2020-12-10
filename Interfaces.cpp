@@ -50,6 +50,26 @@ void IMinistry::activate() {  }
 
 void IMinistry::deactivate() {  }
 
+int IMinistry::resourcesCount() const
+{
+    return m_resourcesCount;
+}
+
+void IMinistry::setResourcesCount(int resourcesCount)
+{
+    m_resourcesCount = resourcesCount;
+}
+
+int IMinistry::maxPopulation() const
+{
+    return m_maxPopulation;
+}
+
+void IMinistry::setMaxPopulation(int maxPopulation)
+{
+    m_maxPopulation = maxPopulation;
+}
+
 void IDistributor::activate() {  }
 
 void IDistributor::deactivate() {  }

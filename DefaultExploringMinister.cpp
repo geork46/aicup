@@ -126,9 +126,9 @@ void DefaultExploringMinister::fillMap(const PlayerView &playerView, ExploringDa
 
 double DefaultExploringMinister::getDangerousCoef(double distance)
 {
-    if (distance < 30)
+    if (distance < 35)
     {
-        return 40;
+        return 45;
     }
     if (distance < 60)
     {

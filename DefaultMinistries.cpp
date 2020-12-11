@@ -1,10 +1,13 @@
 #include "DefaultMinistries.h"
 
 #include <iostream>
+#include <math.h>
 
 void DefaultEconomicMinister::addMinistryAction(Action &act)
 {
     int myId = m_playerView->myId;
+
+    fillRepairMap();
 
     std::shared_ptr<BuildAction> buildAction = nullptr;
     std::shared_ptr<MoveAction> moveAction = nullptr;
@@ -27,6 +30,8 @@ void DefaultEconomicMinister::addMinistryAction(Action &act)
 
     int x, y;
     bool f = m_exploringData->getFreeHouseCoordinate(x, y);
+
+
 
     for (size_t i = 0; i < m_units.size(); i++) {
         const Entity& entity = m_units[i];
@@ -60,9 +65,20 @@ void DefaultEconomicMinister::addMinistryAction(Action &act)
         {
             act.entityActions[entity.id] = EntityAction(
                         nullptr, nullptr, nullptr, std::shared_ptr<RepairAction>(new RepairAction(target)));
+        } else if (m_repairMap.find(i) != m_repairMap.end())
+        {
+
+            const Entity& building = m_playerView->entities[m_repairMap[i]];
+            const EntityProperties& prop = m_playerView->entityProperties.at(building.entityType);
+            moveAction = std::shared_ptr<MoveAction>(new MoveAction(
+                                                         Vec2Int( building.position.x + prop.size / 2 ,
+                                                                  building.position.y + prop.size / 2),
+                                                         true, true));
+            act.entityActions[entity.id] = EntityAction( moveAction, nullptr, nullptr,std::shared_ptr<RepairAction>(new RepairAction(building.id)));
+
         } else
-        if (i > m_exploringData->builderUnitsCount - 3 && f && m_exploringData->myResourcesCount > 50 && (m_exploringData->meleeUnitsCount + m_exploringData->rangedUnitsCount > 3)
-                && (m_exploringData->freePopulation < 8))
+            if (i > m_exploringData->builderUnitsCount - 3 && f && m_exploringData->myResourcesCount > 50 && (m_exploringData->meleeUnitsCount + m_exploringData->rangedUnitsCount > 3)
+                    && (m_exploringData->freePopulation < 8))
         {
             moveAction = std::shared_ptr<MoveAction>(new MoveAction(
                                                          Vec2Int(x + m_exploringData->houseSize, y + m_exploringData->houseSize - 1),
@@ -88,6 +104,29 @@ void DefaultEconomicMinister::addMinistryAction(Action &act)
                         nullptr);
         }
 
+    }
+}
+
+void DefaultEconomicMinister::fillRepairMap()
+{
+    m_repairMap.clear();
+
+    for (int ind : m_exploringData->needRepairBuildings)
+    {
+        double dmax = 1000;
+        int k = -1;
+        const Entity& building = m_playerView->entities[ind];
+
+        for (size_t i = 0; i < m_units.size(); i++) {
+            const Entity& entity = m_units[i];
+            double distance = getDistance(entity, building);
+            if (distance < dmax)
+            {
+                dmax = distance;
+                k = i;
+            }
+        }
+        m_repairMap[k] = ind;
     }
 }
 

@@ -1,5 +1,7 @@
 #include "Interfaces.h"
 
+#include <math.h>
+
 void IMinistry::addEntity(const Entity &e)
 {
     if (!this)
@@ -68,6 +70,18 @@ int IMinistry::maxPopulation() const
 void IMinistry::setMaxPopulation(int maxPopulation)
 {
     m_maxPopulation = maxPopulation;
+}
+
+double IMinistry::getDistance(const Entity &unit, const Entity &building)
+{
+    double x = unit.position.x;
+    double y = unit.position.y;
+
+    const EntityProperties& properties = m_playerView->entityProperties.at(building.entityType);
+    double px = building.position.x + properties.size / 2;
+    double py = building.position.y + properties.size / 2;
+
+    return sqrt((px - x)*(px - x) + (py - y) * (py - y));
 }
 
 void IDistributor::activate() {  }

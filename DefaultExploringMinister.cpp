@@ -65,6 +65,11 @@ ExploringData DefaultExploringMinister::getExploringData(const PlayerView &playe
         default:
             break;
         }
+        if (entity.health < properties.maxHealth && !properties.canMove)
+        {
+            data.needRepairBuildings.push_back(i);
+        }
+
         data.maxPopulation += properties.populationProvide;
         data.currentPopulation += properties.populationUse;
     }

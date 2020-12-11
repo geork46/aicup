@@ -3,6 +3,7 @@
 
 #include "model/Model.hpp"
 #include <unordered_map>
+#include <vector>
 
 class PlayerView;
 
@@ -57,6 +58,9 @@ struct ExploringData
     std::unordered_map<int, int> map;
 
     std::unordered_map<int, EnemyInfo> enemies;
+    std::vector<int> needRepairBuildings;
+
+
 
     int mainEnemy = 0;
 
@@ -87,6 +91,8 @@ public:
 
     int maxPopulation() const;
     void setMaxPopulation(int maxPopulation);
+
+    double getDistance(const Entity &unit, const Entity &building);
 
 protected:
     const ExploringData *m_exploringData = nullptr;

@@ -56,6 +56,7 @@ private:
     IMinistry* m_ministers[MINISTER_NAME_COUNT];
     IDistributor* m_distributors[DISTRIBUTOR_NAME_COUNT];
 
+    IExploringMinistry* 	m_exploringMinister = nullptr;
     IEconomicsMinistry* 	m_economicMinister = nullptr;
     IWarMinistry* 			m_warMinister = nullptr;
     IDefenceMinistry* 		m_defenceMinister = nullptr;

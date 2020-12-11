@@ -9,6 +9,9 @@ public:
     DefaultExploringMinister();
 
     virtual ExploringData getExploringData(const PlayerView &playerView);
+
+private:
+    void fillMap(const PlayerView &playerView, ExploringData &data, int index);
 };
 
 #endif // DEFAULTEXPLORINGMINISTER_H

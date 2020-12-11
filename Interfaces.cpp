@@ -109,3 +109,36 @@ ExploringData IExploringMinistry::getExploringData(const PlayerView &playerView)
 {
 
 }
+
+
+bool ExploringData::getFreeHouseCoordinate(int &x, int &y) const
+{
+    static const int n = 9;
+    static int a[n] = {0, 4, 8, 16, 20, 0, 0,  0,  0};
+    static int b[n] = {0, 0, 0,  0,  0, 4, 8, 16, 20};
+
+    for (int k = 0; k < n; ++k)
+    {
+        for (int i = 0; i < houseSize; ++i)
+        {
+            for (int j = 0; j < houseSize; ++j)
+            {
+                if (map.find(getIndex(a[k] + i, b[k] + j)) != map.end())
+                {
+                    goto next;
+                }
+            }
+        }
+        x = a[k];
+        y = b[k];
+        return true;
+        next:
+        continue;
+    }
+    return false;
+}
+
+int ExploringData::getIndex(int x, int y) const
+{
+    return y * mapSize + x;
+}

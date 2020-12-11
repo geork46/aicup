@@ -2,15 +2,16 @@
 #define INTERFACES
 
 #include "model/Model.hpp"
+#include <unordered_map>
 
 class PlayerView;
 
 struct ExploringData
 {
-    int buildUnitsCount = 0;
+    int builderUnitsCount = 0;
     int rangedUnitsCount = 0;
     int meleeUnitsCount = 0;
-    int buildBaseCount = 0;
+    int builderBaseCount = 0;
     int rangedBaseCount = 0;
     int meleeBaseCount = 0;
     int housesCount = 0;
@@ -18,8 +19,31 @@ struct ExploringData
     int mapResourcesCount = 0;
     int maxPopulation = 0;
     int currentPopulation = 0;
+    int freePopulation = 0;
+
+    int builderBaseId = 0;
+    int rangedBaseID = 0;
+    int meleeBaseID = 0;
+
+    int builderBaseIndex = 0;
+    int rangedBaseIndex = 0;
+    int meleeBaseIndex = 0;
 
     int entityCost[EntityType::TURRET + 1];
+    int builderUnitsCost = 0;
+    int rangedUnitsCost = 0;
+    int meleeUnitsCost = 0;
+
+    int houseSize = 0;
+    int mapSize = 0;
+
+    std::unordered_map<int, int> map;
+
+    bool getFreeHouseCoordinate(int &x, int &y) const;
+
+    int getIndex(int x, int y) const;
+
+private:
 };
 
 

@@ -198,8 +198,10 @@ void DefaultExploringMinister::enemyAnalize(const PlayerView &playerView, Explor
         data.enemies[*entity.playerId].mainY = entity.position.y;
         break;
     case EntityType::WALL :
-    case EntityType::RESOURCE :
     case EntityType::TURRET :
+        data.enemies[*entity.playerId].dangerousLevel += 1 * getDangerousCoef(distance);
+        break;
+    case EntityType::RESOURCE :
     default:
         break;
     }

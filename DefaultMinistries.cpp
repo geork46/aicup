@@ -78,7 +78,7 @@ void DefaultEconomicMinister::addMinistryAction(Action &act)
 
         } else
             if (i > m_exploringData->builderUnitsCount - 3 && f && m_exploringData->myResourcesCount > 50 && (m_exploringData->meleeUnitsCount + m_exploringData->rangedUnitsCount > 3)
-                    && (m_exploringData->freePopulation < 8))
+                    && (m_exploringData->freePopulation < 10))
         {
             moveAction = std::shared_ptr<MoveAction>(new MoveAction(
                                                          Vec2Int(x + m_exploringData->houseSize, y + m_exploringData->houseSize - 1),

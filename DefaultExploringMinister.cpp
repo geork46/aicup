@@ -166,6 +166,7 @@ void DefaultExploringMinister::enemyAnalize(const PlayerView &playerView, Explor
     case EntityType::BUILDER_BASE :
         data.enemies[*entity.playerId].builderBaseX = entity.position.x;
         data.enemies[*entity.playerId].builderBaseY = entity.position.y;
+        data.enemies[*entity.playerId].dangerousLevel += 2 * getDangerousCoef(distance);
         break;
     case EntityType::BUILDER_UNIT :
         data.enemies[*entity.playerId].mainX = entity.position.x;
@@ -177,6 +178,7 @@ void DefaultExploringMinister::enemyAnalize(const PlayerView &playerView, Explor
     case EntityType::MELEE_BASE :
         data.enemies[*entity.playerId].mainX = entity.position.x;
         data.enemies[*entity.playerId].mainY = entity.position.y;
+        data.enemies[*entity.playerId].dangerousLevel += 3 * getDangerousCoef(distance);
         break;
     case EntityType::MELEE_UNIT :
         data.enemies[*entity.playerId].meleeUnitsCount++;
@@ -185,6 +187,7 @@ void DefaultExploringMinister::enemyAnalize(const PlayerView &playerView, Explor
     case EntityType::RANGED_BASE :
         data.enemies[*entity.playerId].mainX = entity.position.x;
         data.enemies[*entity.playerId].mainY = entity.position.y;
+        data.enemies[*entity.playerId].dangerousLevel += 3 * getDangerousCoef(distance);
         break;
     case EntityType::RANGED_UNIT :
         data.enemies[*entity.playerId].rangedUnitsCount++;

@@ -100,11 +100,20 @@ void DefaultWarMinister::addMinistryAction(Action &act)
         const EntityProperties& properties = m_playerView->entityProperties.at(entity.entityType);
         std::shared_ptr<MoveAction> moveAction = nullptr;
         std::shared_ptr<BuildAction> buildAction = nullptr;
+
+        int x = m_playerView->mapSize - 1, y = m_playerView->mapSize - 1;
+        if (m_exploringData->enemies.find(m_exploringData->mainEnemy) != m_exploringData->enemies.end())
+        {
+            x = m_exploringData->enemies.at(m_exploringData->mainEnemy).builderBaseX;
+            y = m_exploringData->enemies.at(m_exploringData->mainEnemy).builderBaseY;
+            if (x < 0 || m_exploringData->enemies.at(m_exploringData->mainEnemy).dangerousLevel > 200)
+            {
+                x = m_exploringData->enemies.at(m_exploringData->mainEnemy).mainX;
+                y = m_exploringData->enemies.at(m_exploringData->mainEnemy).mainY;
+            }
+        }
         if (properties.canMove) {
-            moveAction = std::shared_ptr<MoveAction>(new MoveAction(
-                Vec2Int(m_playerView->mapSize - 1, m_playerView->mapSize - 1),
-                true,
-                true));
+            moveAction = std::shared_ptr<MoveAction>(new MoveAction( Vec2Int(x, y), true, true));
         }
 
         std::vector<EntityType> validAutoAttackTargets;
@@ -115,6 +124,7 @@ void DefaultWarMinister::addMinistryAction(Action &act)
                 nullptr, std::shared_ptr<AutoAttack>(new AutoAttack(properties.sightRange, validAutoAttackTargets)))),
             nullptr);
     }
+
     for (size_t i = 0; i < m_buildings.size(); i++) {
         const Entity& entity = m_buildings[i];
         const EntityProperties& properties = m_playerView->entityProperties.at(entity.entityType);
@@ -149,11 +159,19 @@ void DefaultDefenceMinister::addMinistryAction(Action &act)
         const EntityProperties& properties = m_playerView->entityProperties.at(entity.entityType);
         std::shared_ptr<MoveAction> moveAction = nullptr;
         std::shared_ptr<BuildAction> buildAction = nullptr;
+        int x = m_playerView->mapSize - 1, y = m_playerView->mapSize - 1;
+        if (m_exploringData->enemies.find(m_exploringData->mainEnemy) != m_exploringData->enemies.end())
+        {
+            x = m_exploringData->enemies.at(m_exploringData->mainEnemy).builderBaseX;
+            y = m_exploringData->enemies.at(m_exploringData->mainEnemy).builderBaseY;
+            if (x < 0 || m_exploringData->enemies.at(m_exploringData->mainEnemy).dangerousLevel > 200)
+            {
+                x = m_exploringData->enemies.at(m_exploringData->mainEnemy).mainX;
+                y = m_exploringData->enemies.at(m_exploringData->mainEnemy).mainY;
+            }
+        }
         if (properties.canMove) {
-            moveAction = std::shared_ptr<MoveAction>(new MoveAction(
-                Vec2Int(m_playerView->mapSize - 1, m_playerView->mapSize - 1),
-                true,
-                true));
+            moveAction = std::shared_ptr<MoveAction>(new MoveAction( Vec2Int(x, y), true, true));
         }
 
         std::vector<EntityType> validAutoAttackTargets;

@@ -6,6 +6,23 @@
 
 class PlayerView;
 
+struct EnemyInfo
+{
+    int mainX = 0;
+    int mainY = 0;
+
+    double dangerousLevel = 0;
+
+    int builderUnitsCount = 0;
+    int rangedUnitsCount = 0;
+    int meleeUnitsCount = 0;
+
+    int builderBaseX = -1;
+    int builderBaseY = -1;
+
+    double testDistance = 1000;
+};
+
 struct ExploringData
 {
     int builderUnitsCount = 0;
@@ -38,6 +55,10 @@ struct ExploringData
     int mapSize = 0;
 
     std::unordered_map<int, int> map;
+
+    std::unordered_map<int, EnemyInfo> enemies;
+
+    int mainEnemy = 0;
 
     bool getFreeHouseCoordinate(int &x, int &y) const;
 

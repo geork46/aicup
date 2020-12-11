@@ -12,6 +12,11 @@ public:
 
 private:
     void fillMap(const PlayerView &playerView, ExploringData &data, int index);
+
+    double getDangerousCoef(double distance);
+
+    void enemyAnalize(const PlayerView &playerView, ExploringData &data, const Entity &entity);
+    void postEnemyAnalize(const PlayerView &playerView, ExploringData &data);
 };
 
 #endif // DEFAULTEXPLORINGMINISTER_H

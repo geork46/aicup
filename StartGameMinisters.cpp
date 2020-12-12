@@ -147,8 +147,8 @@ void StartGameWarMinister::addMinistryAction(Action &act)
             y = m_playerView->entities[m_exploringData->attackedEnemyUnits[0]].position.y;
         } else
         {
-            if (m_exploringData->rangedUnitsCount > 8 && i < m_units.size() - m_units.size() / 3 + 1)
-            {
+//            if (m_exploringData->rangedUnitsCount > 8 && i < m_units.size() - m_units.size() / 3 + 1)
+//            {
                 for (auto i : m_exploringData->enemies)
                 {
                     if (i.second.dangerousLevel > 0)
@@ -158,11 +158,11 @@ void StartGameWarMinister::addMinistryAction(Action &act)
                         break;
                     }
                 }
-            } else
-            {
-                x = 15;
-                y = 15;
-            }
+//            } else
+//            {
+//                x = 15;
+//                y = 15;
+//            }
 
         }
         if (properties.canMove) {

@@ -15,6 +15,7 @@ class AlarmingWarMinister : public IWarMinistry
 public:
     virtual void addMinistryAction(Action &act);
 
+
 };
 
 class AlarmingDefenceMinister : public IDefenceMinistry

@@ -5,7 +5,6 @@ void StartGameEconomicMinister::addMinistryAction(Action &act)
     int myId = m_playerView->myId;
 
     fillRepairMap();
-
     createBuilderUnit(act);
 
     int x, y;
@@ -19,34 +18,12 @@ void StartGameEconomicMinister::addMinistryAction(Action &act)
         const EntityProperties& properties = m_playerView->entityProperties.at(entity.entityType);
         buildAction = nullptr;
 
-        bool f2 = false;
-        int target = -1;
+        if (tryRepair(act, entity))
         {
-            int a[4] = {0, 0, 1, -1};
-            int b[4] = {1, -1, 0, 0};
-            int m = -1;
-            for (int k = 0; k < 4; ++k)
-            {
-                if  (m_exploringData->map.find(m_exploringData->getIndex(entity.position.x + a[k], entity.position.y + b[k])) !=
-                     m_exploringData->map.end())
-                {
-                    int d = m_exploringData->map.at(m_exploringData->getIndex(entity.position.x + a[k], entity.position.y + b[k]));
-                    const Entity& en = m_playerView->entities[d];
-                    const EntityProperties& prop = m_playerView->entityProperties.at(en.entityType);
-                    if (prop.populationProvide > 0 && en.health < prop.maxHealth)
-                    {
-                        f2 = true;
-                        target = en.id;
-                        break;
-                    }
-                }
-            }
+            continue;
         }
-        if (f2)
-        {
-            act.entityActions[entity.id] = EntityAction(
-                        nullptr, nullptr, nullptr, std::shared_ptr<RepairAction>(new RepairAction(target)));
-        } else if (m_repairMap.find(i) != m_repairMap.end())
+
+        if (m_repairMap.find(i) != m_repairMap.end())
         {
 
             const Entity& building = m_playerView->entities[m_repairMap[i]];
@@ -56,10 +33,11 @@ void StartGameEconomicMinister::addMinistryAction(Action &act)
                                                                   building.position.y + prop.size / 2),
                                                          true, true));
             act.entityActions[entity.id] = EntityAction( moveAction, nullptr, nullptr,std::shared_ptr<RepairAction>(new RepairAction(building.id)));
+            continue;
+        }
 
-        } else
-            if (i > m_exploringData->builderUnitsCount - 3 && f && m_exploringData->myResourcesCount > 50
-                    && (m_exploringData->freePopulation < 10))
+        if (i > m_exploringData->builderUnitsCount - 3 && f && m_exploringData->myResourcesCount > 50
+                && (m_exploringData->freePopulation < 10))
         {
             moveAction = std::shared_ptr<MoveAction>(new MoveAction(
                                                          Vec2Int(x + m_exploringData->houseSize, y + m_exploringData->houseSize - 1),
@@ -67,55 +45,9 @@ void StartGameEconomicMinister::addMinistryAction(Action &act)
             buildAction = std::shared_ptr<BuildAction>(new BuildAction( EntityType::HOUSE, Vec2Int(x, y)));
             act.entityActions[entity.id] = EntityAction( moveAction, buildAction, nullptr, nullptr);
             continue;
-        } else
-            {
-                int x, y;
-//                int x = m_playerView->mapSize - 1;
-//                int y = m_playerView->mapSize - 1;
-                m_exploringData->getNearestResources(entity, x, y);
+        }
 
-                std::vector<EntityType> validAutoAttackTargets;
-                    if (entity.entityType == BUILDER_UNIT) {
-                        validAutoAttackTargets.push_back(BUILDER_UNIT);
-                        validAutoAttackTargets.push_back(RESOURCE);
-                    }
-                bool f = false;
-                {
-                    for (int i : m_exploringData->attackedEnemyUnits)
-                    {
-                        if (getDistance(entity, m_playerView->entities[i]) < 7 && m_playerView->entities[i].entityType != EntityType::BUILDER_UNIT)
-                        {
-                            f = true;
-                            break;
-                        }
-                    }
-                }
-                if (f)
-                {
-                    x = 0;
-                    y = 0;
-                }
-
-                moveAction = std::shared_ptr<MoveAction>(new MoveAction(Vec2Int(x, y), true, true));
-
-                if (f)
-                {
-                    act.entityActions[entity.id] = EntityAction(
-                                moveAction,
-                                nullptr,
-                                nullptr,
-                                nullptr);
-                } else
-                {
-                    act.entityActions[entity.id] = EntityAction(
-                                moveAction,
-                                buildAction,
-                                std::shared_ptr<AttackAction>(new AttackAction(
-                                                                  nullptr, std::shared_ptr<AutoAttack>(new AutoAttack(properties.sightRange, validAutoAttackTargets)))),
-                                nullptr);
-                }
-            }
-
+        farmResources(act, entity, i);
     }
 }
 

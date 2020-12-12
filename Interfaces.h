@@ -112,6 +112,8 @@ public:
     double getDistance(const Entity &unit, int x, int y);
 
 protected:
+    virtual void createEntitiesByBuildings(Action &act);
+
     const ExploringData *m_exploringData = nullptr;
     const PlayerView *m_playerView = nullptr;
 
@@ -132,6 +134,10 @@ class IEconomicsMinistry : public IMinistry
 {
 protected:
     virtual void createBuilderUnit(Action &act);
+
+    virtual bool tryRepair(Action &act, const Entity& entity);
+
+    virtual void farmResources(Action &act, const Entity& entity, int i);
 
     virtual void fillRepairMap();
     virtual void getCreateUnitCoordinates(int &x, int &y);

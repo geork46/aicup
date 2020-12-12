@@ -216,7 +216,7 @@ void DefaultExploringMinister::enemyAnalize(const PlayerView &playerView, Explor
         break;
     case EntityType::WALL :
     case EntityType::TURRET :
-        data.enemies[*entity.playerId].dangerousLevel += 1 * getDangerousCoef(distance);
+        data.enemies[*entity.playerId].dangerousLevel += 0 * getDangerousCoef(distance);
         break;
     case EntityType::RESOURCE :
     default:
@@ -245,7 +245,7 @@ void DefaultExploringMinister::postEnemyAnalize(const PlayerView &playerView, Ex
         for (int j : data.myBuildings)
         {
             const EntityProperties& properties = playerView.entityProperties.at(playerView.entities[j].entityType);
-            if (getDistance(playerView.entities[i], playerView.entities[j]) < 7 + properties.size / 2)
+            if (getDistance(playerView.entities[i], playerView.entities[j]) < 8 + properties.size / 2)
             {
                 data.isBaseAttacked = true;
                 data.attackedEnemyUnits.push_back(i);

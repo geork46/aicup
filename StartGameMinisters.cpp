@@ -68,22 +68,50 @@ void StartGameEconomicMinister::addMinistryAction(Action &act)
             act.entityActions[entity.id] = EntityAction( moveAction, buildAction, nullptr, nullptr);
             continue;
         } else
-        {
-            moveAction = std::shared_ptr<MoveAction>(new MoveAction(
-                                                         Vec2Int(m_playerView->mapSize - 1, m_playerView->mapSize - 1),
-                                                         true, true));
+            {
+                int x = m_playerView->mapSize - 1;
+                int y = m_playerView->mapSize - 1;
 
-            std::vector<EntityType> validAutoAttackTargets;
-            if (entity.entityType == BUILDER_UNIT) {
-                validAutoAttackTargets.push_back(RESOURCE);
+                std::vector<EntityType> validAutoAttackTargets;
+                    if (entity.entityType == BUILDER_UNIT) {
+                        validAutoAttackTargets.push_back(RESOURCE);
+                    }
+                bool f = false;
+                {
+                    for (int i : m_exploringData->attackedEnemyUnits)
+                    {
+                        if (getDistance(entity, m_playerView->entities[i]) < 7)
+                        {
+                            f = true;
+                            break;
+                        }
+                    }
+                }
+                if (f)
+                {
+                    x = 0;
+                    y = 0;
+                }
+
+                moveAction = std::shared_ptr<MoveAction>(new MoveAction(Vec2Int(x, y), true, true));
+
+                if (f)
+                {
+                    act.entityActions[entity.id] = EntityAction(
+                                moveAction,
+                                nullptr,
+                                nullptr,
+                                nullptr);
+                } else
+                {
+                    act.entityActions[entity.id] = EntityAction(
+                                moveAction,
+                                buildAction,
+                                std::shared_ptr<AttackAction>(new AttackAction(
+                                                                  nullptr, std::shared_ptr<AutoAttack>(new AutoAttack(properties.sightRange, validAutoAttackTargets)))),
+                                nullptr);
+                }
             }
-            act.entityActions[entity.id] = EntityAction(
-                        moveAction,
-                        buildAction,
-                        std::shared_ptr<AttackAction>(new AttackAction(
-                                                          nullptr, std::shared_ptr<AutoAttack>(new AutoAttack(properties.sightRange, validAutoAttackTargets)))),
-                        nullptr);
-        }
 
     }
 }
@@ -123,7 +151,7 @@ void StartGameWarMinister::addMinistryAction(Action &act)
 
         int x = m_playerView->mapSize - 1, y = m_playerView->mapSize - 1;
 
-        if (m_exploringData->isBaseAttacked && i > m_units.size() / 3 - 1)
+        if (m_exploringData->isBaseAttacked)
         {
 //            if (m_exploringData->enemies.find(m_exploringData->mainEnemy) != m_exploringData->enemies.end())
 //            {
@@ -139,14 +167,21 @@ void StartGameWarMinister::addMinistryAction(Action &act)
             y = m_playerView->entities[m_exploringData->attackedEnemyUnits[0]].position.y;
         } else
         {
-            for (auto i : m_exploringData->enemies)
+            if (m_exploringData->rangedUnitsCount > 8 && i < m_units.size() - m_units.size() / 3 + 1)
             {
-                if (i.second.dangerousLevel > 0)
+                for (auto i : m_exploringData->enemies)
                 {
-                    x = i.second.mainX;
-                    y = i.second.mainY;
-                    break;
+                    if (i.second.dangerousLevel > 0)
+                    {
+                        x = i.second.mainX;
+                        y = i.second.mainY;
+                        break;
+                    }
                 }
+            } else
+            {
+                x = 15;
+                y = 15;
             }
 
         }

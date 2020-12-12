@@ -4,6 +4,7 @@
 #include "model/Model.hpp"
 #include <unordered_map>
 #include <vector>
+#include <list>
 
 class PlayerView;
 
@@ -70,6 +71,9 @@ struct ExploringData
 
     std::vector<int> myBuildings;
 
+    std::list<int> safertyResources;
+
+    const PlayerView *playerView;
 
     int mainEnemy = 0;
 
@@ -77,7 +81,10 @@ struct ExploringData
 
     int getIndex(int x, int y) const;
 
+    void getNearestResources(const Entity &entity, int &x, int &y) const;
+
 private:
+    double getDistance(const Entity &unit, const Entity &building) const;
 };
 
 

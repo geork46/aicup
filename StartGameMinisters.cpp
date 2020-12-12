@@ -69,18 +69,21 @@ void StartGameEconomicMinister::addMinistryAction(Action &act)
             continue;
         } else
             {
-                int x = m_playerView->mapSize - 1;
-                int y = m_playerView->mapSize - 1;
+                int x, y;
+//                int x = m_playerView->mapSize - 1;
+//                int y = m_playerView->mapSize - 1;
+                m_exploringData->getNearestResources(entity, x, y);
 
                 std::vector<EntityType> validAutoAttackTargets;
                     if (entity.entityType == BUILDER_UNIT) {
+                        validAutoAttackTargets.push_back(BUILDER_UNIT);
                         validAutoAttackTargets.push_back(RESOURCE);
                     }
                 bool f = false;
                 {
                     for (int i : m_exploringData->attackedEnemyUnits)
                     {
-                        if (getDistance(entity, m_playerView->entities[i]) < 7)
+                        if (getDistance(entity, m_playerView->entities[i]) < 7 && m_playerView->entities[i].entityType != EntityType::BUILDER_UNIT)
                         {
                             f = true;
                             break;

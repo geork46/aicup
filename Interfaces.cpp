@@ -154,7 +154,41 @@ bool ExploringData::getFreeHouseCoordinate(int &x, int &y) const
 
 int ExploringData::getIndex(int x, int y) const
 {
+    if (x < 0 || y < 0 || x >= mapSize || y >= mapSize)
+    {
+        return 7 * mapSize + 7;
+    }
     return y * mapSize + x;
+}
+
+void ExploringData::getNearestResources(const Entity &entity, int &x, int &y) const
+{
+    const EntityProperties& properties = playerView->entityProperties.at(entity.entityType);
+
+    double dist = 1000;
+    int k = 0;
+    for (int i : safertyResources)
+    {
+        if (getDistance(entity, playerView->entities[i]) < dist)
+        {
+            dist = getDistance(entity, playerView->entities[i]);
+            k = i;
+        }
+    }
+    x = playerView->entities[k].position.x;
+    y = playerView->entities[k].position.y;
+}
+
+double ExploringData::getDistance(const Entity &unit, const Entity &building) const
+{
+    double x = unit.position.x;
+    double y = unit.position.y;
+
+    const EntityProperties& properties = playerView->entityProperties.at(building.entityType);
+    double px = building.position.x + properties.size / 2;
+    double py = building.position.y + properties.size / 2;
+
+    return sqrt((px - x)*(px - x) + (py - y) * (py - y));
 }
 
 void IEconomicsMinistry::createBuilderUnit(Action &act)
@@ -178,6 +212,35 @@ void IEconomicsMinistry::getCreateUnitCoordinates(int &x, int &y)
     const Entity& entity = m_playerView->entities[m_exploringData->builderBaseIndex];
     const EntityProperties& properties = m_playerView->entityProperties.at(entity.entityType);
 
-    x = entity.position.x + properties.size;
-    y = entity.position.y + properties.size - 1;
+    int px, py;
+    m_exploringData->getNearestResources(entity, px, py);
+
+    const int N = 20;
+    int a[N] = {  0,  1,  2,  3,  4, -1, -1, -1, -1, -1,  5,  5,  5,  5,  5, 0,  1,  2,  3,  4};
+    int b[N] = { -1, -1, -1, -1, -1,  0,  1,  2,  3,  4,  0,  1,  2,  3,  4, 5,  5,  5,  5,  5};
+
+    int k = 0;
+    double m = 1000;
+
+    for (int i = 0; i < N; ++i)
+    {
+        Entity t;
+        t.position.x = px;
+        t.position.y = py;
+        t.entityType = EntityType::RESOURCE;
+        Entity be;
+        be.position.x = entity.position.x + a[i];
+        be.position.y = entity.position.y + b[i];
+        be.entityType = EntityType::RESOURCE;
+        if (getDistance(t, be) < m)
+        {
+            m = getDistance(t, be);
+            k = i;
+        }
+    }
+    x = entity.position.x + a[k];
+    y = entity.position.y + b[k];
+
+//    x = entity.position.x + properties.size;
+//    y = entity.position.y + properties.size - 1;
 }

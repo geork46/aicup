@@ -12,6 +12,9 @@ ExploringData DefaultExploringMinister::getExploringData(const PlayerView &playe
     m_playerView = &playerView;
     ExploringData data{};
 
+    data.playerView = &playerView;
+
+
     int myId = playerView.myId;
     data.mapSize = playerView.mapSize;
 
@@ -23,6 +26,7 @@ ExploringData DefaultExploringMinister::getExploringData(const PlayerView &playe
         if (entity.entityType == EntityType::RESOURCE)
         {
             data.mapResourcesCount++;
+            data.safertyResources.push_back(i);
         }
 
         if (entity.playerId == nullptr || *entity.playerId != myId) {
@@ -122,6 +126,7 @@ ExploringData DefaultExploringMinister::getExploringData(const PlayerView &playe
     data.houseSize = playerView.entityProperties.at(EntityType::HOUSE).size;
 
     postEnemyAnalize(playerView, data);
+    resourcesAnalize(playerView, data);
 
     return data;
 }
@@ -214,10 +219,11 @@ void DefaultExploringMinister::enemyAnalize(const PlayerView &playerView, Explor
         data.enemies[*entity.playerId].mainX = entity.position.x;
         data.enemies[*entity.playerId].mainY = entity.position.y;
         break;
-    case EntityType::WALL :
     case EntityType::TURRET :
         data.enemies[*entity.playerId].dangerousLevel += 0 * getDangerousCoef(distance);
+        data.enemyUnits.push_back(index);
         break;
+    case EntityType::WALL :
     case EntityType::RESOURCE :
     default:
         break;
@@ -250,6 +256,40 @@ void DefaultExploringMinister::postEnemyAnalize(const PlayerView &playerView, Ex
                 data.isBaseAttacked = true;
                 data.attackedEnemyUnits.push_back(i);
             }
+        }
+    }
+
+}
+
+void DefaultExploringMinister::resourcesAnalize(const PlayerView &playerView, ExploringData &data)
+{
+    std::list<int> l = data.safertyResources;
+    for (int i : l)
+    {
+        const Entity& entity = playerView.entities[i];
+        int x = entity.position.x;
+        int y = entity.position.y;
+
+        bool f = true;
+        f = f && (data.map.find(data.getIndex(x - 1, y)) == data.map.end() ||
+                  data.map.find(data.getIndex(x + 1, y)) == data.map.end() ||
+                  data.map.find(data.getIndex(x, y - 1)) == data.map.end() ||
+                  data.map.find(data.getIndex(x, y + 1)) == data.map.end() );
+        if (f)
+        {
+            for (int j : data.enemyUnits)
+            {
+                const Entity& enemy = playerView.entities[j];
+                if (getDistance(entity, enemy) < 7 && enemy.entityType != EntityType::BUILDER_UNIT)
+                {
+                    f = false;
+                    break;
+                }
+            }
+        }
+        if (!f)
+        {
+            data.safertyResources.remove(i);
         }
     }
 

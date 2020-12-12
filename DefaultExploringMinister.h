@@ -17,6 +17,8 @@ private:
 
     void enemyAnalize(const PlayerView &playerView, ExploringData &data, const Entity &entity, int index);
     void postEnemyAnalize(const PlayerView &playerView, ExploringData &data);
+
+    void resourcesAnalize(const PlayerView &playerView, ExploringData &data);
 };
 
 #endif // DEFAULTEXPLORINGMINISTER_H

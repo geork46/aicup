@@ -64,6 +64,11 @@ struct ExploringData
     std::unordered_map<int, EnemyInfo> enemies;
     std::vector<int> needRepairBuildings;
 
+    bool isBaseAttacked = false;
+    std::vector<int> attackedEnemyUnits;
+    std::vector<int> enemyUnits;
+
+    std::vector<int> myBuildings;
 
 
     int mainEnemy = 0;

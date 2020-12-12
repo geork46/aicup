@@ -90,6 +90,25 @@ void StartGameEconomicMinister::addMinistryAction(Action &act)
 
 void StartGameEconomicMinister::fillRepairMap()
 {
+    m_repairMap.clear();
+
+    for (int ind : m_exploringData->needRepairBuildings)
+    {
+        double dmax = 1000;
+        int k = -1;
+        const Entity& building = m_playerView->entities[ind];
+
+        for (size_t i = 0; i < m_units.size(); i++) {
+            const Entity& entity = m_units[i];
+            double distance = getDistance(entity, building);
+            if (distance < dmax)
+            {
+                dmax = distance;
+                k = i;
+            }
+        }
+        m_repairMap[k] = ind;
+    }
 }
 
 void StartGameWarMinister::addMinistryAction(Action &act)
@@ -103,15 +122,33 @@ void StartGameWarMinister::addMinistryAction(Action &act)
         std::shared_ptr<BuildAction> buildAction = nullptr;
 
         int x = m_playerView->mapSize - 1, y = m_playerView->mapSize - 1;
-        if (m_exploringData->enemies.find(m_exploringData->mainEnemy) != m_exploringData->enemies.end())
+
+        if (m_exploringData->isBaseAttacked && i > m_units.size() / 3 - 1)
         {
-            x = m_exploringData->enemies.at(m_exploringData->mainEnemy).builderBaseX;
-            y = m_exploringData->enemies.at(m_exploringData->mainEnemy).builderBaseY;
-            if (x < 0 || m_exploringData->enemies.at(m_exploringData->mainEnemy).dangerousLevel > 200)
+//            if (m_exploringData->enemies.find(m_exploringData->mainEnemy) != m_exploringData->enemies.end())
+//            {
+//                x = m_exploringData->enemies.at(m_exploringData->mainEnemy).builderBaseX;
+//                y = m_exploringData->enemies.at(m_exploringData->mainEnemy).builderBaseY;
+//                if (x < 0 || m_exploringData->enemies.at(m_exploringData->mainEnemy).dangerousLevel > 200)
+//                {
+//                    x = m_exploringData->enemies.at(m_exploringData->mainEnemy).mainX;
+//                    y = m_exploringData->enemies.at(m_exploringData->mainEnemy).mainY;
+//                }
+//            }
+            x = m_playerView->entities[m_exploringData->attackedEnemyUnits[0]].position.x;
+            y = m_playerView->entities[m_exploringData->attackedEnemyUnits[0]].position.y;
+        } else
+        {
+            for (auto i : m_exploringData->enemies)
             {
-                x = m_exploringData->enemies.at(m_exploringData->mainEnemy).mainX;
-                y = m_exploringData->enemies.at(m_exploringData->mainEnemy).mainY;
+                if (i.second.dangerousLevel > 0)
+                {
+                    x = i.second.mainX;
+                    y = i.second.mainY;
+                    break;
+                }
             }
+
         }
         if (properties.canMove) {
             moveAction = std::shared_ptr<MoveAction>(new MoveAction( Vec2Int(x, y), true, true));
@@ -119,11 +156,11 @@ void StartGameWarMinister::addMinistryAction(Action &act)
 
         std::vector<EntityType> validAutoAttackTargets;
         act.entityActions[entity.id] = EntityAction(
-            moveAction,
-            buildAction,
-            std::shared_ptr<AttackAction>(new AttackAction(
-                nullptr, std::shared_ptr<AutoAttack>(new AutoAttack(properties.sightRange, validAutoAttackTargets)))),
-            nullptr);
+                    moveAction,
+                    buildAction,
+                    std::shared_ptr<AttackAction>(new AttackAction(
+                                                      nullptr, std::shared_ptr<AutoAttack>(new AutoAttack(properties.sightRange, validAutoAttackTargets)))),
+                    nullptr);
     }
 
     for (size_t i = 0; i < m_buildings.size(); i++) {
@@ -180,14 +217,25 @@ void StartGameDistributor::innerDistribute(const PlayerView &playerView, const E
         }
     }
 
-    if (data.builderUnitsCount < 12)
+    if (data.isBaseAttacked)
+    {
+        m_economicMinister->setMaxPopulation(0);
+        m_warMinister->setMaxPopulation(data.freePopulation);
+    } else if (data.builderUnitsCount < 12)
     {
         m_economicMinister->setMaxPopulation(data.maxPopulation * 0.8 - data.builderUnitsCount);
         m_warMinister->setMaxPopulation(data.maxPopulation * 0.2 - data.meleeUnitsCount - data.rangedUnitsCount);
     } else
     {
-        m_economicMinister->setMaxPopulation(data.maxPopulation * 0.4 - data.builderUnitsCount);
-        m_warMinister->setMaxPopulation(data.maxPopulation * 0.6 - data.meleeUnitsCount - data.rangedUnitsCount);
+        if (data.myResourcesCount < 200)
+        {
+            m_economicMinister->setMaxPopulation(data.maxPopulation * 0.6 - data.builderUnitsCount);
+            m_warMinister->setMaxPopulation(data.maxPopulation * 0.4 - data.meleeUnitsCount - data.rangedUnitsCount);
+        } else
+        {
+            m_economicMinister->setMaxPopulation(data.maxPopulation * 0.4 - data.builderUnitsCount);
+            m_warMinister->setMaxPopulation(data.maxPopulation * 0.6 - data.meleeUnitsCount - data.rangedUnitsCount);
+        }
 
     }
 

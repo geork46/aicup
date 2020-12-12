@@ -9,12 +9,13 @@ DefaultExploringMinister::DefaultExploringMinister()
 
 ExploringData DefaultExploringMinister::getExploringData(const PlayerView &playerView)
 {
+    m_playerView = &playerView;
     ExploringData data{};
 
     int myId = playerView.myId;
     data.mapSize = playerView.mapSize;
 
-    for (size_t i = 0; i < playerView.entities.size(); i++) {
+    for (int i = 0; i < playerView.entities.size(); i++) {
         const Entity& entity = playerView.entities[i];
 
         fillMap(playerView, data, i);
@@ -27,12 +28,17 @@ ExploringData DefaultExploringMinister::getExploringData(const PlayerView &playe
         if (entity.playerId == nullptr || *entity.playerId != myId) {
             if (entity.playerId != nullptr)
             {
-                enemyAnalize(playerView, data, entity);
+                enemyAnalize(playerView, data, entity, i);
             }
             continue;
         }
 
         const EntityProperties& properties = playerView.entityProperties.at(entity.entityType);
+
+        if ((!properties.canMove && properties.size > 1) || entity.entityType == EntityType::BUILDER_UNIT)
+        {
+            data.myBuildings.push_back(i);
+        }
 
         switch (entity.entityType) {
         case HOUSE:
@@ -146,7 +152,7 @@ double DefaultExploringMinister::getDangerousCoef(double distance)
     return 2.5 * ((120 - distance)/60 + 1);
 }
 
-void DefaultExploringMinister::enemyAnalize(const PlayerView &playerView, ExploringData &data, const Entity &entity)
+void DefaultExploringMinister::enemyAnalize(const PlayerView &playerView, ExploringData &data, const Entity &entity, int index)
 {
     const EntityProperties& properties = playerView.entityProperties.at(entity.entityType);
 
@@ -182,7 +188,7 @@ void DefaultExploringMinister::enemyAnalize(const PlayerView &playerView, Explor
         data.enemies[*entity.playerId].mainY = entity.position.y;
         data.enemies[*entity.playerId].builderUnitsCount++;
         data.enemies[*entity.playerId].dangerousLevel += 1 * getDangerousCoef(distance);
-
+        data.enemyUnits.push_back(index);
         break;
     case EntityType::MELEE_BASE :
         data.enemies[*entity.playerId].mainX = entity.position.x;
@@ -192,6 +198,7 @@ void DefaultExploringMinister::enemyAnalize(const PlayerView &playerView, Explor
     case EntityType::MELEE_UNIT :
         data.enemies[*entity.playerId].meleeUnitsCount++;
         data.enemies[*entity.playerId].dangerousLevel += 5 * getDangerousCoef(distance);
+        data.enemyUnits.push_back(index);
         break;
     case EntityType::RANGED_BASE :
         data.enemies[*entity.playerId].mainX = entity.position.x;
@@ -201,6 +208,7 @@ void DefaultExploringMinister::enemyAnalize(const PlayerView &playerView, Explor
     case EntityType::RANGED_UNIT :
         data.enemies[*entity.playerId].rangedUnitsCount++;
         data.enemies[*entity.playerId].dangerousLevel += 5 * getDangerousCoef(distance);
+        data.enemyUnits.push_back(index);
         break;
     case EntityType::HOUSE :
         data.enemies[*entity.playerId].mainX = entity.position.x;
@@ -230,4 +238,19 @@ void DefaultExploringMinister::postEnemyAnalize(const PlayerView &playerView, Ex
         }
     }
     data.mainEnemy = k;
+
+
+    for (int i : data.enemyUnits)
+    {
+        for (int j : data.myBuildings)
+        {
+            const EntityProperties& properties = playerView.entityProperties.at(playerView.entities[j].entityType);
+            if (getDistance(playerView.entities[i], playerView.entities[j]) < 7 + properties.size / 2)
+            {
+                data.isBaseAttacked = true;
+                data.attackedEnemyUnits.push_back(i);
+            }
+        }
+    }
+
 }

@@ -162,7 +162,7 @@ void IEconomicsMinistry::createBuilderUnit(Action &act)
     std::shared_ptr<BuildAction> buildAction = nullptr;
 
     if (m_exploringData->builderUnitPopulationUse <= m_maxPopulation
-            && m_exploringData->builderUnitsCost <= m_resourcesCount)
+            && m_exploringData->builderUnitsCost <= m_resourcesCount + m_exploringData->builderUnitsCount)
     {
 
         int x, y;

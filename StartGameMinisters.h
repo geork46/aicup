@@ -33,4 +33,10 @@ protected:
     virtual void innerDistribute(const PlayerView &playerView, ExploringData const &data);
 };
 
+class MoreWarDistributor : public IDistributor
+{
+protected:
+    virtual void innerDistribute(const PlayerView &playerView, ExploringData const &data);
+};
+
 #endif // STARTGAMEMINISTERS_H

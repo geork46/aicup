@@ -58,7 +58,7 @@ void StartGameEconomicMinister::addMinistryAction(Action &act)
             act.entityActions[entity.id] = EntityAction( moveAction, nullptr, nullptr,std::shared_ptr<RepairAction>(new RepairAction(building.id)));
 
         } else
-            if (i > m_exploringData->builderUnitsCount - 3 && f && m_exploringData->myResourcesCount > 50 && (m_exploringData->meleeUnitsCount + m_exploringData->rangedUnitsCount > 3)
+            if (i > m_exploringData->builderUnitsCount - 3 && f && m_exploringData->myResourcesCount > 50
                     && (m_exploringData->freePopulation < 10))
         {
             moveAction = std::shared_ptr<MoveAction>(new MoveAction(
@@ -180,12 +180,49 @@ void StartGameDistributor::innerDistribute(const PlayerView &playerView, const E
         }
     }
 
-    m_economicMinister->setMaxPopulation(data.maxPopulation * 0.6 - data.builderUnitsCount);
+    m_economicMinister->setMaxPopulation(data.maxPopulation * 0.8 - data.builderUnitsCount);
     m_economicMinister->setResourcesCount(data.myResourcesCount);
 
-    m_warMinister->setMaxPopulation(data.maxPopulation * 0.4 - data.meleeUnitsCount - data.rangedUnitsCount);
+    m_warMinister->setMaxPopulation(data.maxPopulation * 0.2 - data.meleeUnitsCount - data.rangedUnitsCount);
     m_warMinister->setResourcesCount(data.myResourcesCount);
 
     m_defenceMinister->setMaxPopulation(0);
     m_defenceMinister->setResourcesCount(0);
+}
+
+
+void MoreWarDistributor::innerDistribute(const PlayerView &playerView, const ExploringData &data)
+{
+    int myId = playerView.myId;
+    for (size_t i = 0; i < playerView.entities.size(); i++) {
+        const Entity& entity = playerView.entities[i];
+        if (entity.playerId == nullptr || *entity.playerId != myId) {
+            continue;
+        }
+
+        switch (entity.entityType) {
+        case EntityType::BUILDER_BASE :
+        case EntityType::BUILDER_UNIT :
+            m_economicMinister->addEntity(entity);
+            break;
+        case EntityType::RANGED_BASE :
+        case EntityType::RANGED_UNIT :
+        case EntityType::MELEE_UNIT :
+            m_warMinister->addEntity(entity);
+            break;
+        case EntityType::MELEE_BASE :
+        default:
+            break;
+        }
+    }
+
+    m_economicMinister->setMaxPopulation(data.maxPopulation * 0.4 - data.builderUnitsCount);
+    m_economicMinister->setResourcesCount(data.myResourcesCount);
+
+    m_warMinister->setMaxPopulation(data.maxPopulation * 0.6 - data.meleeUnitsCount - data.rangedUnitsCount);
+    m_warMinister->setResourcesCount(data.myResourcesCount);
+
+    m_defenceMinister->setMaxPopulation(0);
+    m_defenceMinister->setResourcesCount(0);
+
 }

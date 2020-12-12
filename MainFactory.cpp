@@ -39,6 +39,20 @@ IDefenceMinistry *MainFactory::getDefenceMinister()
 
 void MainFactory::updateMinisters(const PlayerView &playerView, const ExploringData &data)
 {
+    if (data.myResourcesCount < 200)
+    {
+        updateMinister(m_economicMinister, m_ministers[ECONOMIC_START]);
+        updateMinister(m_warMinister, m_ministers[WAR_START]);
+        updateMinister(m_defenceMinister, m_ministers[DEFENCE_START]);
+        updateMinister(m_distributor, m_distributors[DISTRIBUTOR_START]);
+    } else
+    {
+        updateMinister(m_economicMinister, m_ministers[ECONOMIC_START]);
+        updateMinister(m_warMinister, m_ministers[WAR_START]);
+        updateMinister(m_defenceMinister, m_ministers[DEFENCE_START]);
+        updateMinister(m_distributor, m_distributors[DISTRIBUTOR_MORE_WAR]);
+
+    }
 
 }
 
@@ -79,6 +93,7 @@ void MainFactory::initDistributors()
     }
     m_distributors[DISTRIBUTOR_DEFAULT] = new DefaultDistributor();
     m_distributors[DISTRIBUTOR_START] = new StartGameDistributor();
+    m_distributors[DISTRIBUTOR_MORE_WAR] = new MoreWarDistributor();
     updateMinister(m_distributor, m_distributors[DISTRIBUTOR_START]);
 }
 

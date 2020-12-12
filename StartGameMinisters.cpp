@@ -180,10 +180,18 @@ void StartGameDistributor::innerDistribute(const PlayerView &playerView, const E
         }
     }
 
-    m_economicMinister->setMaxPopulation(data.maxPopulation * 0.8 - data.builderUnitsCount);
-    m_economicMinister->setResourcesCount(data.myResourcesCount);
+    if (data.builderUnitsCount < 12)
+    {
+        m_economicMinister->setMaxPopulation(data.maxPopulation * 0.8 - data.builderUnitsCount);
+        m_warMinister->setMaxPopulation(data.maxPopulation * 0.2 - data.meleeUnitsCount - data.rangedUnitsCount);
+    } else
+    {
+        m_economicMinister->setMaxPopulation(data.maxPopulation * 0.4 - data.builderUnitsCount);
+        m_warMinister->setMaxPopulation(data.maxPopulation * 0.6 - data.meleeUnitsCount - data.rangedUnitsCount);
 
-    m_warMinister->setMaxPopulation(data.maxPopulation * 0.2 - data.meleeUnitsCount - data.rangedUnitsCount);
+    }
+
+    m_economicMinister->setResourcesCount(data.myResourcesCount);
     m_warMinister->setResourcesCount(data.myResourcesCount);
 
     m_defenceMinister->setMaxPopulation(0);

@@ -127,9 +127,9 @@ ExploringData IExploringMinistry::getExploringData(const PlayerView &playerView)
 
 bool ExploringData::getFreeHouseCoordinate(int &x, int &y) const
 {
-    static const int n = 15;
-    static int a[n] = {0, 4, 8, 12, 16, 20, 0, 0,  0,  0,  0, 11, 11,  4,  8};
-    static int b[n] = {0, 0, 0,  0,  0,  0, 4, 8, 12, 16, 20,  4,  8, 11, 11};
+    static const int n = 19;
+    static int a[n] = {0, 3, 6, 9, 12, 15, 18, 21, 0, 0, 0,  0,  0,  0,  0, 11, 11,  4,  8};
+    static int b[n] = {0, 0, 0, 0,  0,  0,  0,  0, 4, 7, 10, 13, 16, 19, 22,  4,  8, 11, 11};
 
     for (int k = 0; k < n; ++k)
     {

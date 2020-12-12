@@ -253,7 +253,8 @@ bool IEconomicsMinistry::tryRepair(Action &act, const Entity &entity)
                 int d = m_exploringData->map.at(m_exploringData->getIndex(entity.position.x + a[k], entity.position.y + b[k]));
                 const Entity& en = m_playerView->entities[d];
                 const EntityProperties& prop = m_playerView->entityProperties.at(en.entityType);
-                if (en.health < prop.maxHealth && en.entityType != EntityType::RESOURCE)
+                if (en.health < prop.maxHealth && en.entityType != EntityType::RESOURCE
+                        && *en.playerId == m_playerView->myId)
                 {
                     f2 = true;
                     target = en.id;
@@ -318,6 +319,11 @@ void IEconomicsMinistry::fillRepairMap()
         const Entity& building = m_playerView->entities[ind];
 
         for (size_t i = 0; i < m_units.size(); i++) {
+            if (m_repairMap.find(i) != m_repairMap.end())
+            {
+                continue;
+            }
+
             const Entity& entity = m_units[i];
             double distance = getDistance(entity, building);
             if (distance < dmax)

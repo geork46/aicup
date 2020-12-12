@@ -2,6 +2,7 @@
 
 #include "DefaultDistributor.h"
 #include "DefaultMinistries.h"
+#include "AlarmingMinisters.h"
 #include "DefaultExploringMinister.h"
 
 #include "StartGameMinisters.h"
@@ -39,6 +40,19 @@ IDefenceMinistry *MainFactory::getDefenceMinister()
 
 void MainFactory::updateMinisters(const PlayerView &playerView, const ExploringData &data)
 {
+    if (data.isBaseAttacked)
+    {
+        updateMinister(m_economicMinister, m_ministers[ECONOMIC_ALARMING]);
+        updateMinister(m_warMinister, m_ministers[WAR_ALARMING]);
+        updateMinister(m_defenceMinister, m_ministers[DEFENCE_ALARMING]);
+        updateMinister(m_distributor, m_distributors[DISTRIBUTOR_ALARMING]);
+    } else
+    {
+        updateMinister(m_economicMinister, m_ministers[ECONOMIC_START]);
+        updateMinister(m_warMinister, m_ministers[WAR_START]);
+        updateMinister(m_defenceMinister, m_ministers[DEFENCE_START]);
+        updateMinister(m_distributor, m_distributors[DISTRIBUTOR_START]);
+    }
 //    if (data.myResourcesCount < 200)
 //    {
 //        updateMinister(m_economicMinister, m_ministers[ECONOMIC_START]);
@@ -74,6 +88,10 @@ void MainFactory::initMinisters()
     m_ministers[WAR_DEFAULT] = new DefaultWarMinister();
     m_ministers[DEFENCE_DEFAULT] = new DefaultDefenceMinister();
 
+    m_ministers[ECONOMIC_ALARMING] = new AlarmingEconomicMinister();
+    m_ministers[WAR_ALARMING] = new AlarmingWarMinister();
+    m_ministers[DEFENCE_ALARMING] = new AlarmingDefenceMinister();
+
     m_ministers[ECONOMIC_START] = new StartGameEconomicMinister();
     m_ministers[WAR_START] = new StartGameWarMinister();
     m_ministers[DEFENCE_START] = new StartGameDefenceMinister();
@@ -94,6 +112,7 @@ void MainFactory::initDistributors()
     m_distributors[DISTRIBUTOR_DEFAULT] = new DefaultDistributor();
     m_distributors[DISTRIBUTOR_START] = new StartGameDistributor();
     m_distributors[DISTRIBUTOR_MORE_WAR] = new MoreWarDistributor();
+    m_distributors[DISTRIBUTOR_ALARMING] = new AlarmingDistributor();
     updateMinister(m_distributor, m_distributors[DISTRIBUTOR_START]);
 }
 

@@ -109,6 +109,7 @@ public:
     void setMaxPopulation(int maxPopulation);
 
     double getDistance(const Entity &unit, const Entity &building);
+    double getDistance(const Entity &unit, int x, int y);
 
 protected:
     const ExploringData *m_exploringData = nullptr;
@@ -130,9 +131,12 @@ public:
 class IEconomicsMinistry : public IMinistry
 {
 protected:
-    void createBuilderUnit(Action &act);
+    virtual void createBuilderUnit(Action &act);
 
+    virtual void fillRepairMap();
     virtual void getCreateUnitCoordinates(int &x, int &y);
+
+    std::unordered_map<int, int> m_repairMap;
 };
 
 class IWarMinistry : public IMinistry

@@ -84,6 +84,14 @@ double IMinistry::getDistance(const Entity &unit, const Entity &building)
     return sqrt((px - x)*(px - x) + (py - y) * (py - y));
 }
 
+double IMinistry::getDistance(const Entity &unit, int x, int y)
+{
+    double px = unit.position.x;
+    double py = unit.position.y;
+
+    return sqrt((px - x)*(px - x) + (py - y) * (py - y));
+}
+
 void IDistributor::activate() {  }
 
 void IDistributor::deactivate() {  }
@@ -205,6 +213,29 @@ void IEconomicsMinistry::createBuilderUnit(Action &act)
         m_resourcesCount -= m_exploringData->builderUnitsCost;
     }
     act.entityActions[m_exploringData->builderBaseId] = EntityAction( nullptr, buildAction, nullptr, nullptr);
+}
+
+void IEconomicsMinistry::fillRepairMap()
+{
+    m_repairMap.clear();
+
+    for (int ind : m_exploringData->needRepairBuildings)
+    {
+        double dmax = 1000;
+        int k = -1;
+        const Entity& building = m_playerView->entities[ind];
+
+        for (size_t i = 0; i < m_units.size(); i++) {
+            const Entity& entity = m_units[i];
+            double distance = getDistance(entity, building);
+            if (distance < dmax)
+            {
+                dmax = distance;
+                k = i;
+            }
+        }
+        m_repairMap[k] = ind;
+    }
 }
 
 void IEconomicsMinistry::getCreateUnitCoordinates(int &x, int &y)

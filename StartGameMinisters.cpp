@@ -119,29 +119,6 @@ void StartGameEconomicMinister::addMinistryAction(Action &act)
     }
 }
 
-void StartGameEconomicMinister::fillRepairMap()
-{
-    m_repairMap.clear();
-
-    for (int ind : m_exploringData->needRepairBuildings)
-    {
-        double dmax = 1000;
-        int k = -1;
-        const Entity& building = m_playerView->entities[ind];
-
-        for (size_t i = 0; i < m_units.size(); i++) {
-            const Entity& entity = m_units[i];
-            double distance = getDistance(entity, building);
-            if (distance < dmax)
-            {
-                dmax = distance;
-                k = i;
-            }
-        }
-        m_repairMap[k] = ind;
-    }
-}
-
 void StartGameWarMinister::addMinistryAction(Action &act)
 {
     int myId = m_playerView->myId;
@@ -227,7 +204,10 @@ void StartGameWarMinister::addMinistryAction(Action &act)
 
 }
 
-void StartGameDefenceMinister::addMinistryAction(Action &act) { }
+void StartGameDefenceMinister::addMinistryAction(Action &act)
+{
+    act.entityActions[m_exploringData->meleeBaseID] = EntityAction( nullptr, nullptr, nullptr, nullptr);
+}
 
 
 void StartGameDistributor::innerDistribute(const PlayerView &playerView, const ExploringData &data)
@@ -250,6 +230,7 @@ void StartGameDistributor::innerDistribute(const PlayerView &playerView, const E
             m_warMinister->addEntity(entity);
             break;
         case EntityType::MELEE_BASE :
+            m_defenceMinister->addEntity(entity);
         default:
             break;
         }

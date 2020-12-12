@@ -251,7 +251,8 @@ void DefaultExploringMinister::postEnemyAnalize(const PlayerView &playerView, Ex
         for (int j : data.myBuildings)
         {
             const EntityProperties& properties = playerView.entityProperties.at(playerView.entities[j].entityType);
-            if (getDistance(playerView.entities[i], playerView.entities[j]) < 8 + properties.size / 2)
+            if (getDistance(playerView.entities[i], playerView.entities[j]) < 8 + properties.size / 2
+                    && getDistance(playerView.entities[j], 8, 8) < 30)
             {
                 data.isBaseAttacked = true;
                 data.attackedEnemyUnits.push_back(i);

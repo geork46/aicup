@@ -9,11 +9,6 @@ class DefaultEconomicMinister : public IEconomicsMinistry
 {
 public:
     virtual void addMinistryAction(Action &act);
-
-private:
-
-    void fillRepairMap();
-    std::unordered_map<int, int> m_repairMap;
 };
 
 class DefaultWarMinister : public IWarMinistry

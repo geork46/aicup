@@ -107,29 +107,6 @@ void DefaultEconomicMinister::addMinistryAction(Action &act)
     }
 }
 
-void DefaultEconomicMinister::fillRepairMap()
-{
-    m_repairMap.clear();
-
-    for (int ind : m_exploringData->needRepairBuildings)
-    {
-        double dmax = 1000;
-        int k = -1;
-        const Entity& building = m_playerView->entities[ind];
-
-        for (size_t i = 0; i < m_units.size(); i++) {
-            const Entity& entity = m_units[i];
-            double distance = getDistance(entity, building);
-            if (distance < dmax)
-            {
-                dmax = distance;
-                k = i;
-            }
-        }
-        m_repairMap[k] = ind;
-    }
-}
-
 void DefaultWarMinister::addMinistryAction(Action &act)
 {
     int myId = m_playerView->myId;

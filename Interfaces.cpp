@@ -156,3 +156,28 @@ int ExploringData::getIndex(int x, int y) const
 {
     return y * mapSize + x;
 }
+
+void IEconomicsMinistry::createBuilderUnit(Action &act)
+{
+    std::shared_ptr<BuildAction> buildAction = nullptr;
+
+    if (m_exploringData->builderUnitPopulationUse <= m_maxPopulation
+            && m_exploringData->builderUnitsCost <= m_resourcesCount)
+    {
+
+        int x, y;
+        getCreateUnitCoordinates(x, y);
+        buildAction = std::shared_ptr<BuildAction>(new BuildAction(EntityType::BUILDER_UNIT, Vec2Int(x, y)));
+        m_resourcesCount -= m_exploringData->builderUnitsCost;
+    }
+    act.entityActions[m_exploringData->builderBaseId] = EntityAction( nullptr, buildAction, nullptr, nullptr);
+}
+
+void IEconomicsMinistry::getCreateUnitCoordinates(int &x, int &y)
+{
+    const Entity& entity = m_playerView->entities[m_exploringData->builderBaseIndex];
+    const EntityProperties& properties = m_playerView->entityProperties.at(entity.entityType);
+
+    x = entity.position.x + properties.size;
+    y = entity.position.y + properties.size - 1;
+}

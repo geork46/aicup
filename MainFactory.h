@@ -5,24 +5,35 @@
 
 enum MinistersName
 {
-    ECONOMIC_1 = 0,
-    WAR_1,
-    DEFENCE_1,
+    ECONOMIC_DEFAULT = 0,
+    WAR_DEFAULT,
+    DEFENCE_DEFAULT,
+    ECONOMIC_START,
+    WAR_START,
+    DEFENCE_START,
     MINISTER_NAME_COUNT
 };
 
 enum DistributorsName
 {
-    DISTRIBUTOR_1 = 0,
+    DISTRIBUTOR_DEFAULT = 0,
+    DISTRIBUTOR_START,
     DISTRIBUTOR_NAME_COUNT
 };
 
+enum State
+{
+    STATE_START = 0,
+    STATE_DEFAULT,
+    STATE_BASE_ATTACKED,
+    STATE_COUNT
+
+};
 
 class MainFactory
 {
 public:
     static MainFactory* instance();
-
 
     IExploringMinistry* getExploringMinister();
 
@@ -61,6 +72,8 @@ private:
     IWarMinistry* 			m_warMinister = nullptr;
     IDefenceMinistry* 		m_defenceMinister = nullptr;
     IDistributor* 		m_distributor = nullptr;
+
+    State   m_currentState = STATE_START;
 
     MainFactory();
     static MainFactory *m_inst;

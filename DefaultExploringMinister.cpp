@@ -109,6 +109,10 @@ ExploringData DefaultExploringMinister::getExploringData(const PlayerView &playe
     data.meleeUnitsCost = data.entityCost[EntityType::MELEE_UNIT];
     data.rangedUnitsCost = data.entityCost[EntityType::BUILDER_UNIT];
 
+    data.builderUnitPopulationUse = playerView.entityProperties.at(EntityType::BUILDER_UNIT).populationUse;
+    data.rangedUnitPopulationUse = playerView.entityProperties.at(EntityType::RANGED_UNIT).populationUse;
+    data.meleeUnitPopulationUse = playerView.entityProperties.at(EntityType::MELEE_UNIT).populationUse;
+
     data.houseSize = playerView.entityProperties.at(EntityType::HOUSE).size;
 
     postEnemyAnalize(playerView, data);

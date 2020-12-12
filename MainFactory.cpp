@@ -4,6 +4,8 @@
 #include "DefaultMinistries.h"
 #include "DefaultExploringMinister.h"
 
+#include "StartGameMinisters.h"
+
 MainFactory *MainFactory::m_inst = nullptr;
 
 MainFactory *MainFactory::instance()
@@ -54,12 +56,18 @@ void MainFactory::initMinisters()
     {
         m_ministers[i] = nullptr;
     }
-    m_ministers[ECONOMIC_1] = new DefaultEconomicMinister();
-    m_ministers[WAR_1] = new DefaultWarMinister();
-    m_ministers[DEFENCE_1] = new DefaultDefenceMinister();
-    updateMinister(m_economicMinister, m_ministers[ECONOMIC_1]);
-    updateMinister(m_warMinister, m_ministers[WAR_1]);
-    updateMinister(m_defenceMinister, m_ministers[DEFENCE_1]);
+    m_ministers[ECONOMIC_DEFAULT] = new DefaultEconomicMinister();
+    m_ministers[WAR_DEFAULT] = new DefaultWarMinister();
+    m_ministers[DEFENCE_DEFAULT] = new DefaultDefenceMinister();
+
+    m_ministers[ECONOMIC_START] = new StartGameEconomicMinister();
+    m_ministers[WAR_START] = new StartGameWarMinister();
+    m_ministers[DEFENCE_START] = new StartGameDefenceMinister();
+
+    updateMinister(m_economicMinister, m_ministers[ECONOMIC_START]);
+    updateMinister(m_warMinister, m_ministers[WAR_START]);
+    updateMinister(m_defenceMinister, m_ministers[DEFENCE_START]);
+
     updateMinister(m_exploringMinister, new DefaultExploringMinister());
 }
 
@@ -69,8 +77,9 @@ void MainFactory::initDistributors()
     {
         m_distributors[i] = nullptr;
     }
-    m_distributors[DISTRIBUTOR_1] = new DefaultDistributor();
-    updateMinister(m_distributor, m_distributors[DISTRIBUTOR_1]);
+    m_distributors[DISTRIBUTOR_DEFAULT] = new DefaultDistributor();
+    m_distributors[DISTRIBUTOR_START] = new StartGameDistributor();
+    updateMinister(m_distributor, m_distributors[DISTRIBUTOR_START]);
 }
 
 MainFactory::MainFactory()

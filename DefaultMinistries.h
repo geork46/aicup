@@ -13,7 +13,6 @@ public:
 private:
 
     void fillRepairMap();
-
     std::unordered_map<int, int> m_repairMap;
 };
 
@@ -30,4 +29,5 @@ public:
     virtual void addMinistryAction(Action &act);
 
 };
+
 #endif // DEFAULTMINISTRIES_H

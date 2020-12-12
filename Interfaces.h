@@ -39,6 +39,10 @@ struct ExploringData
     int currentPopulation = 0;
     int freePopulation = 0;
 
+    int builderUnitPopulationUse = 1;
+    int rangedUnitPopulationUse = 1;
+    int meleeUnitPopulationUse = 1;
+
     int builderBaseId = 0;
     int rangedBaseID = 0;
     int meleeBaseID = 0;
@@ -113,7 +117,10 @@ public:
 
 class IEconomicsMinistry : public IMinistry
 {
-public:
+protected:
+    void createBuilderUnit(Action &act);
+
+    virtual void getCreateUnitCoordinates(int &x, int &y);
 };
 
 class IWarMinistry : public IMinistry

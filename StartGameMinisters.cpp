@@ -79,43 +79,40 @@ void StartGameWarMinister::addMinistryAction(Action &act)
 
         int x = m_playerView->mapSize - 1, y = m_playerView->mapSize - 1;
 
-        if (m_exploringData->isBaseAttacked)
+//        if (m_exploringData->rangedUnitsCount > 8 && i < m_units.size() - m_units.size() / 3 + 1)
+//        {
+
+        int maxD = 500;
+        for (auto i : m_exploringData->enemies)
         {
-//            if (m_exploringData->enemies.find(m_exploringData->mainEnemy) != m_exploringData->enemies.end())
-//            {
-//                x = m_exploringData->enemies.at(m_exploringData->mainEnemy).builderBaseX;
-//                y = m_exploringData->enemies.at(m_exploringData->mainEnemy).builderBaseY;
-//                if (x < 0 || m_exploringData->enemies.at(m_exploringData->mainEnemy).dangerousLevel > 200)
-//                {
-//                    x = m_exploringData->enemies.at(m_exploringData->mainEnemy).mainX;
-//                    y = m_exploringData->enemies.at(m_exploringData->mainEnemy).mainY;
-//                }
-//            }
-            x = m_playerView->entities[m_exploringData->attackedEnemyUnits[0]].position.x;
-            y = m_playerView->entities[m_exploringData->attackedEnemyUnits[0]].position.y;
-        } else
-        {
-//            if (m_exploringData->rangedUnitsCount > 8 && i < m_units.size() - m_units.size() / 3 + 1)
-//            {
-                for (auto i : m_exploringData->enemies)
+            if (i.second.dangerousLevel > 0)
+            {
+                int builderUnitsCount = 0;
+                int rangedUnitsCount = 0;
+                int meleeUnitsCount = 0;
+                if (i.second.meleeUnitsCount + i.second.rangedUnitsCount < maxD)
                 {
-                    if (i.second.dangerousLevel > 0)
-                    {
-                        x = i.second.mainX;
-                        y = i.second.mainY;
-                        break;
-                    }
+                    x = i.second.mainX;
+                    y = i.second.mainY;
+                    maxD = i.second.meleeUnitsCount + i.second.rangedUnitsCount;
                 }
-//            } else
-//            {
-//                x = 15;
-//                y = 15;
-//            }
+                break;
+            }
+        }
+//        } else
+//        {
+//            x = 15;
+//            y = 15;
+//        }
+        if (maxD > m_exploringData->meleeUnitsCount + m_exploringData->rangedUnitsCount + 2)
+        {
+            x = 15;
+            y = 15;
 
         }
-        if (properties.canMove) {
-            moveAction = std::shared_ptr<MoveAction>(new MoveAction( Vec2Int(x, y), true, true));
-        }
+
+
+        moveAction = std::shared_ptr<MoveAction>(new MoveAction( Vec2Int(x, y), true, true));
 
         std::vector<EntityType> validAutoAttackTargets;
         act.entityActions[entity.id] = EntityAction(

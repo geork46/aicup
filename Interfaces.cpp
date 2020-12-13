@@ -371,7 +371,7 @@ void IEconomicsMinistry::farmResources(Action &act, const Entity &entity, int i)
     }
     for (int i : m_exploringData->attackedEnemyUnits)
     {
-        if (getDistance(entity, m_playerView->entities[i]) < 7 && m_playerView->entities[i].entityType != EntityType::BUILDER_UNIT)
+        if (getDistance(entity, m_playerView->entities[i]) < 8 && m_playerView->entities[i].entityType != EntityType::BUILDER_UNIT)
         {
             moveAction = std::shared_ptr<MoveAction>(new MoveAction(Vec2Int(0, 0), true, true));
             act.entityActions[entity.id] = EntityAction( moveAction, nullptr, nullptr, nullptr);

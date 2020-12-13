@@ -207,9 +207,11 @@ std::vector<Vec2Int> ExploringData::getFreeHouseCoordinates() const
     init.push_back(Vec2Int(22, 3));
     init.push_back(Vec2Int(22, 6));
     init.push_back(Vec2Int(22, 9));
+    init.push_back(Vec2Int(23, 12));
     init.push_back(Vec2Int(3, 22));
     init.push_back(Vec2Int(6, 22));
     init.push_back(Vec2Int(9, 22));
+    init.push_back(Vec2Int(12, 23));
 
     std::vector<Vec2Int> result{};
 
@@ -395,6 +397,25 @@ void IEconomicsMinistry::fillRepairMap()
         double dmax = 1000;
         int k = -1;
         const Entity& building = m_playerView->entities[ind];
+
+        for (size_t i = 0; i < m_units.size(); i++) {
+            if (m_repairMap.find(i) != m_repairMap.end())
+            {
+                continue;
+            }
+
+            const Entity& entity = m_units[i];
+            double distance = getDistance(entity, building);
+            if (distance < dmax)
+            {
+                dmax = distance;
+                k = i;
+            }
+        }
+        m_repairMap[k] = ind;
+
+        dmax = 1000;
+        k = -1;
 
         for (size_t i = 0; i < m_units.size(); i++) {
             if (m_repairMap.find(i) != m_repairMap.end())

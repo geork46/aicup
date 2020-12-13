@@ -104,7 +104,7 @@ void StartGameWarMinister::addMinistryAction(Action &act)
 //            x = 15;
 //            y = 15;
 //        }
-        if (maxD > m_exploringData->meleeUnitsCount + m_exploringData->rangedUnitsCount)
+        if (maxD > m_exploringData->meleeUnitsCount + m_exploringData->rangedUnitsCount + 1)
         {
             x = 15;
             y = 15;

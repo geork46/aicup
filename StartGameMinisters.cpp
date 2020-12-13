@@ -104,11 +104,16 @@ void StartGameWarMinister::addMinistryAction(Action &act)
 //            x = 15;
 //            y = 15;
 //        }
-        if (maxD > m_exploringData->meleeUnitsCount + m_exploringData->rangedUnitsCount + 2)
+        if (maxD > m_exploringData->meleeUnitsCount + m_exploringData->rangedUnitsCount)
         {
             x = 15;
             y = 15;
-
+        }
+        if (i < 3)
+        {
+            Vec2Int v = getNearestEnemyBuilderUnitCoords(entity);
+            x = v.x;
+            y = v.y;
         }
 
 

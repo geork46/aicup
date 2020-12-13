@@ -482,3 +482,19 @@ void IEconomicsMinistry::fillBuildHouseMap()
         m_buildHouseMap[num] = std::pair<Vec2Int, Vec2Int>(p1, p2);
     }
 }
+
+Vec2Int IWarMinistry::getNearestEnemyBuilderUnitCoords(const Entity &entity)
+{
+    Vec2Int res;
+    double maxDistance = 1000;
+    for (int i : m_exploringData->enemyBuilderUnits)
+    {
+        if (getDistance(m_playerView->entities[i], entity) < maxDistance)
+        {
+            maxDistance = getDistance(m_playerView->entities[i], entity);
+            res = m_playerView->entities[i].position;
+        }
+    }
+    return res;
+
+}

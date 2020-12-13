@@ -70,6 +70,8 @@ struct ExploringData
     std::vector<int> attackedEnemyUnits;
     std::vector<int> enemyUnits;
 
+    std::vector<int> enemyBuilderUnits;
+
     std::vector<int> myBuildings;
 
     std::list<int> safertyResources;
@@ -153,6 +155,8 @@ protected:
 class IWarMinistry : public IMinistry
 {
 public:
+protected:
+    virtual Vec2Int getNearestEnemyBuilderUnitCoords(const Entity & entity);
 };
 
 class IDefenceMinistry : public IMinistry

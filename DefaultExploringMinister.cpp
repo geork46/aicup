@@ -194,6 +194,7 @@ void DefaultExploringMinister::enemyAnalize(const PlayerView &playerView, Explor
         data.enemies[*entity.playerId].builderUnitsCount++;
         data.enemies[*entity.playerId].dangerousLevel += 1 * getDangerousCoef(distance);
         data.enemyUnits.push_back(index);
+        data.enemyBuilderUnits.push_back(index);
         break;
     case EntityType::MELEE_BASE :
         data.enemies[*entity.playerId].mainX = entity.position.x;

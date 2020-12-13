@@ -182,6 +182,84 @@ bool ExploringData::getFreeHouseCoordinate(int &x, int &y) const
     return false;
 }
 
+std::vector<Vec2Int> ExploringData::getFreeHouseCoordinates() const
+{
+    std::vector<Vec2Int> init{};
+    init.push_back(Vec2Int(0, 0));
+    init.push_back(Vec2Int(0, 3));
+    init.push_back(Vec2Int(0, 6));
+    init.push_back(Vec2Int(0, 9));
+    init.push_back(Vec2Int(0, 12));
+    init.push_back(Vec2Int(0, 15));
+    init.push_back(Vec2Int(0, 18));
+    init.push_back(Vec2Int(0, 21));
+    init.push_back(Vec2Int(4, 0));
+    init.push_back(Vec2Int(7, 0));
+    init.push_back(Vec2Int(10, 0));
+    init.push_back(Vec2Int(13, 0));
+    init.push_back(Vec2Int(16, 0));
+    init.push_back(Vec2Int(19, 0));
+    init.push_back(Vec2Int(22, 0));
+    init.push_back(Vec2Int(11, 4));
+    init.push_back(Vec2Int(11, 8));
+    init.push_back(Vec2Int(4, 11));
+    init.push_back(Vec2Int(8, 11));
+    init.push_back(Vec2Int(22, 3));
+    init.push_back(Vec2Int(22, 6));
+    init.push_back(Vec2Int(22, 9));
+    init.push_back(Vec2Int(3, 22));
+    init.push_back(Vec2Int(6, 22));
+    init.push_back(Vec2Int(9, 22));
+
+    std::vector<Vec2Int> result{};
+
+    for (int k = 0; k < init.size(); ++k)
+    {
+        for (int i = 0; i < houseSize; ++i)
+        {
+            for (int j = 0; j < houseSize; ++j)
+            {
+                if (map.find(getIndex(init[k].x + i, init[k].y + j)) != map.end())
+                {
+                    goto next;
+                }
+            }
+        }
+        result.push_back(init[k]);
+        next:
+        continue;
+    }
+    return result;
+}
+
+std::vector<Vec2Int> ExploringData::getFreeCoordinateForHouseBuild(Vec2Int point) const
+{
+    std::vector<Vec2Int> add{};
+    add.push_back(Vec2Int(-1, 0));
+    add.push_back(Vec2Int(-1, 1));
+    add.push_back(Vec2Int(-1, 2));
+    add.push_back(Vec2Int(0, -1));
+    add.push_back(Vec2Int(1, -1));
+    add.push_back(Vec2Int(2, -1));
+    add.push_back(Vec2Int(0, 3));
+    add.push_back(Vec2Int(1, 3));
+    add.push_back(Vec2Int(2, 3));
+    add.push_back(Vec2Int(3, 0));
+    add.push_back(Vec2Int(3, 1));
+    add.push_back(Vec2Int(3, 2));
+
+    std::vector<Vec2Int> result{};
+
+    for (int k = 0; k < add.size(); ++k)
+    {
+        if (map.find(getIndex(add[k].x + point.x, add[k].y + point.y)) == map.end())
+        {
+            result.push_back(Vec2Int(add[k].x + point.x, add[k].y + point.y));
+        }
+    }
+    return result;
+}
+
 int ExploringData::getIndex(int x, int y) const
 {
     if (x < 0 || y < 0 || x >= mapSize || y >= mapSize)
@@ -371,5 +449,36 @@ void IEconomicsMinistry::getCreateUnitCoordinates(int &x, int &y)
     y = entity.position.y + b[k];
 
 //    x = entity.position.x + properties.size;
-//    y = entity.position.y + properties.size - 1;
+    //    y = entity.position.y + properties.size - 1;
+}
+
+void IEconomicsMinistry::fillBuildHouseMap()
+{
+    m_buildHouseMap.clear();
+    double maxDistance = 1000;
+    int num = -1;
+    Vec2Int p1, p2;
+    std::vector<Vec2Int> freeHousePoints = m_exploringData->getFreeHouseCoordinates();
+    for(Vec2Int v : freeHousePoints)
+    {
+        std::vector<Vec2Int> freeNearPoints = m_exploringData->getFreeCoordinateForHouseBuild(v);
+        for (Vec2Int v2 : freeNearPoints)
+        {
+            for (int i = 0; i < m_units.size(); ++i)
+            {
+                const Entity & entity = m_units[i];
+                if (getDistance(entity, v2.x, v2.y) < maxDistance)
+                {
+                    maxDistance = getDistance(entity, v2.x, v2.y);
+                    num = i;
+                    p1 = v;
+                    p2 = v2;
+                }
+            }
+        }
+    }
+    if (num > 0)
+    {
+        m_buildHouseMap[num] = std::pair<Vec2Int, Vec2Int>(p1, p2);
+    }
 }

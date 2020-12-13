@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <vector>
 #include <list>
+#include <utility>
 
 class PlayerView;
 
@@ -78,6 +79,8 @@ struct ExploringData
     int mainEnemy = 0;
 
     bool getFreeHouseCoordinate(int &x, int &y) const;
+    std::vector<Vec2Int> getFreeHouseCoordinates() const;
+    std::vector<Vec2Int> getFreeCoordinateForHouseBuild(Vec2Int point) const;
 
     int getIndex(int x, int y) const;
 
@@ -141,8 +144,10 @@ protected:
 
     virtual void fillRepairMap();
     virtual void getCreateUnitCoordinates(int &x, int &y);
+    virtual void fillBuildHouseMap();
 
     std::unordered_map<int, int> m_repairMap;
+    std::unordered_map<int, std::pair<Vec2Int, Vec2Int>> m_buildHouseMap;
 };
 
 class IWarMinistry : public IMinistry

@@ -4,9 +4,15 @@ void StartGameEconomicMinister::addMinistryAction(Action &act)
 {
     int myId = m_playerView->myId;
 
+
     fillRepairMap();
     createBuilderUnit(act);
 
+    m_buildHouseMap.clear();
+    if (m_resourcesCount >= 50 && (m_exploringData->freePopulation < 10))
+    {
+        fillBuildHouseMap();
+    }
     int x, y;
     bool f = m_exploringData->getFreeHouseCoordinate(x, y);
 
@@ -17,6 +23,17 @@ void StartGameEconomicMinister::addMinistryAction(Action &act)
         const Entity& entity = m_units[i];
         const EntityProperties& properties = m_playerView->entityProperties.at(entity.entityType);
         buildAction = nullptr;
+
+        if (m_buildHouseMap.find(i) != m_buildHouseMap.end())
+        {
+            moveAction = std::shared_ptr<MoveAction>(new MoveAction(
+                                                         m_buildHouseMap[i].second,
+                                                         true, true));
+            buildAction = std::shared_ptr<BuildAction>(new BuildAction( EntityType::HOUSE, m_buildHouseMap[i].first));
+            act.entityActions[entity.id] = EntityAction( moveAction, buildAction, nullptr, nullptr);
+            m_resourcesCount -= 50;
+            continue;
+        }
 
         if (tryRepair(act, entity))
         {
@@ -35,17 +52,16 @@ void StartGameEconomicMinister::addMinistryAction(Action &act)
             act.entityActions[entity.id] = EntityAction( moveAction, nullptr, nullptr,std::shared_ptr<RepairAction>(new RepairAction(building.id)));
             continue;
         }
-
-        if (i > m_exploringData->builderUnitsCount - 3 && f && m_exploringData->myResourcesCount > 50
-                && (m_exploringData->freePopulation < 10))
-        {
-            moveAction = std::shared_ptr<MoveAction>(new MoveAction(
-                                                         Vec2Int(x + m_exploringData->houseSize, y + m_exploringData->houseSize - 1),
-                                                         true, true));
-            buildAction = std::shared_ptr<BuildAction>(new BuildAction( EntityType::HOUSE, Vec2Int(x, y)));
-            act.entityActions[entity.id] = EntityAction( moveAction, buildAction, nullptr, nullptr);
-            continue;
-        }
+//        if (i > m_exploringData->builderUnitsCount - 3 && f && m_exploringData->myResourcesCount > 50
+//                && (m_exploringData->freePopulation < 10))
+//        {
+//            moveAction = std::shared_ptr<MoveAction>(new MoveAction(
+//                                                         Vec2Int(x + m_exploringData->houseSize, y + m_exploringData->houseSize - 1),
+//                                                         true, true));
+//            buildAction = std::shared_ptr<BuildAction>(new BuildAction( EntityType::HOUSE, Vec2Int(x, y)));
+//            act.entityActions[entity.id] = EntityAction( moveAction, buildAction, nullptr, nullptr);
+//            continue;
+//        }
 
         farmResources(act, entity, i);
     }

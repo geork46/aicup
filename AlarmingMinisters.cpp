@@ -28,7 +28,7 @@ void AlarmingEconomicMinister::addMinistryAction(Action &act)
         {
             continue;
         }
-        if (m_buildHouseMap.find(i) != m_buildHouseMap.end())
+        if (m_resourcesCount >= 50 && m_buildHouseMap.find(i) != m_buildHouseMap.end())
         {
             moveAction = std::shared_ptr<MoveAction>(new MoveAction(
                                                          m_buildHouseMap[i].second,

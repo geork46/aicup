@@ -24,7 +24,7 @@ void StartGameEconomicMinister::addMinistryAction(Action &act)
         const EntityProperties& properties = m_playerView->entityProperties.at(entity.entityType);
         buildAction = nullptr;
 
-        if (m_buildHouseMap.find(i) != m_buildHouseMap.end())
+        if (m_resourcesCount >= 50 && m_buildHouseMap.find(i) != m_buildHouseMap.end())
         {
             moveAction = std::shared_ptr<MoveAction>(new MoveAction(
                                                          m_buildHouseMap[i].second,

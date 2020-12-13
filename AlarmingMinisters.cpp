@@ -8,6 +8,11 @@ void AlarmingEconomicMinister::addMinistryAction(Action &act)
     fillRepairMap();
     createBuilderUnit(act);
 
+    m_buildHouseMap.clear();
+    if (m_resourcesCount >= 50 && (m_exploringData->freePopulation < 10))
+    {
+        fillBuildHouseMap();
+    }
     int x, y;
     bool f = m_exploringData->getFreeHouseCoordinate(x, y);
 
@@ -21,6 +26,16 @@ void AlarmingEconomicMinister::addMinistryAction(Action &act)
 
         if (tryRepair(act, entity))
         {
+            continue;
+        }
+        if (m_buildHouseMap.find(i) != m_buildHouseMap.end())
+        {
+            moveAction = std::shared_ptr<MoveAction>(new MoveAction(
+                                                         m_buildHouseMap[i].second,
+                                                         true, true));
+            buildAction = std::shared_ptr<BuildAction>(new BuildAction( EntityType::HOUSE, m_buildHouseMap[i].first));
+            act.entityActions[entity.id] = EntityAction( moveAction, buildAction, nullptr, nullptr);
+            m_resourcesCount -= 50;
             continue;
         }
 

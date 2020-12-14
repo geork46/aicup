@@ -6,6 +6,7 @@
 #include "DefaultExploringMinister.h"
 
 #include "StartGameMinisters.h"
+#include "StartGameMinisters2.h"
 
 MainFactory *MainFactory::m_inst = nullptr;
 
@@ -40,34 +41,37 @@ IDefenceMinistry *MainFactory::getDefenceMinister()
 
 void MainFactory::updateMinisters(const PlayerView &playerView, const ExploringData &data)
 {
-    if (data.isBaseAttacked)
+    if (playerView.fogOfWar)
     {
-        updateMinister(m_economicMinister, m_ministers[ECONOMIC_ALARMING]);
-        updateMinister(m_warMinister, m_ministers[WAR_ALARMING]);
-        updateMinister(m_defenceMinister, m_ministers[DEFENCE_ALARMING]);
-        updateMinister(m_distributor, m_distributors[DISTRIBUTOR_ALARMING]);
+        if (data.isBaseAttacked)
+        {
+            updateMinister(m_economicMinister, m_ministers[ECONOMIC_ALARMING]);
+            updateMinister(m_warMinister, m_ministers[WAR_ALARMING]);
+            updateMinister(m_defenceMinister, m_ministers[DEFENCE_ALARMING]);
+            updateMinister(m_distributor, m_distributors[DISTRIBUTOR_ALARMING]);
+        } else
+        {
+            updateMinister(m_economicMinister, m_ministers[ECONOMIC_START2]);
+            updateMinister(m_warMinister, m_ministers[WAR_START2]);
+            updateMinister(m_defenceMinister, m_ministers[DEFENCE_START2]);
+            updateMinister(m_distributor, m_distributors[DISTRIBUTOR_START2]);
+        }
     } else
     {
-        updateMinister(m_economicMinister, m_ministers[ECONOMIC_START]);
-        updateMinister(m_warMinister, m_ministers[WAR_START]);
-        updateMinister(m_defenceMinister, m_ministers[DEFENCE_START]);
-        updateMinister(m_distributor, m_distributors[DISTRIBUTOR_START]);
+        if (data.isBaseAttacked)
+        {
+            updateMinister(m_economicMinister, m_ministers[ECONOMIC_ALARMING]);
+            updateMinister(m_warMinister, m_ministers[WAR_ALARMING]);
+            updateMinister(m_defenceMinister, m_ministers[DEFENCE_ALARMING]);
+            updateMinister(m_distributor, m_distributors[DISTRIBUTOR_ALARMING]);
+        } else
+        {
+            updateMinister(m_economicMinister, m_ministers[ECONOMIC_START]);
+            updateMinister(m_warMinister, m_ministers[WAR_START]);
+            updateMinister(m_defenceMinister, m_ministers[DEFENCE_START]);
+            updateMinister(m_distributor, m_distributors[DISTRIBUTOR_START]);
+        }
     }
-//    if (data.myResourcesCount < 200)
-//    {
-//        updateMinister(m_economicMinister, m_ministers[ECONOMIC_START]);
-//        updateMinister(m_warMinister, m_ministers[WAR_START]);
-//        updateMinister(m_defenceMinister, m_ministers[DEFENCE_START]);
-//        updateMinister(m_distributor, m_distributors[DISTRIBUTOR_START]);
-//    } else
-//    {
-//        updateMinister(m_economicMinister, m_ministers[ECONOMIC_START]);
-//        updateMinister(m_warMinister, m_ministers[WAR_START]);
-//        updateMinister(m_defenceMinister, m_ministers[DEFENCE_START]);
-//        updateMinister(m_distributor, m_distributors[DISTRIBUTOR_MORE_WAR]);
-
-//    }
-
 }
 
 void MainFactory::redistributeResources(const PlayerView &playerView, const ExploringData &data)
@@ -96,6 +100,10 @@ void MainFactory::initMinisters()
     m_ministers[WAR_START] = new StartGameWarMinister();
     m_ministers[DEFENCE_START] = new StartGameDefenceMinister();
 
+    m_ministers[ECONOMIC_START2] = new StartGameEconomicMinister2();
+    m_ministers[WAR_START2] = new StartGameWarMinister2();
+    m_ministers[DEFENCE_START2] = new StartGameDefenceMinister2();
+
     updateMinister(m_economicMinister, m_ministers[ECONOMIC_START]);
     updateMinister(m_warMinister, m_ministers[WAR_START]);
     updateMinister(m_defenceMinister, m_ministers[DEFENCE_START]);
@@ -111,6 +119,7 @@ void MainFactory::initDistributors()
     }
     m_distributors[DISTRIBUTOR_DEFAULT] = new DefaultDistributor();
     m_distributors[DISTRIBUTOR_START] = new StartGameDistributor();
+    m_distributors[DISTRIBUTOR_START2] = new StartGameDistributor2();
     m_distributors[DISTRIBUTOR_MORE_WAR] = new MoreWarDistributor();
     m_distributors[DISTRIBUTOR_ALARMING] = new AlarmingDistributor();
     updateMinister(m_distributor, m_distributors[DISTRIBUTOR_START]);

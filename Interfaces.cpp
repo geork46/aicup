@@ -239,22 +239,17 @@ std::vector<Vec2Int> ExploringData::getFreeRangeBaseCoordinates() const
 {
     std::vector<Vec2Int> init{};
     init.push_back(Vec2Int(11, 11));
-    init.push_back(Vec2Int(11, 6));
+//    init.push_back(Vec2Int(11, 6));
     init.push_back(Vec2Int(11, 7));
-    init.push_back(Vec2Int(11, 8));
+//    init.push_back(Vec2Int(11, 8));
     init.push_back(Vec2Int(11, 9));
-    init.push_back(Vec2Int(11, 10));
+//    init.push_back(Vec2Int(11, 10));
     init.push_back(Vec2Int(6, 11));
     init.push_back(Vec2Int(7, 11));
-    init.push_back(Vec2Int(8, 11));
+//    init.push_back(Vec2Int(8, 11));
     init.push_back(Vec2Int(9, 11));
-    init.push_back(Vec2Int(10, 11));
+//    init.push_back(Vec2Int(10, 11));
     init.push_back(Vec2Int(12, 12));
-    init.push_back(Vec2Int(13, 13));
-    init.push_back(Vec2Int(14, 14));
-    init.push_back(Vec2Int(15, 15));
-    init.push_back(Vec2Int(16, 16));
-    init.push_back(Vec2Int(17, 17));
 
     std::vector<Vec2Int> result{};
 
@@ -507,8 +502,10 @@ void IEconomicsMinistry::farmResources(Action &act, const Entity &entity, int i)
     bool succes = false;
     if (i % 2 != 0)
     {
-        m_exploringData->getNearestResources(entity, x, y);
+//        m_exploringData->getNearestResources(entity, x, y);
 //        succes = m_exploringData->getNearestSafertyResources(entity, x, y);
+        int x = m_playerView->mapSize / 4 + 1;
+        int y = m_playerView->mapSize / 4;
     } else if (i % 4 == 0)
     {
         int x = m_playerView->mapSize - 1;

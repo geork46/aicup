@@ -1,7 +1,8 @@
-#include "StartGameMinisters.h"
+#include "StartGameMinisters2.h"
 
-void StartGameEconomicMinister::addMinistryAction(Action &act)
+void StartGameEconomicMinister2::addMinistryAction(Action &act)
 {
+
     int myId = m_playerView->myId;
 
 
@@ -9,15 +10,14 @@ void StartGameEconomicMinister::addMinistryAction(Action &act)
     createBuilderUnit(act);
 
 //    m_buildHouseMap.clear();
-//    if (m_exploringData->rangedBaseCount < 1 &&
-//            m_resourcesCount + m_exploringData->builderUnitsCount >= m_exploringData->entityCost[EntityType::RANGED_BASE])
-//    {
-//        if (m_buildHouseMap.size() == 0)
-//        {
-//            fillBuildRangeBaseaMap();
-//        }
-//    } else
-    if (m_resourcesCount + m_exploringData->builderUnitsCount >= 50 && (m_exploringData->freePopulation < 10))
+    if (m_exploringData->rangedBaseCount < 1 &&
+            m_resourcesCount + m_exploringData->builderUnitsCount >= m_exploringData->entityCost[EntityType::RANGED_BASE])
+    {
+        if (m_buildHouseMap.size() == 0)
+        {
+            fillBuildRangeBaseaMap();
+        }
+    } else if (m_resourcesCount >= 50 && (m_exploringData->freePopulation < 10))
     {
         if (m_buildHouseMap.size() == 0)
         {
@@ -36,7 +36,7 @@ void StartGameEconomicMinister::addMinistryAction(Action &act)
         buildAction = nullptr;
 
         if (m_buildHouseMap.find(i) != m_buildHouseMap.end() &&
-                m_resourcesCount + m_exploringData->builderUnitsCount >= m_exploringData->entityCost[m_buildTypeMap[i]])
+                m_resourcesCount + m_exploringData->builderUnitsCount > m_exploringData->entityCost[m_buildTypeMap[i]])
         {
             moveAction = std::shared_ptr<MoveAction>(new MoveAction(
                                                          m_buildHouseMap[i].second,
@@ -84,8 +84,9 @@ void StartGameEconomicMinister::addMinistryAction(Action &act)
     }
 }
 
-void StartGameWarMinister::addMinistryAction(Action &act)
+void StartGameWarMinister2::addMinistryAction(Action &act)
 {
+
     int myId = m_playerView->myId;
 
     for (size_t i = 0; i < m_units.size(); i++) {
@@ -96,41 +97,51 @@ void StartGameWarMinister::addMinistryAction(Action &act)
 
         int x = m_playerView->mapSize - 1, y = m_playerView->mapSize - 1;
 
-//        if (m_exploringData->rangedUnitsCount > 8 && i < m_units.size() - m_units.size() / 3 + 1)
-//        {
+////        if (m_exploringData->rangedUnitsCount > 8 && i < m_units.size() - m_units.size() / 3 + 1)
+////        {
 
-        int maxD = 500;
-        for (auto i : m_exploringData->enemies)
-        {
-            if (i.second.dangerousLevel > 0)
-            {
-                int builderUnitsCount = 0;
-                int rangedUnitsCount = 0;
-                int meleeUnitsCount = 0;
-                if (i.second.meleeUnitsCount + i.second.rangedUnitsCount < maxD)
-                {
-                    x = i.second.mainX;
-                    y = i.second.mainY;
-                    maxD = i.second.meleeUnitsCount + i.second.rangedUnitsCount;
-                }
-                break;
-            }
-        }
-//        } else
+//        int maxD = 500;
+//        for (auto i : m_exploringData->enemies)
+//        {
+//            if (i.second.dangerousLevel > 0)
+//            {
+//                int builderUnitsCount = 0;
+//                int rangedUnitsCount = 0;
+//                int meleeUnitsCount = 0;
+//                if (i.second.meleeUnitsCount + i.second.rangedUnitsCount < maxD)
+//                {
+//                    x = i.second.mainX;
+//                    y = i.second.mainY;
+//                    maxD = i.second.meleeUnitsCount + i.second.rangedUnitsCount;
+//                }
+//                break;
+//            }
+//        }
+////        } else
+////        {
+////            x = 15;
+////            y = 15;
+////        }
+//        if (maxD > m_exploringData->meleeUnitsCount + m_exploringData->rangedUnitsCount + 1)
 //        {
 //            x = 15;
 //            y = 15;
 //        }
-        if (maxD > m_exploringData->meleeUnitsCount + m_exploringData->rangedUnitsCount + 1)
-        {
-            x = 15;
-            y = 15;
-        }
-        if (i < 3)
-        {
-            Vec2Int v = getNearestEnemyBuilderUnitCoords(entity);
-            x = v.x;
-            y = v.y;
+//        if (i < 3)
+//        {
+//            Vec2Int v = getNearestEnemyBuilderUnitCoords(entity);
+//            x = v.x;
+//            y = v.y;
+//        }
+        switch (i % 3) {
+        case 0:
+            x = 10;
+            break;
+        case 1:
+            y = 10;
+            break;
+        default:
+            break;
         }
 
 
@@ -168,10 +179,9 @@ void StartGameWarMinister::addMinistryAction(Action &act)
                     nullptr,
                     nullptr);
     }
-
 }
 
-void StartGameDefenceMinister::addMinistryAction(Action &act)
+void StartGameDefenceMinister2::addMinistryAction(Action &act)
 {
     if (m_exploringData->meleeBaseCount > 0)
     {
@@ -179,9 +189,9 @@ void StartGameDefenceMinister::addMinistryAction(Action &act)
     }
 }
 
-
-void StartGameDistributor::innerDistribute(const PlayerView &playerView, const ExploringData &data)
+void StartGameDistributor2::innerDistribute(const PlayerView &playerView, const ExploringData &data)
 {
+
     int myId = playerView.myId;
     for (size_t i = 0; i < playerView.entities.size(); i++) {
         const Entity& entity = playerView.entities[i];
@@ -233,41 +243,4 @@ void StartGameDistributor::innerDistribute(const PlayerView &playerView, const E
 
     m_defenceMinister->setMaxPopulation(0);
     m_defenceMinister->setResourcesCount(0);
-}
-
-
-void MoreWarDistributor::innerDistribute(const PlayerView &playerView, const ExploringData &data)
-{
-    int myId = playerView.myId;
-    for (size_t i = 0; i < playerView.entities.size(); i++) {
-        const Entity& entity = playerView.entities[i];
-        if (entity.playerId == nullptr || *entity.playerId != myId) {
-            continue;
-        }
-
-        switch (entity.entityType) {
-        case EntityType::BUILDER_BASE :
-        case EntityType::BUILDER_UNIT :
-            m_economicMinister->addEntity(entity);
-            break;
-        case EntityType::RANGED_BASE :
-        case EntityType::RANGED_UNIT :
-        case EntityType::MELEE_UNIT :
-            m_warMinister->addEntity(entity);
-            break;
-        case EntityType::MELEE_BASE :
-        default:
-            break;
-        }
-    }
-
-    m_economicMinister->setMaxPopulation(data.maxPopulation * 0.4 - data.builderUnitsCount);
-    m_economicMinister->setResourcesCount(data.myResourcesCount);
-
-    m_warMinister->setMaxPopulation(data.maxPopulation * 0.6 - data.meleeUnitsCount - data.rangedUnitsCount);
-    m_warMinister->setResourcesCount(data.myResourcesCount);
-
-    m_defenceMinister->setMaxPopulation(0);
-    m_defenceMinister->setResourcesCount(0);
-
 }

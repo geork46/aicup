@@ -285,8 +285,8 @@ std::vector<Vec2Int> ExploringData::getFreeCoordinateForBuilding(Vec2Int point, 
     {
         add.push_back(Vec2Int(-1, i));
         add.push_back(Vec2Int(i, -1));
-        add.push_back(Vec2Int(size + 1, i));
-        add.push_back(Vec2Int(i, size + 1));
+        add.push_back(Vec2Int(size, i));
+        add.push_back(Vec2Int(i, size));
     }
 
     std::vector<Vec2Int> result{};

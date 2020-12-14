@@ -8,10 +8,20 @@ void StartGameEconomicMinister::addMinistryAction(Action &act)
     fillRepairMap();
     createBuilderUnit(act);
 
-    m_buildHouseMap.clear();
-    if (m_resourcesCount >= 50 && (m_exploringData->freePopulation < 10))
+//    m_buildHouseMap.clear();
+    if (m_exploringData->rangedBaseCount < 1 &&
+            m_resourcesCount + m_exploringData->builderUnitsCount >= m_exploringData->entityCost[EntityType::RANGED_BASE])
     {
-        fillBuildHouseMap();
+        if (m_buildHouseMap.size() == 0)
+        {
+            fillBuildRangeBaseaMap();
+        }
+    } else if (m_resourcesCount >= 50 && (m_exploringData->freePopulation < 10))
+    {
+        if (m_buildHouseMap.size() == 0)
+        {
+            fillBuildHouseMap();
+        }
     }
     int x, y;
     bool f = m_exploringData->getFreeHouseCoordinate(x, y);
@@ -24,14 +34,20 @@ void StartGameEconomicMinister::addMinistryAction(Action &act)
         const EntityProperties& properties = m_playerView->entityProperties.at(entity.entityType);
         buildAction = nullptr;
 
-        if (m_resourcesCount >= 50 && m_buildHouseMap.find(i) != m_buildHouseMap.end())
+        if (m_buildHouseMap.find(i) != m_buildHouseMap.end() &&
+                m_resourcesCount + m_exploringData->builderUnitsCount > m_exploringData->entityCost[m_buildTypeMap[i]])
         {
             moveAction = std::shared_ptr<MoveAction>(new MoveAction(
                                                          m_buildHouseMap[i].second,
                                                          true, true));
-            buildAction = std::shared_ptr<BuildAction>(new BuildAction( EntityType::HOUSE, m_buildHouseMap[i].first));
+            buildAction = std::shared_ptr<BuildAction>(new BuildAction(m_buildTypeMap[i] , m_buildHouseMap[i].first));
             act.entityActions[entity.id] = EntityAction( moveAction, buildAction, nullptr, nullptr);
-            m_resourcesCount -= 50;
+            m_resourcesCount -= m_exploringData->entityCost[m_buildTypeMap[i]];
+            if (m_buildHouseMap[i].second == entity.position)
+            {
+                    m_buildHouseMap.clear();
+                    m_buildTypeMap.clear();
+            }
             continue;
         }
 

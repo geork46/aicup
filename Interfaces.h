@@ -59,6 +59,7 @@ struct ExploringData
     int meleeUnitsCost = 0;
 
     int houseSize = 0;
+    int rangedBaseSize = 0;
     int mapSize = 0;
 
     std::unordered_map<int, int> map;
@@ -82,6 +83,11 @@ struct ExploringData
 
     bool getFreeHouseCoordinate(int &x, int &y) const;
     std::vector<Vec2Int> getFreeHouseCoordinates() const;
+
+    std::vector<Vec2Int> getFreeRangeBaseCoordinates() const;
+
+
+    std::vector<Vec2Int> getFreeCoordinateForBuilding(Vec2Int point, size_t size) const;
     std::vector<Vec2Int> getFreeCoordinateForHouseBuild(Vec2Int point) const;
 
     int getIndex(int x, int y) const;
@@ -144,6 +150,8 @@ class IEconomicsMinistry : public IMinistry
 protected:
     virtual void createBuilderUnit(Action &act);
 
+
+
     virtual bool tryRepair(Action &act, const Entity& entity);
 
     virtual void farmResources(Action &act, const Entity& entity, int i);
@@ -152,8 +160,11 @@ protected:
     virtual void getCreateUnitCoordinates(int &x, int &y);
     virtual void fillBuildHouseMap();
 
+    virtual void fillBuildRangeBaseaMap();
+
     std::unordered_map<int, int> m_repairMap;
     std::unordered_map<int, std::pair<Vec2Int, Vec2Int>> m_buildHouseMap;
+    std::unordered_map<int, EntityType> m_buildTypeMap;
 };
 
 class IWarMinistry : public IMinistry

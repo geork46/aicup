@@ -95,41 +95,51 @@ void StartGameWarMinister::addMinistryAction(Action &act)
 
         int x = m_playerView->mapSize - 1, y = m_playerView->mapSize - 1;
 
-//        if (m_exploringData->rangedUnitsCount > 8 && i < m_units.size() - m_units.size() / 3 + 1)
-//        {
+////        if (m_exploringData->rangedUnitsCount > 8 && i < m_units.size() - m_units.size() / 3 + 1)
+////        {
 
-        int maxD = 500;
-        for (auto i : m_exploringData->enemies)
-        {
-            if (i.second.dangerousLevel > 0)
-            {
-                int builderUnitsCount = 0;
-                int rangedUnitsCount = 0;
-                int meleeUnitsCount = 0;
-                if (i.second.meleeUnitsCount + i.second.rangedUnitsCount < maxD)
-                {
-                    x = i.second.mainX;
-                    y = i.second.mainY;
-                    maxD = i.second.meleeUnitsCount + i.second.rangedUnitsCount;
-                }
-                break;
-            }
-        }
-//        } else
+//        int maxD = 500;
+//        for (auto i : m_exploringData->enemies)
+//        {
+//            if (i.second.dangerousLevel > 0)
+//            {
+//                int builderUnitsCount = 0;
+//                int rangedUnitsCount = 0;
+//                int meleeUnitsCount = 0;
+//                if (i.second.meleeUnitsCount + i.second.rangedUnitsCount < maxD)
+//                {
+//                    x = i.second.mainX;
+//                    y = i.second.mainY;
+//                    maxD = i.second.meleeUnitsCount + i.second.rangedUnitsCount;
+//                }
+//                break;
+//            }
+//        }
+////        } else
+////        {
+////            x = 15;
+////            y = 15;
+////        }
+//        if (maxD > m_exploringData->meleeUnitsCount + m_exploringData->rangedUnitsCount + 1)
 //        {
 //            x = 15;
 //            y = 15;
 //        }
-        if (maxD > m_exploringData->meleeUnitsCount + m_exploringData->rangedUnitsCount + 1)
-        {
-            x = 15;
-            y = 15;
-        }
-        if (i < 3)
-        {
-            Vec2Int v = getNearestEnemyBuilderUnitCoords(entity);
-            x = v.x;
-            y = v.y;
+//        if (i < 3)
+//        {
+//            Vec2Int v = getNearestEnemyBuilderUnitCoords(entity);
+//            x = v.x;
+//            y = v.y;
+//        }
+        switch (i % 3) {
+        case 0:
+            x = 10;
+            break;
+        case 1:
+            y = 10;
+            break;
+        default:
+            break;
         }
 
 

@@ -330,12 +330,8 @@ bool ExploringData::getNearestSafertyResources(const Entity &entity, int &x, int
     Vec2Int finish;
     bool f = false;
 
-    for (int i = 0; i < 30000 && !f; ++i)
+    for (int i = 0; i < 5000 && !f && queue.size() > 0; ++i)
     {
-        if (queue.size() < 1)
-        {
-            break;
-        }
         Vec2Int current = queue.front();
         log.push_back(current);
         queue.pop();

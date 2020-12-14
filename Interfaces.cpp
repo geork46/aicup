@@ -1,6 +1,7 @@
 #include "Interfaces.h"
 
 #include <math.h>
+#include <queue>
 
 void IMinistry::addEntity(const Entity &e)
 {
@@ -203,7 +204,7 @@ std::vector<Vec2Int> ExploringData::getFreeHouseCoordinates() const
     init.push_back(Vec2Int(11, 4));
     init.push_back(Vec2Int(11, 8));
     init.push_back(Vec2Int(4, 11));
-    init.push_back(Vec2Int(8, 11));
+    init.push_back(Vec2Int(7, 11));
     init.push_back(Vec2Int(22, 3));
     init.push_back(Vec2Int(22, 6));
     init.push_back(Vec2Int(22, 9));
@@ -271,6 +272,25 @@ int ExploringData::getIndex(int x, int y) const
     return y * mapSize + x;
 }
 
+bool ExploringData::isSafetryPosition(int x, int y) const
+{
+    bool f = true;
+    for (int i : enemyUnits)
+    {
+        if (playerView->entities[i].entityType == EntityType::BUILDER_UNIT)
+        {
+            continue;
+        }
+        double d = getDistance(playerView->entities[i], x, y);
+        if (d < 9)
+        {
+            f = false;
+            break;
+        }
+    }
+    return f;
+}
+
 void ExploringData::getNearestResources(const Entity &entity, int &x, int &y) const
 {
     const EntityProperties& properties = playerView->entityProperties.at(entity.entityType);
@@ -289,6 +309,84 @@ void ExploringData::getNearestResources(const Entity &entity, int &x, int &y) co
     y = playerView->entities[k].position.y;
 }
 
+
+
+
+
+bool ExploringData::getNearestSafertyResources(const Entity &entity, int &x, int &y) const
+{
+    std::unordered_map<Vec2Int, Vec2Int> traking;
+
+    std::vector<Vec2Int> add{};
+    add.push_back(Vec2Int(0, 1));
+    add.push_back(Vec2Int(0, -1));
+    add.push_back(Vec2Int(1, 0));
+    add.push_back(Vec2Int(-1, 0));
+
+    std::queue<Vec2Int> queue;
+    std::vector<Vec2Int> log;
+    queue.push(entity.position);
+
+    Vec2Int finish;
+    bool f = false;
+
+    for (int i = 0; i < 30000 && !f; ++i)
+    {
+        if (queue.size() < 1)
+        {
+            break;
+        }
+        Vec2Int current = queue.front();
+        log.push_back(current);
+        queue.pop();
+        for (int j = 0; j < add.size(); ++j)
+        {
+            if (traking.find(Vec2Int(current.x + add[j].x, current.y + add[j].y)) != traking.end())
+            {
+                continue;
+            }
+            traking[Vec2Int(current.x + add[j].x, current.y + add[j].y)] = current;
+
+            if (map.find(getIndex(current.x + add[j].x, current.y + add[j].y)) != map.end())
+            {
+                if (playerView->entities[map.at(getIndex(current.x + add[j].x, current.y + add[j].y))].entityType == EntityType::RESOURCE
+                        && isSafetryPosition(current.x, current.y) && isSafetryPosition(current.x + add[j].x, current.y + add[j].y))
+                {
+                    finish = current;
+                    f = true;
+                    break;
+                }
+                continue;
+            }
+
+            if (isSafetryPosition(current.x + add[j].x, current.y + add[j].y))
+            {
+                queue.push(Vec2Int(current.x + add[j].x, current.y + add[j].y));
+            }
+        }
+    }
+    if (f)
+    {
+        Vec2Int current = finish;
+        Vec2Int current2 = finish;
+        while (!(current == entity.position))
+        {
+            current2 = current;
+            current = traking[Vec2Int(current.x, current.y)];
+        }
+//        if (current == current2)
+//        {
+//            f = false;
+//        }
+        x = current2.x;
+        y = current2.y;
+    } else
+    {
+        getNearestResources(entity, x, y);
+    }
+    return f;
+}
+
 double ExploringData::getDistance(const Entity &unit, const Entity &building) const
 {
     double x = unit.position.x;
@@ -297,6 +395,14 @@ double ExploringData::getDistance(const Entity &unit, const Entity &building) co
     const EntityProperties& properties = playerView->entityProperties.at(building.entityType);
     double px = building.position.x + properties.size / 2;
     double py = building.position.y + properties.size / 2;
+
+    return sqrt((px - x)*(px - x) + (py - y) * (py - y));
+}
+
+double ExploringData::getDistance(const Entity &unit, int x, int y) const
+{
+    double px = unit.position.x;
+    double py = unit.position.y;
 
     return sqrt((px - x)*(px - x) + (py - y) * (py - y));
 }
@@ -357,9 +463,13 @@ void IEconomicsMinistry::farmResources(Action &act, const Entity &entity, int i)
     std::shared_ptr<MoveAction> moveAction = nullptr;
     int x = m_playerView->mapSize - 1;
     int y = m_playerView->mapSize - 1;
+
+
+    bool succes = false;
     if (i % 2 != 0)
     {
-        m_exploringData->getNearestResources(entity, x, y);
+//        m_exploringData->getNearestResources(entity, x, y);
+        succes = m_exploringData->getNearestSafertyResources(entity, x, y);
     } else if (i % 4 == 0)
     {
         int x = m_playerView->mapSize - 1;
@@ -371,15 +481,26 @@ void IEconomicsMinistry::farmResources(Action &act, const Entity &entity, int i)
         validAutoAttackTargets.push_back(BUILDER_UNIT);
         validAutoAttackTargets.push_back(RESOURCE);
     }
-    for (int i : m_exploringData->attackedEnemyUnits)
+
+    if (!m_exploringData->isSafetryPosition(entity.position.x, entity.position.y))
     {
-        if (getDistance(entity, m_playerView->entities[i]) < 8 && m_playerView->entities[i].entityType != EntityType::BUILDER_UNIT)
+        if (!succes)
         {
-            moveAction = std::shared_ptr<MoveAction>(new MoveAction(Vec2Int(0, 0), true, true));
-            act.entityActions[entity.id] = EntityAction( moveAction, nullptr, nullptr, nullptr);
-            return;
+            x = 0;
+            y = 0;
         }
+        moveAction = std::shared_ptr<MoveAction>(new MoveAction(Vec2Int(x, y), true, true));
+        act.entityActions[entity.id] = EntityAction( moveAction, nullptr, nullptr, nullptr);
+        return;
+
     }
+
+//    for (int i : m_exploringData->attackedEnemyUnits)
+//    {
+//        if (getDistance(entity, m_playerView->entities[i]) < 8 && m_playerView->entities[i].entityType != EntityType::BUILDER_UNIT)
+//        {
+//        }
+//    }
 
     moveAction = std::shared_ptr<MoveAction>(new MoveAction(Vec2Int(x, y), true, true));
 

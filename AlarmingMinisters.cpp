@@ -24,6 +24,12 @@ void AlarmingEconomicMinister::addMinistryAction(Action &act)
         const EntityProperties& properties = m_playerView->entityProperties.at(entity.entityType);
         buildAction = nullptr;
 
+//        if (!m_exploringData->isSafetryPosition(entity.position.x, entity.position.y))
+//        {
+//            farmResources(act, entity, i);
+//            continue;
+//        }
+
         if (tryRepair(act, entity))
         {
             continue;

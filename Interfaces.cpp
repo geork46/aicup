@@ -75,12 +75,12 @@ void IMinistry::setMaxPopulation(int maxPopulation)
 
 double IMinistry::getDistance(const Entity &unit, const Entity &building)
 {
-    double x = unit.position.x;
-    double y = unit.position.y;
+    double x = unit.position.x + 0.5;
+    double y = unit.position.y + 0.5;
 
     const EntityProperties& properties = m_playerView->entityProperties.at(building.entityType);
-    double px = building.position.x + properties.size / 2;
-    double py = building.position.y + properties.size / 2;
+    double px = building.position.x + properties.size / 2.0;
+    double py = building.position.y + properties.size / 2.0;
 
     return sqrt((px - x)*(px - x) + (py - y) * (py - y));
 }
@@ -423,12 +423,12 @@ bool ExploringData::getNearestSafertyResources(const Entity &entity, int &x, int
 
 double ExploringData::getDistance(const Entity &unit, const Entity &building) const
 {
-    double x = unit.position.x;
-    double y = unit.position.y;
+    double x = unit.position.x + 0.5;
+    double y = unit.position.y + 0.5;
 
     const EntityProperties& properties = playerView->entityProperties.at(building.entityType);
-    double px = building.position.x + properties.size / 2;
-    double py = building.position.y + properties.size / 2;
+    double px = building.position.x + properties.size / 2.0;
+    double py = building.position.y + properties.size / 2.0;
 
     return sqrt((px - x)*(px - x) + (py - y) * (py - y));
 }
@@ -710,5 +710,59 @@ Vec2Int IWarMinistry::getNearestEnemyBuilderUnitCoords(const Entity &entity)
         }
     }
     return res;
+
+}
+
+void IDefenceMinistry::fillAttackMap()
+{
+    int counter = 0;
+    for (int ii = 0; ii < 3 && counter < m_units.size(); ++ii)
+    {
+        for (int i : m_exploringData->attackingEnemyUnits)
+        {
+            double D = 1000;
+            int k = -1;
+            for (int j = 0; j < m_units.size(); ++j)
+            {
+                if (m_attackMap.find(j) == m_attackMap.end() &&
+                        m_exploringData->getDistance(m_units[j], m_playerView->entities[i]) < D)
+                {
+                    D = m_exploringData->getDistance(m_units[j], m_playerView->entities[i]);
+                    k = j;
+                }
+            }
+            if (k >= 0)
+            {
+                counter++;
+                m_attackMap[k] = i;
+                m_attackMapCounter[i] = m_attackMapCounter[i] + 1;
+            }
+        }
+    }
+
+    for (int j = 0; j < m_units.size() && counter < m_units.size(); ++j)
+    {
+        if (m_attackMap.find(j) == m_attackMap.end())
+        {
+            double D = 1000;
+            int k = -1;
+
+            for (int i : m_exploringData->attackingEnemyUnits)
+            {
+                if (m_exploringData->getDistance(m_units[j], m_playerView->entities[i]) < D)
+                {
+                    D = m_exploringData->getDistance(m_units[j], m_playerView->entities[i]);
+                    k = i;
+                }
+            }
+            if (k >= 0)
+            {
+                counter++;
+                m_attackMap[j] = k;
+                m_attackMapCounter[k] = m_attackMapCounter[k] + 1;
+            }
+        }
+    }
+
 
 }

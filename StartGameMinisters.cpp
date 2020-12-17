@@ -104,9 +104,6 @@ void StartGameWarMinister::addMinistryAction(Action &act)
         {
             if (i.second.dangerousLevel > 0)
             {
-                int builderUnitsCount = 0;
-                int rangedUnitsCount = 0;
-                int meleeUnitsCount = 0;
                 if (i.second.meleeUnitsCount + i.second.rangedUnitsCount < maxD)
                 {
                     x = i.second.mainX;

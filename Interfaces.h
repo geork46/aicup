@@ -68,7 +68,7 @@ struct ExploringData
     std::vector<int> needRepairBuildings;
 
     bool isBaseAttacked = false;
-    std::vector<int> attackedEnemyUnits;
+    std::vector<int> attackingEnemyUnits;
     std::vector<int> enemyUnits;
 
     std::vector<int> enemyBuilderUnits;
@@ -97,7 +97,7 @@ struct ExploringData
     void getNearestResources(const Entity &entity, int &x, int &y) const;
 
     bool getNearestSafertyResources(const Entity &entity, int &x, int &y) const;
-private:
+
     double getDistance(const Entity &unit, const Entity &building) const;
     double getDistance(const Entity &unit, int x, int y) const;
 };
@@ -177,6 +177,13 @@ protected:
 class IDefenceMinistry : public IMinistry
 {
 public:
+
+protected:
+
+    virtual void fillAttackMap();
+
+    std::unordered_map<int, int> m_attackMap;
+    std::unordered_map<int, int> m_attackMapCounter;
 };
 
 class IDistributor

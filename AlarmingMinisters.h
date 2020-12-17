@@ -29,6 +29,12 @@ class AlarmingDistributor : public IDistributor
 {
 protected:
     virtual void innerDistribute(const PlayerView &playerView, ExploringData const &data);
+
+private:
+
+    bool entityNearByAttackingEnemy(const PlayerView &playerView, ExploringData const &data, Entity const &entity);
+
+    bool needMoreSolders(const PlayerView &playerView, ExploringData const &data);
 };
 
 

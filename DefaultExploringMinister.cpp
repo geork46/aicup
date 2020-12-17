@@ -258,7 +258,7 @@ void DefaultExploringMinister::postEnemyAnalize(const PlayerView &playerView, Ex
                     && getDistance(playerView.entities[j], 8, 8) < 40)
             {
                 data.isBaseAttacked = true;
-                data.attackedEnemyUnits.push_back(i);
+                data.attackingEnemyUnits.push_back(i);
             }
         }
     }

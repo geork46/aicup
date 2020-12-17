@@ -165,13 +165,13 @@ void AlarmingDistributor::innerDistribute(const PlayerView &playerView, const Ex
             break;
         case EntityType::RANGED_UNIT :
         case EntityType::MELEE_UNIT :
-//            if (entityNearByAttackingEnemy(playerView, data, entity))
-//            {
-//                m_defenceMinister->addEntity(entity);
-//            } else {
-//                m_warMinister->addEntity(entity);
-//            }
-//            break;
+            if (entityNearByAttackingEnemy(playerView, data, entity))
+            {
+                m_defenceMinister->addEntity(entity);
+            } else {
+                m_warMinister->addEntity(entity);
+            }
+            break;
         case EntityType::RANGED_BASE :
         case EntityType::MELEE_BASE :
             m_defenceMinister->addEntity(entity);

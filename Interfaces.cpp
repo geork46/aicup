@@ -209,23 +209,29 @@ std::vector<Vec2Int> ExploringData::getFreeHouseCoordinates() const
     init.push_back(Vec2Int(0, 0));
     init.push_back(Vec2Int(0, 3));
     init.push_back(Vec2Int(0, 6));
-    init.push_back(Vec2Int(0, 9));
-    init.push_back(Vec2Int(0, 12));
-    init.push_back(Vec2Int(0, 15));
     init.push_back(Vec2Int(0, 18));
-    init.push_back(Vec2Int(0, 21));
+//    init.push_back(Vec2Int(0, 21));
     init.push_back(Vec2Int(4, 0));
     init.push_back(Vec2Int(7, 0));
-    init.push_back(Vec2Int(10, 0));
-    init.push_back(Vec2Int(13, 0));
     init.push_back(Vec2Int(16, 0));
     init.push_back(Vec2Int(19, 0));
     init.push_back(Vec2Int(22, 0));
-    init.push_back(Vec2Int(11, 4));
-    init.push_back(Vec2Int(11, 8));
-    init.push_back(Vec2Int(4, 11));
-    init.push_back(Vec2Int(7, 11));
-    init.push_back(Vec2Int(22, 3));
+
+
+    if (rangedBaseCount + meleeBaseCount > 1)
+    {
+        init.push_back(Vec2Int(0, 9));
+        init.push_back(Vec2Int(0, 12));
+        init.push_back(Vec2Int(0, 15));
+        init.push_back(Vec2Int(10, 0));
+        init.push_back(Vec2Int(13, 0));
+        init.push_back(Vec2Int(11, 4));
+        init.push_back(Vec2Int(11, 8));
+        init.push_back(Vec2Int(4, 11));
+        init.push_back(Vec2Int(7, 11));
+    }
+
+//    init.push_back(Vec2Int(22, 3));
     init.push_back(Vec2Int(22, 6));
     init.push_back(Vec2Int(22, 9));
     init.push_back(Vec2Int(23, 12));
@@ -233,6 +239,15 @@ std::vector<Vec2Int> ExploringData::getFreeHouseCoordinates() const
     init.push_back(Vec2Int(6, 22));
     init.push_back(Vec2Int(9, 22));
     init.push_back(Vec2Int(12, 23));
+
+    init.push_back(Vec2Int(18, 4));
+    init.push_back(Vec2Int(18, 8));
+    init.push_back(Vec2Int(18, 12));
+
+    init.push_back(Vec2Int(4, 18));
+    init.push_back(Vec2Int(8, 18));
+    init.push_back(Vec2Int(12, 18));
+
 
     std::vector<Vec2Int> result{};
 
@@ -270,6 +285,19 @@ std::vector<Vec2Int> ExploringData::getFreeRangeBaseCoordinates() const
     init.push_back(Vec2Int(9, 11));
     init.push_back(Vec2Int(10, 11));
     init.push_back(Vec2Int(12, 12));
+
+    init.push_back(Vec2Int(0, 11));
+    init.push_back(Vec2Int(1, 11));
+    init.push_back(Vec2Int(2, 11));
+    init.push_back(Vec2Int(3, 11));
+    init.push_back(Vec2Int(4, 11));
+    init.push_back(Vec2Int(5, 11));
+    init.push_back(Vec2Int(11, 0));
+    init.push_back(Vec2Int(11, 1));
+    init.push_back(Vec2Int(11, 2));
+    init.push_back(Vec2Int(11, 3));
+    init.push_back(Vec2Int(11, 4));
+    init.push_back(Vec2Int(11, 5));
 
     std::vector<Vec2Int> result{};
 
@@ -534,7 +562,8 @@ void IEconomicsMinistry::farmResources(Action &act, const Entity &entity, int i)
     bool succes = false;
     if (i % 2 != 0)
     {
-        m_exploringData->getNearestResources(entity, x, y);
+        x = m_playerView->mapSize - 1;
+        y = m_playerView->mapSize - 1;
 //        succes = m_exploringData->getNearestSafertyResources(entity, x, y);
 //        int x = m_playerView->mapSize / 4 + 1;
 //        int y = m_playerView->mapSize / 4;
@@ -543,8 +572,7 @@ void IEconomicsMinistry::farmResources(Action &act, const Entity &entity, int i)
         x = m_playerView->mapSize - 1;
         y = m_playerView->mapSize / 4 + 1;
     } else {
-        x = m_playerView->mapSize - 1;
-        y = m_playerView->mapSize - 1;
+        m_exploringData->getNearestResources(entity, x, y);
     }
 
     std::vector<EntityType> validAutoAttackTargets;

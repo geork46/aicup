@@ -15,7 +15,7 @@ void StartGameEconomicMinister2::addMinistryAction(Action &act)
 
     m_buildHouseMap.clear();
     m_buildTypeMap.clear();
-    if (m_exploringData->rangedBaseCount < 1 &&
+    if (m_exploringData->rangedBaseCount < 2 &&
             m_resourcesCount + m_exploringData->builderUnitsCount >= m_exploringData->entityCost[EntityType::RANGED_BASE])
     {
         if (m_buildHouseMap.size() < 3)

@@ -9,6 +9,8 @@
 
 class PlayerView;
 
+const EntityProperties& getEntityProperties(PlayerView const &playerView, EntityType type);
+
 struct EnemyInfo
 {
     int mainX = 0;
@@ -35,6 +37,7 @@ struct ExploringData
     int rangedBaseCount = 0;
     int meleeBaseCount = 0;
     int housesCount = 0;
+    int turretCount = 0;
     int myResourcesCount = 0;
     int mapResourcesCount = 0;
     int maxPopulation = 0;
@@ -48,6 +51,7 @@ struct ExploringData
     int builderBaseId = 0;
     int rangedBaseID = 0;
     int meleeBaseID = 0;
+    int turretID = 0;
 
     int builderBaseIndex = 0;
     int rangedBaseIndex = 0;
@@ -75,7 +79,7 @@ struct ExploringData
 
     std::vector<int> myBuildings;
 
-    std::list<int> safertyResources;
+    std::vector<int> safertyResources;
 
     const PlayerView *playerView;
 
@@ -90,7 +94,14 @@ struct ExploringData
     std::vector<Vec2Int> getFreeCoordinateForBuilding(Vec2Int point, size_t size) const;
     std::vector<Vec2Int> getFreeCoordinateForHouseBuild(Vec2Int point) const;
 
-    int getIndex(int x, int y) const;
+    inline int getIndex(int x, int y) const
+    {
+        if (x < 0 || y < 0 || x >= mapSize || y >= mapSize)
+        {
+            return 7 * mapSize + 7;
+        }
+        return y * mapSize + x;
+    }
 
     bool isSafetryPosition(int x, int y) const;
 
@@ -124,10 +135,13 @@ public:
     void setMaxPopulation(int maxPopulation);
 
     double getDistance(const Entity &unit, const Entity &building);
+    double getDistanceSqr(const Entity &unit, const Entity &building);
+
     double getDistance(const Entity &unit, int x, int y);
 
 protected:
     virtual void createEntitiesByBuildings(Action &act);
+    virtual void turretAttack(Action &act);
 
     const ExploringData *m_exploringData = nullptr;
     const PlayerView *m_playerView = nullptr;

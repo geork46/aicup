@@ -29,6 +29,25 @@ Action MyStrategy::getAction(const PlayerView& playerView, DebugInterface* debug
         factory->getDefenceMinister()->addMinistryAction(result);
     }
 
+    bool f = true;
+    for (auto r : result.entityActions)
+    {
+        bool f2 = false;
+        for (const Entity & e : playerView.entities)
+        {
+            if (e.id == r.first)
+            {
+                f2 = true;
+                break;
+            }
+        }
+        if (!f2)
+        {
+            f = false;
+            break;
+        }
+    }
+
     return result;
 //    return oldGetAction(playerView, debugInterface);
 }

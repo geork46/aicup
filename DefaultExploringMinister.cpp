@@ -13,6 +13,7 @@ ExploringData DefaultExploringMinister::getExploringData(const PlayerView &playe
     ExploringData data{};
 
     data.playerView = &playerView;
+    data.safertyResources.clear();
 
 
     int myId = playerView.myId;
@@ -60,6 +61,10 @@ ExploringData DefaultExploringMinister::getExploringData(const PlayerView &playe
             data.meleeBaseID = entity.id;
             data.meleeBaseIndex = i;
             data.meleeBaseCount++;
+            break;
+        case TURRET:
+            data.turretID = entity.id;
+            data.turretCount++;
             break;
         case MELEE_UNIT:
             data.meleeUnitsCount++;
@@ -135,7 +140,7 @@ ExploringData DefaultExploringMinister::getExploringData(const PlayerView &playe
 void DefaultExploringMinister::fillMap(const PlayerView &playerView, ExploringData &data, int index)
 {
     const Entity& entity = playerView.entities[index];
-    const EntityProperties& properties = playerView.entityProperties.at(entity.entityType);
+    const EntityProperties& properties = getEntityProperties(playerView, entity.entityType);//playerView.entityProperties.at(entity.entityType);
     for (int i = 0; i < properties.size; ++i)
     {
         for (int j = 0; j < properties.size; ++j)
@@ -267,7 +272,8 @@ void DefaultExploringMinister::postEnemyAnalize(const PlayerView &playerView, Ex
 
 void DefaultExploringMinister::resourcesAnalize(const PlayerView &playerView, ExploringData &data)
 {
-    std::list<int> l = data.safertyResources;
+    std::vector<int> l = data.safertyResources;
+    data.safertyResources.clear();
     for (int i : l)
     {
         const Entity& entity = playerView.entities[i];
@@ -284,16 +290,16 @@ void DefaultExploringMinister::resourcesAnalize(const PlayerView &playerView, Ex
             for (int j : data.enemyUnits)
             {
                 const Entity& enemy = playerView.entities[j];
-                if (getDistance(entity, enemy) < 7 && enemy.entityType != EntityType::BUILDER_UNIT)
+                if (getDistanceSqr(entity, enemy) < 7*7 && enemy.entityType != EntityType::BUILDER_UNIT)
                 {
                     f = false;
                     break;
                 }
             }
         }
-        if (!f)
+        if (f)
         {
-            data.safertyResources.remove(i);
+            data.safertyResources.push_back(i);
         }
     }
 

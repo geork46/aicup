@@ -145,6 +145,7 @@ void AlarmingDefenceMinister::addMinistryAction(Action &act)
 
     createEntitiesByBuildings(act);
 
+    turretAttack(act);
 
 }
 
@@ -174,6 +175,7 @@ void AlarmingDistributor::innerDistribute(const PlayerView &playerView, const Ex
             break;
         case EntityType::RANGED_BASE :
         case EntityType::MELEE_BASE :
+        case EntityType::TURRET :
             m_defenceMinister->addEntity(entity);
             break;
         default:

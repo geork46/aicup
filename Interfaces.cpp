@@ -73,16 +73,90 @@ void IMinistry::setMaxPopulation(int maxPopulation)
     m_maxPopulation = maxPopulation;
 }
 
+const EntityProperties& getEntityProperties(PlayerView const &playerView, EntityType type)
+{
+    switch (type) {
+    case WALL:
+    {
+        static const EntityProperties properties1 = playerView.entityProperties.at(WALL);
+        return properties1;
+    }
+    case HOUSE:
+    {
+        static const EntityProperties properties2 = playerView.entityProperties.at(HOUSE);
+        return properties2;
+    }
+    case BUILDER_BASE:
+    {
+        static const EntityProperties properties3 = playerView.entityProperties.at(BUILDER_BASE);
+        return properties3;
+    }
+    case BUILDER_UNIT:
+    {
+        static const EntityProperties properties4 = playerView.entityProperties.at(BUILDER_UNIT);
+        return properties4;
+    }
+    case MELEE_BASE:
+    {
+        static const EntityProperties properties5 = playerView.entityProperties.at(MELEE_BASE);
+        return properties5;
+    }
+    case MELEE_UNIT:
+    {
+        static const EntityProperties properties6 = playerView.entityProperties.at(MELEE_UNIT);
+        return properties6;
+    }
+    case RANGED_BASE:
+    {
+        static const EntityProperties properties7 = playerView.entityProperties.at(RANGED_BASE);
+        return properties7;
+    }
+    case RANGED_UNIT:
+    {
+        static const EntityProperties properties8 = playerView.entityProperties.at(RANGED_UNIT);
+        return properties8;
+    }
+    case RESOURCE:
+    {
+        static const EntityProperties properties9 = playerView.entityProperties.at(RESOURCE);
+        return properties9;
+    }
+    case TURRET:
+    {
+        static const EntityProperties properties10 = playerView.entityProperties.at(TURRET);
+        return properties10;
+    }
+    default:
+    {
+        static const EntityProperties properties11 = playerView.entityProperties.at(type);
+        return properties11;
+    }
+    }
+
+}
+
 double IMinistry::getDistance(const Entity &unit, const Entity &building)
 {
     double x = unit.position.x + 0.5;
     double y = unit.position.y + 0.5;
 
-    const EntityProperties& properties = m_playerView->entityProperties.at(building.entityType);
+    const EntityProperties& properties = getEntityProperties(*m_playerView, building.entityType);//m_playerView->entityProperties.at(building.entityType);
     double px = building.position.x + properties.size / 2.0;
     double py = building.position.y + properties.size / 2.0;
 
     return sqrt((px - x)*(px - x) + (py - y) * (py - y));
+}
+
+double IMinistry::getDistanceSqr(const Entity &unit, const Entity &building)
+{
+    double x = unit.position.x + 0.5;
+    double y = unit.position.y + 0.5;
+
+    const EntityProperties& properties = getEntityProperties(*m_playerView, building.entityType);//m_playerView->entityProperties.at(building.entityType);
+    double px = building.position.x + properties.size / 2.0;
+    double py = building.position.y + properties.size / 2.0;
+
+    return (px - x)*(px - x) + (py - y) * (py - y);
 }
 
 double IMinistry::getDistance(const Entity &unit, int x, int y)
@@ -112,6 +186,23 @@ void IMinistry::createEntitiesByBuildings(Action &act)
             }
         }
         act.entityActions[entity.id] = EntityAction(nullptr, buildAction, nullptr, nullptr);
+    }
+}
+
+void IMinistry::turretAttack(Action &act)
+{
+    if (m_exploringData->turretCount > 0)
+    {
+        std::shared_ptr<MoveAction> moveAction = nullptr;
+        std::shared_ptr<BuildAction> buildAction = nullptr;
+        std::vector<EntityType> validAutoAttackTargets;
+        const EntityProperties& properties = m_playerView->entityProperties.at(TURRET);
+        act.entityActions[m_exploringData->turretID] = EntityAction(
+                    moveAction,
+                    buildAction,
+                    std::shared_ptr<AttackAction>(new AttackAction(
+                                                      nullptr, std::shared_ptr<AutoAttack>(new AutoAttack(properties.sightRange, validAutoAttackTargets)))),
+                    nullptr);
     }
 }
 
@@ -301,14 +392,7 @@ std::vector<Vec2Int> ExploringData::getFreeCoordinateForHouseBuild(Vec2Int point
     return getFreeCoordinateForBuilding(point, houseSize);
 }
 
-int ExploringData::getIndex(int x, int y) const
-{
-    if (x < 0 || y < 0 || x >= mapSize || y >= mapSize)
-    {
-        return 7 * mapSize + 7;
-    }
-    return y * mapSize + x;
-}
+//int ExploringData::getIndex(int x, int y) const
 
 bool ExploringData::isSafetryPosition(int x, int y) const
 {
@@ -443,18 +527,22 @@ double ExploringData::getDistance(const Entity &unit, int x, int y) const
 
 void IEconomicsMinistry::createBuilderUnit(Action &act)
 {
-    std::shared_ptr<BuildAction> buildAction = nullptr;
-
-    if (m_exploringData->builderUnitPopulationUse <= m_maxPopulation
-            && m_exploringData->builderUnitsCost <= m_resourcesCount + m_exploringData->builderUnitsCount)
+    if (m_exploringData->builderBaseCount > 0)
     {
+        std::shared_ptr<BuildAction> buildAction = nullptr;
 
-        int x, y;
-        getCreateUnitCoordinates(x, y);
-        buildAction = std::shared_ptr<BuildAction>(new BuildAction(EntityType::BUILDER_UNIT, Vec2Int(x, y)));
-        m_resourcesCount -= m_exploringData->builderUnitsCost;
+        if (m_exploringData->builderUnitPopulationUse <= m_maxPopulation
+                && m_exploringData->builderUnitsCost <= m_resourcesCount + m_exploringData->builderUnitsCount)
+        {
+
+            int x, y;
+            getCreateUnitCoordinates(x, y);
+            buildAction = std::shared_ptr<BuildAction>(new BuildAction(EntityType::BUILDER_UNIT, Vec2Int(x, y)));
+            m_resourcesCount -= m_exploringData->builderUnitsCost;
+        }
+        act.entityActions[m_exploringData->builderBaseId] = EntityAction( nullptr, buildAction, nullptr, nullptr);
+
     }
-    act.entityActions[m_exploringData->builderBaseId] = EntityAction( nullptr, buildAction, nullptr, nullptr);
 }
 
 bool IEconomicsMinistry::tryRepair(Action &act, const Entity &entity)
@@ -715,6 +803,8 @@ Vec2Int IWarMinistry::getNearestEnemyBuilderUnitCoords(const Entity &entity)
 
 void IDefenceMinistry::fillAttackMap()
 {
+    m_attackMap.clear();
+    m_attackMapCounter.clear();
     int counter = 0;
     for (int ii = 0; ii < 3 && counter < m_units.size(); ++ii)
     {

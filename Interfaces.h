@@ -14,8 +14,6 @@ struct EnemyInfo
     int mainX = 0;
     int mainY = 0;
 
-    double dangerousLevel = 0;
-
     int builderUnitsCount = 0;
     int rangedUnitsCount = 0;
     int meleeUnitsCount = 0;
@@ -23,7 +21,9 @@ struct EnemyInfo
     int builderBaseX = -1;
     int builderBaseY = -1;
 
-    double testDistance = 1000;
+    double sqrDistance = 1000;
+
+    int entityCount = 0;
 };
 
 struct ExploringData
@@ -107,8 +107,9 @@ struct ExploringData
 //    bool getNearestSafertyResources(const Entity &entity, int &x, int &y) const;
 
     double getDistance(const Entity &unit, const Entity &building) const;
+    double getDistanceSqr(const Entity &unit, const Entity &building) const;
     double getDistance(const Entity &unit, int x, int y) const;
-    double getDistanceSqr(const Entity &unit, const Entity &building);
+    double getDistanceSqr(const Entity &unit, int x, int y) const;
 };
 
 
@@ -138,7 +139,11 @@ public:
 
 protected:
     virtual void createEntitiesByBuildings(Action &act);
+
+
     virtual void turretAttack(Action &act);
+    virtual void turretAttack(Action &act, int turretId);
+
 
     const ExploringData *m_exploringData = nullptr;
     const PlayerView *m_playerView = nullptr;

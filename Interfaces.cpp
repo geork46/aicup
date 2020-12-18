@@ -112,17 +112,21 @@ void IMinistry::turretAttack(Action &act)
 {
     if (m_exploringData->turretCount > 0)
     {
-        std::shared_ptr<MoveAction> moveAction = nullptr;
-        std::shared_ptr<BuildAction> buildAction = nullptr;
-        std::vector<EntityType> validAutoAttackTargets;
-        const EntityProperties& properties = m_exploringData->entityProperties[TURRET];
-        act.entityActions[m_exploringData->turretID] = EntityAction(
-                    moveAction,
-                    buildAction,
-                    std::shared_ptr<AttackAction>(new AttackAction(
-                                                      nullptr, std::shared_ptr<AutoAttack>(new AutoAttack(properties.sightRange, validAutoAttackTargets)))),
-                    nullptr);
+        turretAttack(act, m_exploringData->turretID);
     }
+}
+
+void IMinistry::turretAttack(Action &act, int turretId)
+{
+    std::shared_ptr<AutoAttack> autoAttack;
+    std::shared_ptr<AttackAction> attackAction;
+    std::vector<EntityType> validAutoAttackTargets;
+
+    const EntityProperties& properties = m_exploringData->entityProperties[TURRET];
+    autoAttack.reset(new AutoAttack(properties.sightRange, validAutoAttackTargets));
+    attackAction.reset(new AttackAction( nullptr, autoAttack));
+    act.entityActions[m_exploringData->turretID] = EntityAction( nullptr, nullptr, attackAction, nullptr);
+
 }
 
 void IDistributor::activate() {  }
@@ -424,27 +428,22 @@ void ExploringData::getNearestResources(const Entity &entity, int &x, int &y) co
 //    return f;
 //}
 
-double ExploringData::getDistance(const Entity &unit, const Entity &building) const
-{
-    double x = unit.position.x + 0.5;
-    double y = unit.position.y + 0.5;
 
-    const EntityProperties& properties = entityProperties[building.entityType];
-    double px = building.position.x + properties.size / 2.0;
-    double py = building.position.y + properties.size / 2.0;
-
-    return sqrt((px - x)*(px - x) + (py - y) * (py - y));
-}
-
-double ExploringData::getDistance(const Entity &unit, int x, int y) const
+double ExploringData::getDistanceSqr(const Entity &unit, int x, int y) const
 {
     double px = unit.position.x;
     double py = unit.position.y;
 
-    return sqrt((px - x)*(px - x) + (py - y) * (py - y));
+    return (px - x)*(px - x) + (py - y) * (py - y);
 }
 
-double ExploringData::getDistanceSqr(const Entity &unit, const Entity &building)
+double ExploringData::getDistance(const Entity &unit, int x, int y) const
+{
+    return sqrt(getDistanceSqr(unit, x, y));
+}
+
+
+double ExploringData::getDistanceSqr(const Entity &unit, const Entity &building) const
 {
     double x = unit.position.x + 0.5;
     double y = unit.position.y + 0.5;
@@ -454,6 +453,11 @@ double ExploringData::getDistanceSqr(const Entity &unit, const Entity &building)
     double py = building.position.y + properties.size / 2.0;
 
     return (px - x)*(px - x) + (py - y) * (py - y);
+}
+
+double ExploringData::getDistance(const Entity &unit, const Entity &building) const
+{
+    return sqrt(getDistanceSqr(unit, building));
 }
 
 void IEconomicsMinistry::createBuilderUnit(Action &act)

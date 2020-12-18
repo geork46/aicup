@@ -74,19 +74,19 @@ void AlarmingWarMinister::addMinistryAction(Action &act)
         int x = m_playerView->mapSize - 1, y = m_playerView->mapSize - 1;
 
         int maxD = 500;
-        for (auto i : m_exploringData->enemies)
-        {
-            if (i.second.dangerousLevel > 0)
-            {
-                if (i.second.meleeUnitsCount + i.second.rangedUnitsCount < maxD)
-                {
-                    x = i.second.mainX;
-                    y = i.second.mainY;
-                    maxD = i.second.meleeUnitsCount + i.second.rangedUnitsCount;
-                }
-                break;
-            }
-        }
+//        for (auto i : m_exploringData->enemies)
+//        {
+//            if (i.second.dangerousLevel > 0)
+//            {
+//                if (i.second.meleeUnitsCount + i.second.rangedUnitsCount < maxD)
+//                {
+//                    x = i.second.mainX;
+//                    y = i.second.mainY;
+//                    maxD = i.second.meleeUnitsCount + i.second.rangedUnitsCount;
+//                }
+//                break;
+//            }
+//        }
 
         if (maxD > m_units.size() + 1)
         {

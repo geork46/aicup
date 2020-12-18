@@ -81,7 +81,6 @@ void DefaultExploringMinister::fillExploringDataFromPlayerView(ExploringData &da
         data.houseSize = data.entityProperties[EntityType::HOUSE].size;
         data.rangedBaseSize = data.entityProperties[EntityType::RANGED_BASE].size;
 
-
         data.playersCount = playerView.players.size();
         onlyOne = false;
     }
@@ -224,26 +223,15 @@ void DefaultExploringMinister::fillMap(const PlayerView &playerView, ExploringDa
     }
 }
 
-double DefaultExploringMinister::getDangerousCoef(double distance)
-{
-    if (distance < 35)
-    {
-        return 45;
-    }
-    if (distance < 60)
-    {
-        return 5 * ((60 - distance)/30 + 1);
-    }
-    return 2.5 * ((120 - distance)/60 + 1);
-}
-
 void DefaultExploringMinister::enemyAnalize(const PlayerView &playerView, ExploringData &data, const Entity &entity, int index)
 {
-    const EntityProperties& properties = data.entityProperties[entity.entityType];
+    double sqrDistance = data.getDistanceSqr(entity, 0, 0);
 
-    double distance = sqrt(entity.position.x * entity.position.x + entity.position.y * entity.position.y);
+    int playerId = *entity.playerId;
 
-    if (data.enemies[*entity.playerId].testDistance > distance)
+    data.enemies[playerId].entityCount++;
+
+    if (data.enemies[playerId].sqrDistance > sqrDistance)
     {
         switch (entity.entityType) {
         case EntityType::BUILDER_BASE :
@@ -253,9 +241,9 @@ void DefaultExploringMinister::enemyAnalize(const PlayerView &playerView, Explor
         case EntityType::RANGED_BASE :
         case EntityType::RANGED_UNIT :
         case EntityType::HOUSE :
-            data.enemies[*entity.playerId].mainX = entity.position.x;
-            data.enemies[*entity.playerId].mainY = entity.position.y;
-            data.enemies[*entity.playerId].testDistance = distance;
+            data.enemies[playerId].mainX = entity.position.x;
+            data.enemies[playerId].mainY = entity.position.y;
+            data.enemies[playerId].sqrDistance = sqrDistance;
             break;
         default:
             break;
@@ -264,45 +252,37 @@ void DefaultExploringMinister::enemyAnalize(const PlayerView &playerView, Explor
 
     switch (entity.entityType) {
     case EntityType::BUILDER_BASE :
-        data.enemies[*entity.playerId].builderBaseX = entity.position.x;
-        data.enemies[*entity.playerId].builderBaseY = entity.position.y;
-        data.enemies[*entity.playerId].dangerousLevel += 2 * getDangerousCoef(distance);
+        data.enemies[playerId].builderBaseX = entity.position.x;
+        data.enemies[playerId].builderBaseY = entity.position.y;
         break;
     case EntityType::BUILDER_UNIT :
-        data.enemies[*entity.playerId].mainX = entity.position.x;
-        data.enemies[*entity.playerId].mainY = entity.position.y;
-        data.enemies[*entity.playerId].builderUnitsCount++;
-        data.enemies[*entity.playerId].dangerousLevel += 1 * getDangerousCoef(distance);
+        data.enemies[playerId].mainX = entity.position.x;
+        data.enemies[playerId].mainY = entity.position.y;
+        data.enemies[playerId].builderUnitsCount++;
         data.enemyUnits.push_back(index);
         data.enemyBuilderUnits.push_back(index);
         break;
     case EntityType::MELEE_BASE :
-        data.enemies[*entity.playerId].mainX = entity.position.x;
-        data.enemies[*entity.playerId].mainY = entity.position.y;
-        data.enemies[*entity.playerId].dangerousLevel += 3 * getDangerousCoef(distance);
+        data.enemies[playerId].mainX = entity.position.x;
+        data.enemies[playerId].mainY = entity.position.y;
         break;
     case EntityType::MELEE_UNIT :
-        data.enemies[*entity.playerId].meleeUnitsCount++;
-        data.enemies[*entity.playerId].dangerousLevel += 5 * getDangerousCoef(distance);
+        data.enemies[playerId].meleeUnitsCount++;
         data.enemyUnits.push_back(index);
         break;
     case EntityType::RANGED_BASE :
-        data.enemies[*entity.playerId].mainX = entity.position.x;
-        data.enemies[*entity.playerId].mainY = entity.position.y;
-        data.enemies[*entity.playerId].dangerousLevel += 3 * getDangerousCoef(distance);
+        data.enemies[playerId].mainX = entity.position.x;
+        data.enemies[playerId].mainY = entity.position.y;
         break;
     case EntityType::RANGED_UNIT :
-        data.enemies[*entity.playerId].rangedUnitsCount++;
-        data.enemies[*entity.playerId].dangerousLevel += 5 * getDangerousCoef(distance);
+        data.enemies[playerId].rangedUnitsCount++;
         data.enemyUnits.push_back(index);
         break;
     case EntityType::HOUSE :
-        data.enemies[*entity.playerId].mainX = entity.position.x;
-        data.enemies[*entity.playerId].mainY = entity.position.y;
-        data.enemies[*entity.playerId].dangerousLevel += 0.1 * getDangerousCoef(distance);
+        data.enemies[playerId].mainX = entity.position.x;
+        data.enemies[playerId].mainY = entity.position.y;
         break;
     case EntityType::TURRET :
-        data.enemies[*entity.playerId].dangerousLevel += 0 * getDangerousCoef(distance);
         data.enemyUnits.push_back(index);
         break;
     case EntityType::WALL :
@@ -315,17 +295,17 @@ void DefaultExploringMinister::enemyAnalize(const PlayerView &playerView, Explor
 
 void DefaultExploringMinister::postEnemyAnalize(const PlayerView &playerView, ExploringData &data)
 {
-    int maxLevel = -1;
-    int k = -1;
-    for (auto i : data.enemies)
-    {
-        if (i.second.dangerousLevel > maxLevel)
-        {
-            k = i.first;
-            maxLevel = i.second.dangerousLevel;
-        }
-    }
-    data.mainEnemy = k;
+//    int maxLevel = -1;
+//    int k = -1;
+//    for (auto i : data.enemies)
+//    {
+//        if (i.second.dangerousLevel > maxLevel)
+//        {
+//            k = i.first;
+//            maxLevel = i.second.dangerousLevel;
+//        }
+//    }
+//    data.mainEnemy = k;
 
 
     for (int i : data.enemyUnits)

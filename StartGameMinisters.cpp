@@ -102,7 +102,7 @@ void StartGameWarMinister::addMinistryAction(Action &act)
         int maxD = 500;
         for (auto i : m_exploringData->enemies)
         {
-            if (i.second.dangerousLevel > 0)
+            if (i.second.entityCount > 0)
             {
                 if (i.second.meleeUnitsCount + i.second.rangedUnitsCount < maxD)
                 {
@@ -170,9 +170,8 @@ void StartGameWarMinister::addMinistryAction(Action &act)
 
 void StartGameDefenceMinister::addMinistryAction(Action &act)
 {
-    if (m_exploringData->meleeBaseCount > 0)
-    {
-        act.entityActions[m_exploringData->meleeBaseID] = EntityAction( nullptr, nullptr, nullptr, nullptr);
+    for (size_t i = 0; i < m_buildings.size(); i++) {
+        act.entityActions[m_buildings[i].id] = EntityAction( nullptr, nullptr, nullptr, nullptr);
     }
 }
 

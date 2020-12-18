@@ -395,75 +395,75 @@ void ExploringData::getNearestResources(const Entity &entity, int &x, int &y) co
 
 
 
-//bool ExploringData::getNearestSafertyResources(const Entity &entity, int &x, int &y) const
-//{
-//    std::unordered_map<Vec2Int, Vec2Int> traking;
+bool ExploringData::getNearestSafertyResources(const Entity &entity, int &x, int &y) const
+{
+    std::unordered_map<Vec2Int, Vec2Int> traking;
 
-//    std::vector<Vec2Int> add{};
-//    add.push_back(Vec2Int(0, 1));
-//    add.push_back(Vec2Int(0, -1));
-//    add.push_back(Vec2Int(1, 0));
-//    add.push_back(Vec2Int(-1, 0));
+    std::vector<Vec2Int> add{};
+    add.push_back(Vec2Int(0, 1));
+    add.push_back(Vec2Int(0, -1));
+    add.push_back(Vec2Int(1, 0));
+    add.push_back(Vec2Int(-1, 0));
 
-//    std::queue<Vec2Int> queue;
-//    std::vector<Vec2Int> log;
-//    queue.push(entity.position);
+    std::queue<Vec2Int> queue;
+    std::vector<Vec2Int> log;
+    queue.push(entity.position);
 
-//    Vec2Int finish;
-//    bool f = false;
+    Vec2Int finish;
+    bool f = false;
 
-//    for (int i = 0; i < 5000 && !f && queue.size() > 0; ++i)
-//    {
-//        Vec2Int current = queue.front();
-//        log.push_back(current);
-//        queue.pop();
-//        for (int j = 0; j < add.size(); ++j)
-//        {
-//            if (traking.find(Vec2Int(current.x + add[j].x, current.y + add[j].y)) != traking.end())
-//            {
-//                continue;
-//            }
-//            traking[Vec2Int(current.x + add[j].x, current.y + add[j].y)] = current;
+    for (int i = 0; i < 1000 && !f && queue.size() > 0; ++i)
+    {
+        Vec2Int current = queue.front();
+        log.push_back(current);
+        queue.pop();
+        for (int j = 0; j < add.size(); ++j)
+        {
+            if (traking.find(Vec2Int(current.x + add[j].x, current.y + add[j].y)) != traking.end())
+            {
+                continue;
+            }
+            traking[Vec2Int(current.x + add[j].x, current.y + add[j].y)] = current;
 
-//            if (map.find(getIndex(current.x + add[j].x, current.y + add[j].y)) != map.end())
-//            {
-//                if (playerView->entities[map.at(getIndex(current.x + add[j].x, current.y + add[j].y))].entityType == EntityType::RESOURCE
-//                        && isSafetryPosition(current.x, current.y) && isSafetryPosition(current.x + add[j].x, current.y + add[j].y))
-//                {
-//                    finish = current;
-//                    f = true;
-//                    break;
-//                }
-//                continue;
-//            }
+            if (map.find(getIndex(current.x + add[j].x, current.y + add[j].y)) != map.end())
+            {
+                if (playerView->entities[map.at(getIndex(current.x + add[j].x, current.y + add[j].y))].entityType == EntityType::RESOURCE
+                        && isSafetryPosition(current.x, current.y) && isSafetryPosition(current.x + add[j].x, current.y + add[j].y))
+                {
+                    finish = current;
+                    f = true;
+                    break;
+                }
+                continue;
+            }
 
-//            if (isSafetryPosition(current.x + add[j].x, current.y + add[j].y))
-//            {
-//                queue.push(Vec2Int(current.x + add[j].x, current.y + add[j].y));
-//            }
-//        }
-//    }
-//    if (f)
-//    {
-//        Vec2Int current = finish;
-//        Vec2Int current2 = finish;
-//        while (!(current == entity.position))
-//        {
-//            current2 = current;
-//            current = traking[Vec2Int(current.x, current.y)];
-//        }
-////        if (current == current2)
-////        {
-////            f = false;
-////        }
-//        x = current2.x;
-//        y = current2.y;
-//    } else
-//    {
-//        getNearestResources(entity, x, y);
-//    }
-//    return f;
-//}
+            if (isSafetryPosition(current.x + add[j].x, current.y + add[j].y))
+            {
+                queue.push(Vec2Int(current.x + add[j].x, current.y + add[j].y));
+            }
+        }
+    }
+    if (f)
+    {
+        Vec2Int current = finish;
+        Vec2Int current2 = finish;
+        while (!(current == entity.position))
+        {
+            current2 = current;
+            current = traking[Vec2Int(current.x, current.y)];
+        }
+        if (current == current2)
+        {
+            f = false;
+        }
+        x = current2.x;
+        y = current2.y;
+    } else
+    {
+        getNearestResources(entity, x, y);
+    }
+    return f;
+}
 
 
 double ExploringData::getDistanceSqr(const Entity &unit, int x, int y) const
@@ -572,7 +572,8 @@ void IEconomicsMinistry::farmResources(Action &act, const Entity &entity, int i)
         x = m_playerView->mapSize - 1;
         y = m_playerView->mapSize / 4 + 1;
     } else {
-        m_exploringData->getNearestResources(entity, x, y);
+//        m_exploringData->getNearestResources(entity, x, y);
+        succes = m_exploringData->getNearestSafertyResources(entity, x, y);
     }
 
     std::vector<EntityType> validAutoAttackTargets;

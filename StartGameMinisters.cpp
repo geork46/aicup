@@ -20,9 +20,12 @@ void StartGameEconomicMinister::addMinistryAction(Action &act)
         {
             fillBuildRangeBaseaMap();
         }
-    } else if (m_resourcesCount + m_exploringData->builderUnitsCount >= 50 && (m_exploringData->freePopulation < 10))
+    } else if (m_resourcesCount + m_exploringData->builderUnitsCount >= 50 && (m_exploringData->freePopulation < 15))
     {
         if (m_buildHouseMap.size() < 2)
+        {
+            fillBuildHouseMap();
+        } else if (m_resourcesCount + m_exploringData->builderUnitsCount >= 300)
         {
             fillBuildHouseMap();
         }

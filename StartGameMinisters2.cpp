@@ -23,19 +23,23 @@ void StartGameEconomicMinister2::addMinistryAction(Action &act)
             fillBuildRangeBaseaMap();
         }
     } else if (m_exploringData->rangedBaseCount < 2 &&
-            m_resourcesCount + m_exploringData->builderUnitsCount >= 300 + m_exploringData->entityCost[EntityType::RANGED_BASE])
+            m_resourcesCount + m_exploringData->builderUnitsCount >= 500 + m_exploringData->entityCost[EntityType::RANGED_BASE])
     {
         if (m_buildHouseMap.size() < 3)
         {
             fillBuildRangeBaseaMap();
         }
     }
-    if (m_resourcesCount >= 50 && (m_exploringData->freePopulation < 10))
+    if (m_resourcesCount >= 50 && (m_exploringData->freePopulation < 15))
     {
         if (m_buildHouseMap.size() < 2)
         {
             fillBuildHouseMap();
+        } else if (m_resourcesCount + m_exploringData->builderUnitsCount >= 200)
+        {
+            fillBuildHouseMap();
         }
+
     }
     int x, y;
     bool f = m_exploringData->getFreeHouseCoordinate(x, y);

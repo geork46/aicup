@@ -9,8 +9,6 @@
 
 class PlayerView;
 
-const EntityProperties& getEntityProperties(PlayerView const &playerView, EntityType type);
-
 struct EnemyInfo
 {
     int mainX = 0;
@@ -33,20 +31,34 @@ struct ExploringData
     int builderUnitsCount = 0;
     int rangedUnitsCount = 0;
     int meleeUnitsCount = 0;
+
     int builderBaseCount = 0;
     int rangedBaseCount = 0;
     int meleeBaseCount = 0;
     int housesCount = 0;
     int turretCount = 0;
+
     int myResourcesCount = 0;
     int mapResourcesCount = 0;
+
     int maxPopulation = 0;
     int currentPopulation = 0;
     int freePopulation = 0;
 
-    int builderUnitPopulationUse = 1;
-    int rangedUnitPopulationUse = 1;
-    int meleeUnitPopulationUse = 1;
+    static int builderUnitPopulationUse;
+    static int rangedUnitPopulationUse;
+    static int meleeUnitPopulationUse;
+
+    static int entityCost[EntityType::TURRET + 1];
+    static int builderUnitsCost;
+    static int rangedUnitsCost;
+    static int meleeUnitsCost;
+    static int houseSize;
+    static int rangedBaseSize;
+    static int mapSize;
+    static int playersCount;
+
+    static EntityProperties entityProperties[EntityType::TURRET + 1];
 
     int builderBaseId = 0;
     int rangedBaseID = 0;
@@ -57,15 +69,6 @@ struct ExploringData
     int rangedBaseIndex = 0;
     int meleeBaseIndex = 0;
 
-    int entityCost[EntityType::TURRET + 1];
-    int builderUnitsCost = 0;
-    int rangedUnitsCost = 0;
-    int meleeUnitsCost = 0;
-
-    int houseSize = 0;
-    int rangedBaseSize = 0;
-    int mapSize = 0;
-
     std::unordered_map<int, int> map;
 
     std::unordered_map<int, EnemyInfo> enemies;
@@ -74,23 +77,18 @@ struct ExploringData
     bool isBaseAttacked = false;
     std::vector<int> attackingEnemyUnits;
     std::vector<int> enemyUnits;
-
     std::vector<int> enemyBuilderUnits;
-
     std::vector<int> myBuildings;
-
     std::vector<int> safertyResources;
 
     const PlayerView *playerView;
 
     int mainEnemy = 0;
 
+
     bool getFreeHouseCoordinate(int &x, int &y) const;
     std::vector<Vec2Int> getFreeHouseCoordinates() const;
-
     std::vector<Vec2Int> getFreeRangeBaseCoordinates() const;
-
-
     std::vector<Vec2Int> getFreeCoordinateForBuilding(Vec2Int point, size_t size) const;
     std::vector<Vec2Int> getFreeCoordinateForHouseBuild(Vec2Int point) const;
 
@@ -110,6 +108,7 @@ struct ExploringData
 
     double getDistance(const Entity &unit, const Entity &building) const;
     double getDistance(const Entity &unit, int x, int y) const;
+    double getDistanceSqr(const Entity &unit, const Entity &building);
 };
 
 
@@ -133,10 +132,9 @@ public:
     int maxPopulation() const;
     void setMaxPopulation(int maxPopulation);
 
-    double getDistance(const Entity &unit, const Entity &building);
-    double getDistanceSqr(const Entity &unit, const Entity &building);
-
-    double getDistance(const Entity &unit, int x, int y);
+//    double getDistance(const Entity &unit, const Entity &building);
+//    double getDistanceSqr(const Entity &unit, const Entity &building);
+//    double getDistance(const Entity &unit, int x, int y);
 
 protected:
     virtual void createEntitiesByBuildings(Action &act);
@@ -154,7 +152,7 @@ protected:
 class IExploringMinistry : public IMinistry
 {
 public:
-    virtual ExploringData getExploringData(const PlayerView &playerView);
+    virtual void getExploringData(const PlayerView &playerView, ExploringData &data);
 };
 
 
@@ -162,8 +160,6 @@ class IEconomicsMinistry : public IMinistry
 {
 protected:
     virtual void createBuilderUnit(Action &act);
-
-
 
     virtual bool tryRepair(Action &act, const Entity& entity);
 

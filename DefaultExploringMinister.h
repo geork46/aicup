@@ -8,9 +8,22 @@ class DefaultExploringMinister : public IExploringMinistry
 public:
     DefaultExploringMinister();
 
-    virtual ExploringData getExploringData(const PlayerView &playerView);
+    virtual void getExploringData(const PlayerView &playerView, ExploringData &data);
 
 private:
+    void clearExploringData(ExploringData &data);
+    void fillExploringDataFromPlayerView(ExploringData &data, const PlayerView &playerView);
+
+    void exploring1(const PlayerView &playerView, ExploringData &data);
+    void exploring2(const PlayerView &playerView, ExploringData &data);
+
+    void exploring3(const PlayerView &playerView, ExploringData &data);
+
+
+
+
+
+
     void fillMap(const PlayerView &playerView, ExploringData &data, int index);
 
     double getDangerousCoef(double distance);

@@ -32,7 +32,7 @@ void StartGameEconomicMinister2::addMinistryAction(Action &act)
 
     for (size_t i = 0; i < m_units.size(); i++) {
         const Entity& entity = m_units[i];
-        const EntityProperties& properties = m_playerView->entityProperties.at(entity.entityType);
+        const EntityProperties& properties = m_exploringData->entityProperties[entity.entityType];
         buildAction = nullptr;
 
         if (m_buildHouseMap.find(i) != m_buildHouseMap.end() &&
@@ -61,7 +61,7 @@ void StartGameEconomicMinister2::addMinistryAction(Action &act)
         {
 
             const Entity& building = m_playerView->entities[m_repairMap[i]];
-            const EntityProperties& prop = m_playerView->entityProperties.at(building.entityType);
+            const EntityProperties& prop = m_exploringData->entityProperties[building.entityType];
             moveAction = std::shared_ptr<MoveAction>(new MoveAction(
                                                          Vec2Int( building.position.x + prop.size / 2 ,
                                                                   building.position.y + prop.size / 2),
@@ -91,7 +91,7 @@ void StartGameWarMinister2::addMinistryAction(Action &act)
 
     for (size_t i = 0; i < m_units.size(); i++) {
         const Entity& entity = m_units[i];
-        const EntityProperties& properties = m_playerView->entityProperties.at(entity.entityType);
+        const EntityProperties& properties = m_exploringData->entityProperties[entity.entityType];
         std::shared_ptr<MoveAction> moveAction = nullptr;
         std::shared_ptr<BuildAction> buildAction = nullptr;
 
@@ -158,14 +158,14 @@ void StartGameWarMinister2::addMinistryAction(Action &act)
 
     for (size_t i = 0; i < m_buildings.size(); i++) {
         const Entity& entity = m_buildings[i];
-        const EntityProperties& properties = m_playerView->entityProperties.at(entity.entityType);
+        const EntityProperties& properties = m_exploringData->entityProperties[entity.entityType];
         std::shared_ptr<MoveAction> moveAction = nullptr;
         std::shared_ptr<BuildAction> buildAction = nullptr;
         std::vector<EntityType> validAutoAttackTargets;
 
         if (properties.build != nullptr) {
             EntityType entityType = properties.build->options[0];
-            if (m_playerView->entityProperties.at(entityType).populationUse <= m_maxPopulation
+            if (m_exploringData->entityProperties[entityType].populationUse <= m_maxPopulation
                     && m_exploringData->entityCost[entityType] <= m_resourcesCount)
             {
                 buildAction = std::shared_ptr<BuildAction>(new BuildAction(

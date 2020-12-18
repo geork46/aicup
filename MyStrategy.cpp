@@ -10,7 +10,14 @@ Action MyStrategy::getAction(const PlayerView& playerView, DebugInterface* debug
     Action result = Action(std::unordered_map<int, EntityAction>());
     MainFactory *factory = MainFactory::instance();
 
-    ExploringData data = factory->getExploringMinister()->getExploringData(playerView);
+
+    IExploringMinistry *exploring = factory->getExploringMinister();
+
+    ExploringData data;
+    if (exploring != nullptr)
+    {
+        exploring->getExploringData(playerView, data);
+    }
 
     factory->updateMinisters(playerView, data);
 
@@ -30,7 +37,6 @@ Action MyStrategy::getAction(const PlayerView& playerView, DebugInterface* debug
     }
 
     return result;
-//    return oldGetAction(playerView, debugInterface);
 }
 
 void MyStrategy::debugUpdate(const PlayerView& playerView, DebugInterface& debugInterface)

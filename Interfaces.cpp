@@ -3,6 +3,19 @@
 #include <math.h>
 #include <queue>
 
+int ExploringData::builderUnitPopulationUse;
+int ExploringData::rangedUnitPopulationUse;
+int ExploringData::meleeUnitPopulationUse;
+int ExploringData::entityCost[EntityType::TURRET + 1];
+int ExploringData::builderUnitsCost;
+int ExploringData::rangedUnitsCost;
+int ExploringData::meleeUnitsCost;
+int ExploringData::houseSize;
+int ExploringData::rangedBaseSize;
+int ExploringData::mapSize;
+int ExploringData::playersCount;
+EntityProperties ExploringData::entityProperties[EntityType::TURRET + 1];
+
 void IMinistry::addEntity(const Entity &e)
 {
     if (!this)
@@ -73,110 +86,16 @@ void IMinistry::setMaxPopulation(int maxPopulation)
     m_maxPopulation = maxPopulation;
 }
 
-const EntityProperties& getEntityProperties(PlayerView const &playerView, EntityType type)
-{
-    switch (type) {
-    case WALL:
-    {
-        static const EntityProperties properties1 = playerView.entityProperties.at(WALL);
-        return properties1;
-    }
-    case HOUSE:
-    {
-        static const EntityProperties properties2 = playerView.entityProperties.at(HOUSE);
-        return properties2;
-    }
-    case BUILDER_BASE:
-    {
-        static const EntityProperties properties3 = playerView.entityProperties.at(BUILDER_BASE);
-        return properties3;
-    }
-    case BUILDER_UNIT:
-    {
-        static const EntityProperties properties4 = playerView.entityProperties.at(BUILDER_UNIT);
-        return properties4;
-    }
-    case MELEE_BASE:
-    {
-        static const EntityProperties properties5 = playerView.entityProperties.at(MELEE_BASE);
-        return properties5;
-    }
-    case MELEE_UNIT:
-    {
-        static const EntityProperties properties6 = playerView.entityProperties.at(MELEE_UNIT);
-        return properties6;
-    }
-    case RANGED_BASE:
-    {
-        static const EntityProperties properties7 = playerView.entityProperties.at(RANGED_BASE);
-        return properties7;
-    }
-    case RANGED_UNIT:
-    {
-        static const EntityProperties properties8 = playerView.entityProperties.at(RANGED_UNIT);
-        return properties8;
-    }
-    case RESOURCE:
-    {
-        static const EntityProperties properties9 = playerView.entityProperties.at(RESOURCE);
-        return properties9;
-    }
-    case TURRET:
-    {
-        static const EntityProperties properties10 = playerView.entityProperties.at(TURRET);
-        return properties10;
-    }
-    default:
-    {
-        static const EntityProperties properties11 = playerView.entityProperties.at(type);
-        return properties11;
-    }
-    }
-
-}
-
-double IMinistry::getDistance(const Entity &unit, const Entity &building)
-{
-    double x = unit.position.x + 0.5;
-    double y = unit.position.y + 0.5;
-
-    const EntityProperties& properties = getEntityProperties(*m_playerView, building.entityType);//m_playerView->entityProperties.at(building.entityType);
-    double px = building.position.x + properties.size / 2.0;
-    double py = building.position.y + properties.size / 2.0;
-
-    return sqrt((px - x)*(px - x) + (py - y) * (py - y));
-}
-
-double IMinistry::getDistanceSqr(const Entity &unit, const Entity &building)
-{
-    double x = unit.position.x + 0.5;
-    double y = unit.position.y + 0.5;
-
-    const EntityProperties& properties = getEntityProperties(*m_playerView, building.entityType);//m_playerView->entityProperties.at(building.entityType);
-    double px = building.position.x + properties.size / 2.0;
-    double py = building.position.y + properties.size / 2.0;
-
-    return (px - x)*(px - x) + (py - y) * (py - y);
-}
-
-double IMinistry::getDistance(const Entity &unit, int x, int y)
-{
-    double px = unit.position.x;
-    double py = unit.position.y;
-
-    return sqrt((px - x)*(px - x) + (py - y) * (py - y));
-}
-
 void IMinistry::createEntitiesByBuildings(Action &act)
 {
     for (size_t i = 0; i < m_buildings.size(); i++) {
         const Entity& entity = m_buildings[i];
-        const EntityProperties& properties = m_playerView->entityProperties.at(entity.entityType);
+        const EntityProperties& properties = m_exploringData->entityProperties[entity.entityType];
         std::shared_ptr<BuildAction> buildAction = nullptr;
 
         if (properties.build != nullptr) {
             EntityType entityType = properties.build->options[0];
-            if (m_playerView->entityProperties.at(entityType).populationUse <= m_maxPopulation
+            if (m_exploringData->entityProperties[entityType].populationUse <= m_maxPopulation
                     && m_exploringData->entityCost[entityType] <= m_resourcesCount + m_exploringData->builderUnitsCount)
             {
                 buildAction = std::shared_ptr<BuildAction>(new BuildAction(
@@ -196,7 +115,7 @@ void IMinistry::turretAttack(Action &act)
         std::shared_ptr<MoveAction> moveAction = nullptr;
         std::shared_ptr<BuildAction> buildAction = nullptr;
         std::vector<EntityType> validAutoAttackTargets;
-        const EntityProperties& properties = m_playerView->entityProperties.at(TURRET);
+        const EntityProperties& properties = m_exploringData->entityProperties[TURRET];
         act.entityActions[m_exploringData->turretID] = EntityAction(
                     moveAction,
                     buildAction,
@@ -241,7 +160,7 @@ void IDistributor::innerDistribute(const PlayerView &playerView, const Exploring
 {
 }
 
-ExploringData IExploringMinistry::getExploringData(const PlayerView &playerView)
+void IExploringMinistry::getExploringData(const PlayerView &playerView, ExploringData & data)
 {
 
 }
@@ -415,7 +334,7 @@ bool ExploringData::isSafetryPosition(int x, int y) const
 
 void ExploringData::getNearestResources(const Entity &entity, int &x, int &y) const
 {
-    const EntityProperties& properties = playerView->entityProperties.at(entity.entityType);
+    const EntityProperties& properties = entityProperties[entity.entityType];
 
     double dist = 1000;
     int k = 0;
@@ -510,7 +429,7 @@ double ExploringData::getDistance(const Entity &unit, const Entity &building) co
     double x = unit.position.x + 0.5;
     double y = unit.position.y + 0.5;
 
-    const EntityProperties& properties = playerView->entityProperties.at(building.entityType);
+    const EntityProperties& properties = entityProperties[building.entityType];
     double px = building.position.x + properties.size / 2.0;
     double py = building.position.y + properties.size / 2.0;
 
@@ -523,6 +442,18 @@ double ExploringData::getDistance(const Entity &unit, int x, int y) const
     double py = unit.position.y;
 
     return sqrt((px - x)*(px - x) + (py - y) * (py - y));
+}
+
+double ExploringData::getDistanceSqr(const Entity &unit, const Entity &building)
+{
+    double x = unit.position.x + 0.5;
+    double y = unit.position.y + 0.5;
+
+    const EntityProperties& properties = entityProperties[building.entityType];
+    double px = building.position.x + properties.size / 2.0;
+    double py = building.position.y + properties.size / 2.0;
+
+    return (px - x)*(px - x) + (py - y) * (py - y);
 }
 
 void IEconomicsMinistry::createBuilderUnit(Action &act)
@@ -560,7 +491,7 @@ bool IEconomicsMinistry::tryRepair(Action &act, const Entity &entity)
             {
                 int d = m_exploringData->map.at(m_exploringData->getIndex(entity.position.x + a[k], entity.position.y + b[k]));
                 const Entity& en = m_playerView->entities[d];
-                const EntityProperties& prop = m_playerView->entityProperties.at(en.entityType);
+                const EntityProperties& prop = m_exploringData->entityProperties[en.entityType];
                 if (en.health < prop.maxHealth && en.entityType != EntityType::RESOURCE
                         && *en.playerId == m_playerView->myId)
                 {
@@ -581,7 +512,7 @@ bool IEconomicsMinistry::tryRepair(Action &act, const Entity &entity)
 
 void IEconomicsMinistry::farmResources(Action &act, const Entity &entity, int i)
 {
-    const EntityProperties& properties = m_playerView->entityProperties.at(entity.entityType);
+    const EntityProperties& properties = m_exploringData->entityProperties[entity.entityType];
     std::shared_ptr<MoveAction> moveAction = nullptr;
     int x = m_playerView->mapSize - 1;
     int y = m_playerView->mapSize - 1;
@@ -650,7 +581,7 @@ void IEconomicsMinistry::fillRepairMap()
             }
 
             const Entity& entity = m_units[i];
-            double distance = getDistance(entity, building);
+            double distance = m_exploringData->getDistance(entity, building);
             if (distance < dmax)
             {
                 dmax = distance;
@@ -669,7 +600,7 @@ void IEconomicsMinistry::fillRepairMap()
             }
 
             const Entity& entity = m_units[i];
-            double distance = getDistance(entity, building);
+            double distance = m_exploringData->getDistance(entity, building);
             if (distance < dmax)
             {
                 dmax = distance;
@@ -683,7 +614,7 @@ void IEconomicsMinistry::fillRepairMap()
 void IEconomicsMinistry::getCreateUnitCoordinates(int &x, int &y)
 {
     const Entity& entity = m_playerView->entities[m_exploringData->builderBaseIndex];
-    const EntityProperties& properties = m_playerView->entityProperties.at(entity.entityType);
+    const EntityProperties& properties = m_exploringData->entityProperties[entity.entityType];
 
     int px, py;
     m_exploringData->getNearestResources(entity, px, py);
@@ -705,9 +636,9 @@ void IEconomicsMinistry::getCreateUnitCoordinates(int &x, int &y)
         be.position.x = entity.position.x + a[i];
         be.position.y = entity.position.y + b[i];
         be.entityType = EntityType::RESOURCE;
-        if (getDistance(t, be) < m)
+        if (m_exploringData->getDistance(t, be) < m)
         {
-            m = getDistance(t, be);
+            m = m_exploringData->getDistance(t, be);
             k = i;
         }
     }
@@ -734,9 +665,9 @@ void IEconomicsMinistry::fillBuildHouseMap()
             for (int i = 0; i < m_units.size(); ++i)
             {
                 const Entity & entity = m_units[i];
-                if (getDistance(entity, v2.x, v2.y) < maxDistance)
+                if (m_exploringData->getDistance(entity, v2.x, v2.y) < maxDistance)
                 {
-                    maxDistance = getDistance(entity, v2.x, v2.y);
+                    maxDistance = m_exploringData->getDistance(entity, v2.x, v2.y);
                     num = i;
                     p1 = v;
                     p2 = v2;
@@ -767,9 +698,9 @@ void IEconomicsMinistry::fillBuildRangeBaseaMap()
             for (int i = 0; i < m_units.size(); ++i)
             {
                 const Entity & entity = m_units[i];
-                if (getDistance(entity, v2.x, v2.y) < maxDistance)
+                if (m_exploringData->getDistance(entity, v2.x, v2.y) < maxDistance)
                 {
-                    maxDistance = getDistance(entity, v2.x, v2.y);
+                    maxDistance = m_exploringData->getDistance(entity, v2.x, v2.y);
                     num = i;
                     p1 = v;
                     p2 = v2;
@@ -791,9 +722,9 @@ Vec2Int IWarMinistry::getNearestEnemyBuilderUnitCoords(const Entity &entity)
     double maxDistance = 1000;
     for (int i : m_exploringData->enemyBuilderUnits)
     {
-        if (getDistance(m_playerView->entities[i], entity) < maxDistance)
+        if (m_exploringData->getDistance(m_playerView->entities[i], entity) < maxDistance)
         {
-            maxDistance = getDistance(m_playerView->entities[i], entity);
+            maxDistance = m_exploringData->getDistance(m_playerView->entities[i], entity);
             res = m_playerView->entities[i].position;
         }
     }

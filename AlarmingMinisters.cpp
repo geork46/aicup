@@ -21,7 +21,7 @@ void AlarmingEconomicMinister::addMinistryAction(Action &act)
 
     for (size_t i = 0; i < m_units.size(); i++) {
         const Entity& entity = m_units[i];
-        const EntityProperties& properties = m_playerView->entityProperties.at(entity.entityType);
+        const EntityProperties& properties = m_exploringData->entityProperties[entity.entityType];
         buildAction = nullptr;
 
 //        if (!m_exploringData->isSafetryPosition(entity.position.x, entity.position.y))
@@ -49,7 +49,7 @@ void AlarmingEconomicMinister::addMinistryAction(Action &act)
         {
 
             const Entity& building = m_playerView->entities[m_repairMap[i]];
-            const EntityProperties& prop = m_playerView->entityProperties.at(building.entityType);
+            const EntityProperties& prop = m_exploringData->entityProperties[building.entityType];
             moveAction = std::shared_ptr<MoveAction>(new MoveAction(
                                                          Vec2Int( building.position.x + prop.size / 2 ,
                                                                   building.position.y + prop.size / 2),
@@ -68,7 +68,7 @@ void AlarmingWarMinister::addMinistryAction(Action &act)
 
     for (size_t i = 0; i < m_units.size(); i++) {
         const Entity& entity = m_units[i];
-        const EntityProperties& properties = m_playerView->entityProperties.at(entity.entityType);
+        const EntityProperties& properties = m_exploringData->entityProperties[entity.entityType];
         std::shared_ptr<MoveAction> moveAction = nullptr;
 
         int x = m_playerView->mapSize - 1, y = m_playerView->mapSize - 1;
@@ -121,7 +121,7 @@ void AlarmingDefenceMinister::addMinistryAction(Action &act)
 
     for (size_t i = 0; i < m_units.size(); i++) {
         const Entity& entity = m_units[i];
-        const EntityProperties& properties = m_playerView->entityProperties.at(entity.entityType);
+        const EntityProperties& properties = m_exploringData->entityProperties[entity.entityType];
 
         int x = m_playerView->mapSize - 1, y = m_playerView->mapSize - 1;
 

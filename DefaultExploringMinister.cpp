@@ -7,17 +7,89 @@ DefaultExploringMinister::DefaultExploringMinister()
 
 }
 
-ExploringData DefaultExploringMinister::getExploringData(const PlayerView &playerView)
+void DefaultExploringMinister::getExploringData(const PlayerView &playerView, ExploringData &data)
 {
     m_playerView = &playerView;
-    ExploringData data{};
+    m_exploringData = &data;
 
-    data.playerView = &playerView;
+    clearExploringData(data);
+    fillExploringDataFromPlayerView(data, playerView);
+
+    if (playerView.fogOfWar)
+    {
+        if (data.playersCount > 2)
+        {
+            exploring2(playerView, data);
+        } else {
+            exploring3(playerView, data);
+        }
+
+    } else {
+        exploring1(playerView, data);
+    }
+
+}
+
+void DefaultExploringMinister::clearExploringData(ExploringData &data)
+{
+    data.builderUnitsCount = 0;
+    data.rangedUnitsCount = 0;
+    data.meleeUnitsCount = 0;
+    data.builderBaseCount = 0;
+    data.rangedBaseCount = 0;
+    data.meleeBaseCount = 0;
+    data.housesCount = 0;
+    data.turretCount = 0;
+    data.myResourcesCount = 0;
+    data.mapResourcesCount = 0;
+    data.maxPopulation = 0;
+    data.currentPopulation = 0;
+    data.freePopulation = 0;
+
+    data.isBaseAttacked = false;
+
+    data.map.clear();
+    data.enemies.clear();
+    data.needRepairBuildings.clear();
+    data.attackingEnemyUnits.clear();
+    data.enemyUnits.clear();
+    data.enemyBuilderUnits.clear();
+    data.myBuildings.clear();
     data.safertyResources.clear();
 
+    data.mainEnemy = 0;
+}
 
+void DefaultExploringMinister::fillExploringDataFromPlayerView(ExploringData &data, const PlayerView &playerView)
+{
+    data.playerView = &playerView;
+
+    static bool onlyOne = true;
+
+    if (onlyOne)
+    {
+        for (int i = WALL; i <= TURRET; ++i)
+        {
+            data.entityProperties[i] = playerView.entityProperties.at((EntityType)i);
+        }
+
+        data.mapSize = playerView.mapSize;
+        data.builderUnitPopulationUse = data.entityProperties[EntityType::BUILDER_UNIT].populationUse;
+        data.rangedUnitPopulationUse = data.entityProperties[EntityType::RANGED_UNIT].populationUse;
+        data.meleeUnitPopulationUse = data.entityProperties[EntityType::MELEE_UNIT].populationUse;
+
+        data.houseSize = data.entityProperties[EntityType::HOUSE].size;
+        data.rangedBaseSize = data.entityProperties[EntityType::RANGED_BASE].size;
+
+
+        data.playersCount = playerView.players.size();
+        onlyOne = false;
+    }
+}
+
+void DefaultExploringMinister::exploring1(const PlayerView &playerView, ExploringData &data)
+{
     int myId = playerView.myId;
-    data.mapSize = playerView.mapSize;
 
     for (int i = 0; i < playerView.entities.size(); i++) {
         const Entity& entity = playerView.entities[i];
@@ -38,7 +110,7 @@ ExploringData DefaultExploringMinister::getExploringData(const PlayerView &playe
             continue;
         }
 
-        const EntityProperties& properties = playerView.entityProperties.at(entity.entityType);
+        const EntityProperties& properties = data.entityProperties[entity.entityType];
 
         if ((!properties.canMove && properties.size > 1) || entity.entityType == EntityType::BUILDER_UNIT)
         {
@@ -105,7 +177,7 @@ ExploringData DefaultExploringMinister::getExploringData(const PlayerView &playe
 
     for (int i = EntityType::WALL; i <= EntityType::TURRET; ++i)
     {
-        data.entityCost[i] = playerView.entityProperties.at((EntityType)i).initialCost;
+        data.entityCost[i] = data.entityProperties[(EntityType)i].initialCost;
         switch (i) {
         case EntityType::BUILDER_UNIT :
             data.entityCost[i] += data.builderUnitsCount;
@@ -124,23 +196,25 @@ ExploringData DefaultExploringMinister::getExploringData(const PlayerView &playe
     data.meleeUnitsCost = data.entityCost[EntityType::MELEE_UNIT];
     data.rangedUnitsCost = data.entityCost[EntityType::BUILDER_UNIT];
 
-    data.builderUnitPopulationUse = playerView.entityProperties.at(EntityType::BUILDER_UNIT).populationUse;
-    data.rangedUnitPopulationUse = playerView.entityProperties.at(EntityType::RANGED_UNIT).populationUse;
-    data.meleeUnitPopulationUse = playerView.entityProperties.at(EntityType::MELEE_UNIT).populationUse;
-
-    data.houseSize = playerView.entityProperties.at(EntityType::HOUSE).size;
-    data.rangedBaseSize = playerView.entityProperties.at(EntityType::RANGED_BASE).size;
 
     postEnemyAnalize(playerView, data);
     resourcesAnalize(playerView, data);
+}
 
-    return data;
+void DefaultExploringMinister::exploring2(const PlayerView &playerView, ExploringData &data)
+{
+
+}
+
+void DefaultExploringMinister::exploring3(const PlayerView &playerView, ExploringData &data)
+{
+    exploring2(playerView, data);
 }
 
 void DefaultExploringMinister::fillMap(const PlayerView &playerView, ExploringData &data, int index)
 {
     const Entity& entity = playerView.entities[index];
-    const EntityProperties& properties = getEntityProperties(playerView, entity.entityType);//playerView.entityProperties.at(entity.entityType);
+    const EntityProperties& properties = data.entityProperties[entity.entityType];
     for (int i = 0; i < properties.size; ++i)
     {
         for (int j = 0; j < properties.size; ++j)
@@ -165,7 +239,7 @@ double DefaultExploringMinister::getDangerousCoef(double distance)
 
 void DefaultExploringMinister::enemyAnalize(const PlayerView &playerView, ExploringData &data, const Entity &entity, int index)
 {
-    const EntityProperties& properties = playerView.entityProperties.at(entity.entityType);
+    const EntityProperties& properties = data.entityProperties[entity.entityType];
 
     double distance = sqrt(entity.position.x * entity.position.x + entity.position.y * entity.position.y);
 
@@ -258,9 +332,9 @@ void DefaultExploringMinister::postEnemyAnalize(const PlayerView &playerView, Ex
     {
         for (int j : data.myBuildings)
         {
-            const EntityProperties& properties = playerView.entityProperties.at(playerView.entities[j].entityType);
-            if (getDistance(playerView.entities[i], playerView.entities[j]) < 8 + properties.size / 2
-                    && getDistance(playerView.entities[j], 8, 8) < 40)
+            const EntityProperties& properties = data.entityProperties[playerView.entities[j].entityType];
+            if (m_exploringData->getDistance(playerView.entities[i], playerView.entities[j]) < 8 + properties.size / 2
+                    && m_exploringData->getDistance(playerView.entities[j], 8, 8) < 40)
             {
                 data.isBaseAttacked = true;
                 data.attackingEnemyUnits.push_back(i);
@@ -290,7 +364,7 @@ void DefaultExploringMinister::resourcesAnalize(const PlayerView &playerView, Ex
             for (int j : data.enemyUnits)
             {
                 const Entity& enemy = playerView.entities[j];
-                if (getDistanceSqr(entity, enemy) < 7*7 && enemy.entityType != EntityType::BUILDER_UNIT)
+                if (data.getDistanceSqr(entity, enemy) < 7*7 && enemy.entityType != EntityType::BUILDER_UNIT)
                 {
                     f = false;
                     break;

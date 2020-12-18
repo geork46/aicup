@@ -80,6 +80,7 @@ void DefaultExploringMinister::fillExploringDataFromPlayerView(ExploringData &da
         data.meleeUnitPopulationUse = data.entityProperties[EntityType::MELEE_UNIT].populationUse;
 
         data.houseSize = data.entityProperties[EntityType::HOUSE].size;
+        data.turretSize = data.entityProperties[EntityType::TURRET].size;
         data.rangedBaseSize = data.entityProperties[EntityType::RANGED_BASE].size;
 
         data.playersCount = playerView.players.size();

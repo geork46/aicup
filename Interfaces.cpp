@@ -11,6 +11,7 @@ int ExploringData::builderUnitsCost;
 int ExploringData::rangedUnitsCost;
 int ExploringData::meleeUnitsCost;
 int ExploringData::houseSize;
+int ExploringData::turretSize;
 int ExploringData::rangedBaseSize;
 int ExploringData::mapSize;
 int ExploringData::playersCount;
@@ -131,7 +132,7 @@ void IMinistry::turretAttack(Action &act, int turretId)
     const EntityProperties& properties = m_exploringData->entityProperties[TURRET];
     autoAttack.reset(new AutoAttack(properties.sightRange, validAutoAttackTargets));
     attackAction.reset(new AttackAction( nullptr, autoAttack));
-    act.entityActions[m_exploringData->turretID] = EntityAction( nullptr, nullptr, attackAction, nullptr);
+    act.entityActions[turretId] = EntityAction( nullptr, nullptr, attackAction, nullptr);
 
 }
 
@@ -201,6 +202,37 @@ bool ExploringData::getFreeHouseCoordinate(int &x, int &y) const
         continue;
     }
     return false;
+}
+
+std::vector<Vec2Int> ExploringData::getFreeTurretsCoordinates() const
+{
+    std::vector<Vec2Int> init{};
+    init.push_back(Vec2Int(3, 25));
+    init.push_back(Vec2Int(6, 25));
+    init.push_back(Vec2Int(9, 25));
+    init.push_back(Vec2Int(25, 3));
+    init.push_back(Vec2Int(25, 6));
+    init.push_back(Vec2Int(25, 9));
+
+    std::vector<Vec2Int> result{};
+
+    for (int k = 0; k < init.size(); ++k)
+    {
+        for (int i = 0; i < turretSize; ++i)
+        {
+            for (int j = 0; j < turretSize; ++j)
+            {
+                if (map.find(getIndex(init[k].x + i, init[k].y + j)) != map.end())
+                {
+                    goto next;
+                }
+            }
+        }
+        result.push_back(init[k]);
+        next:
+        continue;
+    }
+    return result;
 }
 
 std::vector<Vec2Int> ExploringData::getFreeHouseCoordinates() const
@@ -555,26 +587,17 @@ void IEconomicsMinistry::farmResources(Action &act, const Entity &entity, int i)
 {
     const EntityProperties& properties = m_exploringData->entityProperties[entity.entityType];
     std::shared_ptr<MoveAction> moveAction = nullptr;
-    int x = m_playerView->mapSize - 1;
-    int y = m_playerView->mapSize - 1;
+    int x = m_playerView->mapSize - 10;
+    int y = m_playerView->mapSize - 10;
 
-
-    bool succes = false;
-    switch (i % 4) {
-    case 0:
-        x = m_playerView->mapSize - 1;
-        y = m_playerView->mapSize / 4 + 1;
-        break;
-    case 1:
-        m_exploringData->getNearestResources(entity, x, y);
-        break;
-    case 2:
-        succes = m_exploringData->getNearestSafertyResources(entity, x, y);
-        break;
-    default:
-        x = m_playerView->mapSize - 1;
-        y = m_playerView->mapSize - 1;
-        break;
+    if (i % 2 != 0)
+    {
+        x = m_playerView->mapSize / 4 + 1;
+        y = m_playerView->mapSize - 10;
+    } else if (i % 4 == 0)
+    {
+         x = m_playerView->mapSize - 10;
+         y = m_playerView->mapSize / 4 + 1;
     }
 
     std::vector<EntityType> validAutoAttackTargets;
@@ -585,23 +608,13 @@ void IEconomicsMinistry::farmResources(Action &act, const Entity &entity, int i)
 
     if (!m_exploringData->isSafetryPosition(entity.position.x, entity.position.y))
     {
-        if (!succes)
-        {
-            x = 0;
-            y = 0;
-        }
+        x = 0;
+        y = 0;
         moveAction = std::shared_ptr<MoveAction>(new MoveAction(Vec2Int(x, y), true, true));
         act.entityActions[entity.id] = EntityAction( moveAction, nullptr, nullptr, nullptr);
         return;
 
     }
-
-//    for (int i : m_exploringData->attackedEnemyUnits)
-//    {
-//        if (getDistance(entity, m_playerView->entities[i]) < 8 && m_playerView->entities[i].entityType != EntityType::BUILDER_UNIT)
-//        {
-//        }
-//    }
 
     moveAction = std::shared_ptr<MoveAction>(new MoveAction(Vec2Int(x, y), true, true));
 
@@ -765,6 +778,42 @@ void IEconomicsMinistry::fillBuildRangeBaseaMap()
     {
         m_buildHouseMap[num] = std::pair<Vec2Int, Vec2Int>(p1, p2);
         m_buildTypeMap[num] = EntityType::RANGED_BASE;
+    }
+
+}
+
+void IEconomicsMinistry::fillBuildTurrets()
+{
+    double maxDistance = 1000;
+    int num = -1;
+    Vec2Int p1, p2;
+    std::vector<Vec2Int> freeHousePoints = m_exploringData->getFreeTurretsCoordinates();
+    for(Vec2Int v : freeHousePoints)
+    {
+        std::vector<Vec2Int> freeNearPoints = m_exploringData->getFreeCoordinateForBuilding(v, m_exploringData->turretSize);
+        for (Vec2Int v2 : freeNearPoints)
+        {
+            for (int i = 0; i < m_units.size(); ++i)
+            {
+                if (m_buildHouseMap.find(i) != m_buildHouseMap.end())
+                {
+                    continue;
+                }
+                const Entity & entity = m_units[i];
+                if (m_exploringData->getDistance(entity, v2.x, v2.y) < maxDistance)
+                {
+                    maxDistance = m_exploringData->getDistance(entity, v2.x, v2.y);
+                    num = i;
+                    p1 = v;
+                    p2 = v2;
+                }
+            }
+        }
+    }
+    if (num >= 0)
+    {
+        m_buildHouseMap[num] = std::pair<Vec2Int, Vec2Int>(p1, p2);
+        m_buildTypeMap[num] = EntityType::TURRET;
     }
 
 }

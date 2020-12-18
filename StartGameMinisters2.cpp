@@ -13,17 +13,17 @@ void StartGameEconomicMinister2::addMinistryAction(Action &act)
     fillRepairMap();
     createBuilderUnit(act);
 
-    m_buildHouseMap.clear();
-    m_buildTypeMap.clear();
+
+
+    static int tick = 0;
+    tick++;
+    if (tick % 3 == 0)
+    {
+        m_buildHouseMap.clear();
+        m_buildTypeMap.clear();
+    }
     if (m_exploringData->rangedBaseCount < 1 &&
             m_resourcesCount + m_exploringData->builderUnitsCount >= m_exploringData->entityCost[EntityType::RANGED_BASE])
-    {
-        if (m_buildHouseMap.size() < 3)
-        {
-            fillBuildRangeBaseaMap();
-        }
-    } else if (m_exploringData->rangedBaseCount < 2 &&
-            m_resourcesCount + m_exploringData->builderUnitsCount >= 500 + m_exploringData->entityCost[EntityType::RANGED_BASE])
     {
         if (m_buildHouseMap.size() < 3)
         {
@@ -35,12 +35,23 @@ void StartGameEconomicMinister2::addMinistryAction(Action &act)
         if (m_buildHouseMap.size() < 2)
         {
             fillBuildHouseMap();
-        } else if (m_resourcesCount + m_exploringData->builderUnitsCount >= 200)
+        } else if (m_buildHouseMap.size() < 3 &&
+                   m_resourcesCount + m_exploringData->builderUnitsCount >= 200)
         {
             fillBuildHouseMap();
         }
-
     }
+    if (m_resourcesCount >= 50 && (m_exploringData->freePopulation < 15))
+    {
+        if (m_buildHouseMap.size() < 2)
+        {
+            fillBuildTurrets();
+        } else if (m_buildHouseMap.size() < 3 && m_resourcesCount + m_exploringData->builderUnitsCount >= 200)
+        {
+            fillBuildTurrets();
+        }
+    }
+
     int x, y;
     bool f = m_exploringData->getFreeHouseCoordinate(x, y);
 
@@ -92,7 +103,6 @@ void StartGameEconomicMinister2::addMinistryAction(Action &act)
 
 void StartGameWarMinister2::addMinistryAction(Action &act)
 {
-
     int myId = m_playerView->myId;
 
     for (size_t i = 0; i < m_units.size(); i++) {
@@ -140,6 +150,13 @@ void StartGameDefenceMinister2::addMinistryAction(Action &act)
     for (size_t i = 0; i < m_buildings.size(); i++) {
         act.entityActions[m_buildings[i].id] = EntityAction( nullptr, nullptr, nullptr, nullptr);
     }
+    for (int i = 0; i < m_buildings.size(); ++i)
+    {
+        if (m_buildings[i].entityType == TURRET)
+        {
+            turretAttack(act, m_buildings[i].id);
+        }
+    }
 }
 
 void StartGameDistributor2::innerDistribute(const PlayerView &playerView, const ExploringData &data)
@@ -163,6 +180,7 @@ void StartGameDistributor2::innerDistribute(const PlayerView &playerView, const 
             m_warMinister->addEntity(entity);
             break;
         case EntityType::MELEE_BASE :
+        case EntityType::TURRET :
             m_defenceMinister->addEntity(entity);
         default:
             break;

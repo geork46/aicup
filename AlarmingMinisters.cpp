@@ -157,7 +157,13 @@ void AlarmingDefenceMinister::addMinistryAction(Action &act)
 
     createEntitiesByBuildings(act);
 
-    turretAttack(act);
+    for (int i = 0; i < m_buildings.size(); ++i)
+    {
+        if (m_buildings[i].entityType == TURRET)
+        {
+            turretAttack(act, m_buildings[i].id);
+        }
+    }
 }
 
 

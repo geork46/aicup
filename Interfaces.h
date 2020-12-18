@@ -54,6 +54,7 @@ struct ExploringData
     static int rangedUnitsCost;
     static int meleeUnitsCost;
     static int houseSize;
+    static int turretSize;
     static int rangedBaseSize;
     static int mapSize;
     static int playersCount;
@@ -88,6 +89,10 @@ struct ExploringData
 
 
     bool getFreeHouseCoordinate(int &x, int &y) const;
+
+
+    std::vector<Vec2Int> getFreeTurretsCoordinates() const;
+
     std::vector<Vec2Int> getFreeHouseCoordinates() const;
     std::vector<Vec2Int> getFreeRangeBaseCoordinates() const;
     std::vector<Vec2Int> getFreeCoordinateForBuilding(Vec2Int point, size_t size) const;
@@ -172,6 +177,7 @@ protected:
     virtual void fillBuildHouseMap();
 
     virtual void fillBuildRangeBaseaMap();
+    virtual void fillBuildTurrets();
 
     std::unordered_map<int, int> m_repairMap;
     std::unordered_map<int, std::pair<Vec2Int, Vec2Int>> m_buildHouseMap;

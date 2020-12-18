@@ -74,21 +74,20 @@ void AlarmingWarMinister::addMinistryAction(Action &act)
         int x = m_playerView->mapSize - 1, y = m_playerView->mapSize - 1;
 
         int maxD = 500;
-//        for (auto i : m_exploringData->enemies)
-//        {
-//            if (i.second.dangerousLevel > 0)
-//            {
-//                if (i.second.meleeUnitsCount + i.second.rangedUnitsCount < maxD)
-//                {
-//                    x = i.second.mainX;
-//                    y = i.second.mainY;
-//                    maxD = i.second.meleeUnitsCount + i.second.rangedUnitsCount;
-//                }
-//                break;
-//            }
-//        }
+        for (int i = 0; i < m_exploringData->MAX_ENEMIES; ++i)
+        {
+            if (m_exploringData->enemies[i].entityCount > 0)
+            {
+                if (m_exploringData->enemies[i].meleeUnitsCount + m_exploringData->enemies[i].rangedUnitsCount < maxD)
+                {
+                    x = m_exploringData->enemies[i].mainX;
+                    y = m_exploringData->enemies[i].mainY;
+                    maxD = m_exploringData->enemies[i].meleeUnitsCount + m_exploringData->enemies[i].rangedUnitsCount;
+                }
+            }
+        }
 
-        if (maxD > m_units.size() + 1)
+        if (maxD > m_units.size())
         {
             x = 15;
             y = 15;
@@ -116,7 +115,6 @@ void AlarmingWarMinister::addMinistryAction(Action &act)
 
 void AlarmingDefenceMinister::addMinistryAction(Action &act)
 {
-
     fillAttackMap();
 
     for (size_t i = 0; i < m_units.size(); i++) {
@@ -146,7 +144,6 @@ void AlarmingDefenceMinister::addMinistryAction(Action &act)
     createEntitiesByBuildings(act);
 
     turretAttack(act);
-
 }
 
 
@@ -192,11 +189,6 @@ void AlarmingDistributor::innerDistribute(const PlayerView &playerView, const Ex
         m_economicMinister->setMaxPopulation(data.freePopulation);
         m_economicMinister->setResourcesCount(data.myResourcesCount);
     }
-//    m_warMinister->setMaxPopulation(data.freePopulation);
-//    m_warMinister->setResourcesCount(data.myResourcesCount);
-
-//    m_defenceMinister->setMaxPopulation(0);
-//    m_defenceMinister->setResourcesCount(0);
 
     m_defenceMinister->setMaxPopulation(data.freePopulation);
     m_defenceMinister->setResourcesCount(data.myResourcesCount);
@@ -209,7 +201,7 @@ bool AlarmingDistributor::entityNearByAttackingEnemy(const PlayerView &playerVie
 {
     for (int i : data.attackingEnemyUnits)
     {
-        if (data.getDistance(entity, playerView.entities[i]) < 30)
+        if (data.getDistanceSqr(entity, playerView.entities[i]) < 30 * 30)
         {
             return true;
         }

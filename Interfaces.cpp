@@ -221,10 +221,10 @@ std::vector<Vec2Int> ExploringData::getFreeHouseCoordinates() const
     init.push_back(Vec2Int(16, 0));
     init.push_back(Vec2Int(19, 0));
     init.push_back(Vec2Int(22, 0));
-//    init.push_back(Vec2Int(11, 4));
-//    init.push_back(Vec2Int(11, 8));
-//    init.push_back(Vec2Int(4, 11));
-//    init.push_back(Vec2Int(7, 11));
+    init.push_back(Vec2Int(11, 4));
+    init.push_back(Vec2Int(11, 8));
+    init.push_back(Vec2Int(4, 11));
+    init.push_back(Vec2Int(7, 11));
     init.push_back(Vec2Int(22, 3));
     init.push_back(Vec2Int(22, 6));
     init.push_back(Vec2Int(22, 9));
@@ -664,8 +664,8 @@ void IEconomicsMinistry::getCreateUnitCoordinates(int &x, int &y)
 
 void IEconomicsMinistry::fillBuildHouseMap()
 {
-//    m_buildHouseMap.clear();
-//    m_buildTypeMap.clear();
+    m_buildHouseMap.clear();
+    m_buildTypeMap.clear();
     double maxDistance = 1000;
     int num = -1;
     Vec2Int p1, p2;
@@ -731,7 +731,7 @@ void IEconomicsMinistry::fillBuildRangeBaseaMap()
 
 Vec2Int IWarMinistry::getNearestEnemyBuilderUnitCoords(const Entity &entity)
 {
-    Vec2Int res;
+    Vec2Int res(0, 0);
     double maxDistance = 1000;
     for (int i : m_exploringData->enemyBuilderUnits)
     {

@@ -198,7 +198,111 @@ void DefaultExploringMinister::exploring1(const PlayerView &playerView, Explorin
 
 void DefaultExploringMinister::exploring2(const PlayerView &playerView, ExploringData &data)
 {
+    int myId = playerView.myId;
 
+    for (int i = 0; i < playerView.entities.size(); i++) {
+        const Entity& entity = playerView.entities[i];
+
+        fillMap(playerView, data, i);
+
+        if (entity.entityType == EntityType::RESOURCE)
+        {
+            data.mapResourcesCount++;
+            data.safertyResources.push_back(i);
+        }
+
+        if (entity.playerId == nullptr || *entity.playerId != myId) {
+            if (entity.playerId != nullptr)
+            {
+                enemyAnalize(playerView, data, entity, i);
+            }
+            continue;
+        }
+
+        const EntityProperties& properties = data.entityProperties[entity.entityType];
+
+        if ((!properties.canMove && properties.size > 1) || entity.entityType == EntityType::BUILDER_UNIT)
+        {
+            data.myBuildings.push_back(i);
+        }
+
+        switch (entity.entityType) {
+        case HOUSE:
+            data.housesCount++;
+            break;
+        case BUILDER_BASE:
+            data.builderBaseId = entity.id;
+            data.builderBaseIndex = i;
+            data.builderBaseCount++;
+            break;
+        case BUILDER_UNIT:
+            data.builderUnitsCount++;
+            break;
+        case MELEE_BASE:
+            data.meleeBaseID = entity.id;
+            data.meleeBaseIndex = i;
+            data.meleeBaseCount++;
+            break;
+        case TURRET:
+            data.turretID = entity.id;
+            data.turretCount++;
+            break;
+        case MELEE_UNIT:
+            data.meleeUnitsCount++;
+            break;
+        case RANGED_BASE:
+            data.rangedBaseID = entity.id;
+            data.rangedBaseIndex = i;
+            data.rangedBaseCount++;
+            break;
+        case RANGED_UNIT:
+            data.rangedUnitsCount++;
+            break;
+        default:
+            break;
+        }
+        if (entity.health < properties.maxHealth && !properties.canMove)
+        {
+            data.needRepairBuildings.push_back(i);
+        }
+
+        data.maxPopulation += properties.populationProvide;
+        data.currentPopulation += properties.populationUse;
+    }
+
+    for (int i = 0; i < playerView.players.size(); ++i )
+    {
+        if (playerView.players[i].id == myId)
+        {
+            data.myResourcesCount = playerView.players[i].resource;
+        }
+    }
+    data.freePopulation = data.maxPopulation - data.currentPopulation;
+
+    for (int i = EntityType::WALL; i <= EntityType::TURRET; ++i)
+    {
+        data.entityCost[i] = data.entityProperties[(EntityType)i].initialCost;
+        switch (i) {
+        case EntityType::BUILDER_UNIT :
+            data.entityCost[i] += data.builderUnitsCount;
+            break;
+        case EntityType::MELEE_UNIT :
+            data.entityCost[i] += data.meleeUnitsCount;
+            break;
+        case EntityType::RANGED_UNIT :
+            data.entityCost[i] += data.rangedUnitsCount;
+            break;
+        default:
+            break;
+        }
+    }
+    data.builderUnitsCost = data.entityCost[EntityType::BUILDER_UNIT];
+    data.meleeUnitsCost = data.entityCost[EntityType::MELEE_UNIT];
+    data.rangedUnitsCost = data.entityCost[EntityType::BUILDER_UNIT];
+
+
+    postEnemyAnalize(playerView, data);
+    resourcesAnalize(playerView, data);
 }
 
 void DefaultExploringMinister::exploring3(const PlayerView &playerView, ExploringData &data)

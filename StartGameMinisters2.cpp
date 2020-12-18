@@ -15,14 +15,22 @@ void StartGameEconomicMinister2::addMinistryAction(Action &act)
 
     m_buildHouseMap.clear();
     m_buildTypeMap.clear();
-    if (m_exploringData->rangedBaseCount < 2 &&
+    if (m_exploringData->rangedBaseCount < 1 &&
             m_resourcesCount + m_exploringData->builderUnitsCount >= m_exploringData->entityCost[EntityType::RANGED_BASE])
     {
         if (m_buildHouseMap.size() < 3)
         {
             fillBuildRangeBaseaMap();
         }
-    } else if (m_resourcesCount >= 50 && (m_exploringData->freePopulation < 10))
+    } else if (m_exploringData->rangedBaseCount < 2 &&
+            m_resourcesCount + m_exploringData->builderUnitsCount >= 300 + m_exploringData->entityCost[EntityType::RANGED_BASE])
+    {
+        if (m_buildHouseMap.size() < 3)
+        {
+            fillBuildRangeBaseaMap();
+        }
+    }
+    if (m_resourcesCount >= 50 && (m_exploringData->freePopulation < 10))
     {
         if (m_buildHouseMap.size() < 2)
         {

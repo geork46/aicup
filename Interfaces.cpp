@@ -560,20 +560,21 @@ void IEconomicsMinistry::farmResources(Action &act, const Entity &entity, int i)
 
 
     bool succes = false;
-    if (i % 2 != 0)
-    {
-        x = m_playerView->mapSize - 1;
-        y = m_playerView->mapSize - 1;
-//        succes = m_exploringData->getNearestSafertyResources(entity, x, y);
-//        int x = m_playerView->mapSize / 4 + 1;
-//        int y = m_playerView->mapSize / 4;
-    } else if (i % 4 == 0)
-    {
+    switch (i % 4) {
+    case 0:
         x = m_playerView->mapSize - 1;
         y = m_playerView->mapSize / 4 + 1;
-    } else {
-//        m_exploringData->getNearestResources(entity, x, y);
+        break;
+    case 1:
+        m_exploringData->getNearestResources(entity, x, y);
+        break;
+    case 2:
         succes = m_exploringData->getNearestSafertyResources(entity, x, y);
+        break;
+    default:
+        x = m_playerView->mapSize - 1;
+        y = m_playerView->mapSize - 1;
+        break;
     }
 
     std::vector<EntityType> validAutoAttackTargets;

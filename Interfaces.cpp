@@ -259,16 +259,16 @@ std::vector<Vec2Int> ExploringData::getFreeRangeBaseCoordinates() const
 {
     std::vector<Vec2Int> init{};
     init.push_back(Vec2Int(11, 11));
-//    init.push_back(Vec2Int(11, 6));
+    init.push_back(Vec2Int(11, 6));
     init.push_back(Vec2Int(11, 7));
-//    init.push_back(Vec2Int(11, 8));
+    init.push_back(Vec2Int(11, 8));
     init.push_back(Vec2Int(11, 9));
-//    init.push_back(Vec2Int(11, 10));
+    init.push_back(Vec2Int(11, 10));
     init.push_back(Vec2Int(6, 11));
     init.push_back(Vec2Int(7, 11));
-//    init.push_back(Vec2Int(8, 11));
+    init.push_back(Vec2Int(8, 11));
     init.push_back(Vec2Int(9, 11));
-//    init.push_back(Vec2Int(10, 11));
+    init.push_back(Vec2Int(10, 11));
     init.push_back(Vec2Int(12, 12));
 
     std::vector<Vec2Int> result{};
@@ -534,14 +534,17 @@ void IEconomicsMinistry::farmResources(Action &act, const Entity &entity, int i)
     bool succes = false;
     if (i % 2 != 0)
     {
-//        m_exploringData->getNearestResources(entity, x, y);
+        m_exploringData->getNearestResources(entity, x, y);
 //        succes = m_exploringData->getNearestSafertyResources(entity, x, y);
-        int x = m_playerView->mapSize / 4 + 1;
-        int y = m_playerView->mapSize / 4;
+//        int x = m_playerView->mapSize / 4 + 1;
+//        int y = m_playerView->mapSize / 4;
     } else if (i % 4 == 0)
     {
-        int x = m_playerView->mapSize - 1;
-        int y = m_playerView->mapSize / 4 + 1;
+        x = m_playerView->mapSize - 1;
+        y = m_playerView->mapSize / 4 + 1;
+    } else {
+        x = m_playerView->mapSize - 1;
+        y = m_playerView->mapSize - 1;
     }
 
     std::vector<EntityType> validAutoAttackTargets;
@@ -699,7 +702,7 @@ void IEconomicsMinistry::fillBuildHouseMap()
 
 void IEconomicsMinistry::fillBuildRangeBaseaMap()
 {
-    double maxDistance = 1000;
+    double maxDistance = 1000000;
     int num = -1;
     Vec2Int p1, p2;
     std::vector<Vec2Int> freeHousePoints = m_exploringData->getFreeRangeBaseCoordinates();
@@ -711,12 +714,19 @@ void IEconomicsMinistry::fillBuildRangeBaseaMap()
             for (int i = 0; i < m_units.size(); ++i)
             {
                 const Entity & entity = m_units[i];
-                if (m_exploringData->getDistance(entity, v2.x, v2.y) < maxDistance)
+                double sqrDistance = m_exploringData->getDistanceSqr(entity, v2.x, v2.y);
+                if (sqrDistance < maxDistance)
                 {
-                    maxDistance = m_exploringData->getDistance(entity, v2.x, v2.y);
+                    maxDistance = sqrDistance;
                     num = i;
                     p1 = v;
                     p2 = v2;
+                    if (maxDistance < 2)
+                    {
+                        m_buildHouseMap[num] = std::pair<Vec2Int, Vec2Int>(p1, p2);
+                        m_buildTypeMap[num] = EntityType::RANGED_BASE;
+                        return;
+                    }
                 }
             }
         }

@@ -73,16 +73,6 @@ void StartGameEconomicMinister2::addMinistryAction(Action &act)
             act.entityActions[entity.id] = EntityAction( moveAction, nullptr, nullptr,std::shared_ptr<RepairAction>(new RepairAction(building.id)));
             continue;
         }
-//        if (i > m_exploringData->builderUnitsCount - 3 && f && m_exploringData->myResourcesCount > 50
-//                && (m_exploringData->freePopulation < 10))
-//        {
-//            moveAction = std::shared_ptr<MoveAction>(new MoveAction(
-//                                                         Vec2Int(x + m_exploringData->houseSize, y + m_exploringData->houseSize - 1),
-//                                                         true, true));
-//            buildAction = std::shared_ptr<BuildAction>(new BuildAction( EntityType::HOUSE, Vec2Int(x, y)));
-//            act.entityActions[entity.id] = EntityAction( moveAction, buildAction, nullptr, nullptr);
-//            continue;
-//        }
 
         farmResources(act, entity, i);
     }

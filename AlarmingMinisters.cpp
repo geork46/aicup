@@ -214,6 +214,7 @@ bool AlarmingDistributor::entityNearByAttackingEnemy(const PlayerView &playerVie
             return true;
         }
     }
+    return false;
 }
 
 bool AlarmingDistributor::needMoreSolders(const PlayerView &playerView, const ExploringData &data)

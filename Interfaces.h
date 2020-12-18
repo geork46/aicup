@@ -106,8 +106,7 @@ struct ExploringData
     bool isSafetryPosition(int x, int y) const;
 
     void getNearestResources(const Entity &entity, int &x, int &y) const;
-
-    bool getNearestSafertyResources(const Entity &entity, int &x, int &y) const;
+//    bool getNearestSafertyResources(const Entity &entity, int &x, int &y) const;
 
     double getDistance(const Entity &unit, const Entity &building) const;
     double getDistance(const Entity &unit, int x, int y) const;

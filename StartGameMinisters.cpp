@@ -96,29 +96,20 @@ void StartGameWarMinister::addMinistryAction(Action &act)
 
         int x = m_playerView->mapSize - 1, y = m_playerView->mapSize - 1;
 
-//        if (m_exploringData->rangedUnitsCount > 8 && i < m_units.size() - m_units.size() / 3 + 1)
-//        {
-
         int maxD = 500;
-        for (auto i : m_exploringData->enemies)
+        for (int i = 0; i < m_exploringData->MAX_ENEMIES; ++i)
         {
-            if (i.second.entityCount > 0)
+            if (m_exploringData->enemies[i].entityCount > 0)
             {
-                if (i.second.meleeUnitsCount + i.second.rangedUnitsCount < maxD)
+                if (m_exploringData->enemies[i].meleeUnitsCount + m_exploringData->enemies[i].rangedUnitsCount < maxD)
                 {
-                    x = i.second.mainX;
-                    y = i.second.mainY;
-                    maxD = i.second.meleeUnitsCount + i.second.rangedUnitsCount;
+                    x = m_exploringData->enemies[i].mainX;
+                    y = m_exploringData->enemies[i].mainY;
+                    maxD = m_exploringData->enemies[i].meleeUnitsCount + m_exploringData->enemies[i].rangedUnitsCount;
                 }
-                break;
             }
         }
-//        } else
-//        {
-//            x = 15;
-//            y = 15;
-//        }
-        if (maxD > m_exploringData->meleeUnitsCount + m_exploringData->rangedUnitsCount + 1)
+        if (maxD > m_exploringData->meleeUnitsCount + m_exploringData->rangedUnitsCount + 2)
         {
             x = 15;
             y = 15;
@@ -142,29 +133,7 @@ void StartGameWarMinister::addMinistryAction(Action &act)
                     nullptr);
     }
 
-    for (size_t i = 0; i < m_buildings.size(); i++) {
-        const Entity& entity = m_buildings[i];
-        const EntityProperties& properties = m_exploringData->entityProperties[entity.entityType];
-        std::shared_ptr<MoveAction> moveAction = nullptr;
-        std::shared_ptr<BuildAction> buildAction = nullptr;
-        std::vector<EntityType> validAutoAttackTargets;
-
-        if (properties.build != nullptr) {
-            EntityType entityType = properties.build->options[0];
-            if (m_exploringData->entityProperties[entityType].populationUse <= m_maxPopulation
-                    && m_exploringData->entityCost[entityType] <= m_resourcesCount)
-            {
-                buildAction = std::shared_ptr<BuildAction>(new BuildAction(
-                                                               entityType,
-                                                               Vec2Int(entity.position.x + properties.size, entity.position.y + properties.size - 1)));
-            }
-        }
-        act.entityActions[entity.id] = EntityAction(
-                    moveAction,
-                    buildAction,
-                    nullptr,
-                    nullptr);
-    }
+    createEntitiesByBuildings(act);
 
 }
 

@@ -49,7 +49,6 @@ void DefaultExploringMinister::clearExploringData(ExploringData &data)
     data.isBaseAttacked = false;
 
     data.map.clear();
-    data.enemies.clear();
     data.needRepairBuildings.clear();
     data.attackingEnemyUnits.clear();
     data.enemyUnits.clear();
@@ -58,6 +57,8 @@ void DefaultExploringMinister::clearExploringData(ExploringData &data)
     data.safertyResources.clear();
 
     data.mainEnemy = 0;
+
+    clearEnemyInfo(data);
 }
 
 void DefaultExploringMinister::fillExploringDataFromPlayerView(ExploringData &data, const PlayerView &playerView)
@@ -165,11 +166,6 @@ void DefaultExploringMinister::exploring1(const PlayerView &playerView, Explorin
         if (playerView.players[i].id == myId)
         {
             data.myResourcesCount = playerView.players[i].resource;
-        } else {
-            if (data.enemies.find(playerView.players[i].id) == data.enemies.end())
-            {
-                data.enemies[playerView.players[i].id] = EnemyInfo{};
-            }
         }
     }
     data.freePopulation = data.maxPopulation - data.currentPopulation;
@@ -208,6 +204,22 @@ void DefaultExploringMinister::exploring2(const PlayerView &playerView, Explorin
 void DefaultExploringMinister::exploring3(const PlayerView &playerView, ExploringData &data)
 {
     exploring2(playerView, data);
+}
+
+void DefaultExploringMinister::clearEnemyInfo(ExploringData &data)
+{
+    for (int i = 0; i < data.MAX_ENEMIES; ++i)
+    {
+        data.enemies[i].mainX = 0;
+        data.enemies[i].mainY = 0;
+        data.enemies[i].builderBaseX = 0;
+        data.enemies[i].builderBaseY = 0;
+        data.enemies[i].builderUnitsCount = 0;
+        data.enemies[i].rangedUnitsCount = 0;
+        data.enemies[i].meleeUnitsCount = 0;
+        data.enemies[i].sqrDistance = 1000;
+        data.enemies[i].entityCount = 0;
+    }
 }
 
 void DefaultExploringMinister::fillMap(const PlayerView &playerView, ExploringData &data, int index)
@@ -295,29 +307,20 @@ void DefaultExploringMinister::enemyAnalize(const PlayerView &playerView, Explor
 
 void DefaultExploringMinister::postEnemyAnalize(const PlayerView &playerView, ExploringData &data)
 {
-//    int maxLevel = -1;
-//    int k = -1;
-//    for (auto i : data.enemies)
-//    {
-//        if (i.second.dangerousLevel > maxLevel)
-//        {
-//            k = i.first;
-//            maxLevel = i.second.dangerousLevel;
-//        }
-//    }
-//    data.mainEnemy = k;
-
-
     for (int i : data.enemyUnits)
     {
         for (int j : data.myBuildings)
         {
             const EntityProperties& properties = data.entityProperties[playerView.entities[j].entityType];
-            if (m_exploringData->getDistance(playerView.entities[i], playerView.entities[j]) < 8 + properties.size / 2
-                    && m_exploringData->getDistance(playerView.entities[j], 8, 8) < 40)
+
+            double sqrDistance = (8 + properties.size / 2) * (8 + properties.size / 2);
+
+            if (m_exploringData->getDistanceSqr(playerView.entities[i], playerView.entities[j]) < sqrDistance
+                    && m_exploringData->getDistanceSqr(playerView.entities[j], 8, 8) < 40 * 40)
             {
                 data.isBaseAttacked = true;
                 data.attackingEnemyUnits.push_back(i);
+                break;
             }
         }
     }
@@ -344,7 +347,7 @@ void DefaultExploringMinister::resourcesAnalize(const PlayerView &playerView, Ex
             for (int j : data.enemyUnits)
             {
                 const Entity& enemy = playerView.entities[j];
-                if (data.getDistanceSqr(entity, enemy) < 7*7 && enemy.entityType != EntityType::BUILDER_UNIT)
+                if (data.getDistanceSqr(entity, enemy) < 7*8 && enemy.entityType != EntityType::BUILDER_UNIT)
                 {
                     f = false;
                     break;

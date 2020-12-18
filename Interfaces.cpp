@@ -14,6 +14,8 @@ int ExploringData::houseSize;
 int ExploringData::rangedBaseSize;
 int ExploringData::mapSize;
 int ExploringData::playersCount;
+EnemyInfo ExploringData::enemies[ExploringData::MAX_ENEMIES];
+
 EntityProperties ExploringData::entityProperties[EntityType::TURRET + 1];
 
 void IMinistry::addEntity(const Entity &e)
@@ -93,14 +95,18 @@ void IMinistry::createEntitiesByBuildings(Action &act)
         const EntityProperties& properties = m_exploringData->entityProperties[entity.entityType];
         std::shared_ptr<BuildAction> buildAction = nullptr;
 
-        if (properties.build != nullptr) {
-            EntityType entityType = properties.build->options[0];
-            if (m_exploringData->entityProperties[entityType].populationUse <= m_maxPopulation
-                    && m_exploringData->entityCost[entityType] <= m_resourcesCount + m_exploringData->builderUnitsCount)
+        if (properties.build == nullptr) {
+            continue;
+        }
+        EntityType entityType = properties.build->options[0];
+        if (m_exploringData->entityProperties[entityType].populationUse <= m_maxPopulation
+                && m_exploringData->entityCost[entityType] <= m_resourcesCount + m_exploringData->builderUnitsCount)
+        {
+
+            std::vector<Vec2Int> v = m_exploringData->getFreeCoordinateForBuilding(entity.position, properties.size);
+            if (v.size() > 0)
             {
-                buildAction = std::shared_ptr<BuildAction>(new BuildAction(
-                                                               entityType,
-                                                               Vec2Int(entity.position.x + properties.size, entity.position.y + properties.size - 1)));
+                buildAction = std::shared_ptr<BuildAction>(new BuildAction( entityType, Vec2Int(v[0].x, v[0].y)));
                 m_resourcesCount -= m_exploringData->entityCost[entityType];
             }
         }
@@ -290,12 +296,15 @@ std::vector<Vec2Int> ExploringData::getFreeRangeBaseCoordinates() const
 std::vector<Vec2Int> ExploringData::getFreeCoordinateForBuilding(Vec2Int point, size_t size) const
 {
     std::vector<Vec2Int> add{};
-    for (int i = 0; i < size; ++i)
+    for (int i = size - 1; i >= 0; --i)
+    {
+        add.push_back(Vec2Int(size, i));
+        add.push_back(Vec2Int(i, size));
+    }
+    for (int i = size - 1; i >= 0; --i)
     {
         add.push_back(Vec2Int(-1, i));
         add.push_back(Vec2Int(i, -1));
-        add.push_back(Vec2Int(size, i));
-        add.push_back(Vec2Int(i, size));
     }
 
     std::vector<Vec2Int> result{};

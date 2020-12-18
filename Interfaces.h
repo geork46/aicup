@@ -57,6 +57,8 @@ struct ExploringData
     static int rangedBaseSize;
     static int mapSize;
     static int playersCount;
+    static const int MAX_ENEMIES = 5;
+    static EnemyInfo enemies[MAX_ENEMIES];
 
     static EntityProperties entityProperties[EntityType::TURRET + 1];
 
@@ -71,7 +73,6 @@ struct ExploringData
 
     std::unordered_map<int, int> map;
 
-    std::unordered_map<int, EnemyInfo> enemies;
     std::vector<int> needRepairBuildings;
 
     bool isBaseAttacked = false;
@@ -132,10 +133,6 @@ public:
 
     int maxPopulation() const;
     void setMaxPopulation(int maxPopulation);
-
-//    double getDistance(const Entity &unit, const Entity &building);
-//    double getDistanceSqr(const Entity &unit, const Entity &building);
-//    double getDistance(const Entity &unit, int x, int y);
 
 protected:
     virtual void createEntitiesByBuildings(Action &act);

@@ -20,6 +20,7 @@ private:
     void exploring3(const PlayerView &playerView, ExploringData &data);
 
 
+    void clearEnemyInfo(ExploringData &data);
 
 
     void fillMap(const PlayerView &playerView, ExploringData &data, int index);

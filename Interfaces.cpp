@@ -664,8 +664,6 @@ void IEconomicsMinistry::getCreateUnitCoordinates(int &x, int &y)
 
 void IEconomicsMinistry::fillBuildHouseMap()
 {
-    m_buildHouseMap.clear();
-    m_buildTypeMap.clear();
     double maxDistance = 1000;
     int num = -1;
     Vec2Int p1, p2;
@@ -677,6 +675,10 @@ void IEconomicsMinistry::fillBuildHouseMap()
         {
             for (int i = 0; i < m_units.size(); ++i)
             {
+                if (m_buildHouseMap.find(i) != m_buildHouseMap.end())
+                {
+                    continue;
+                }
                 const Entity & entity = m_units[i];
                 if (m_exploringData->getDistance(entity, v2.x, v2.y) < maxDistance)
                 {
@@ -697,8 +699,6 @@ void IEconomicsMinistry::fillBuildHouseMap()
 
 void IEconomicsMinistry::fillBuildRangeBaseaMap()
 {
-//    m_buildHouseMap.clear();
-//    m_buildTypeMap.clear();
     double maxDistance = 1000;
     int num = -1;
     Vec2Int p1, p2;

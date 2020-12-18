@@ -1,25 +1,30 @@
 #include "StartGameMinisters2.h"
 
+void StartGameEconomicMinister2::activate()
+{
+    m_buildHouseMap.clear();
+    m_buildTypeMap.clear();
+}
+
 void StartGameEconomicMinister2::addMinistryAction(Action &act)
 {
-
     int myId = m_playerView->myId;
-
 
     fillRepairMap();
     createBuilderUnit(act);
 
-//    m_buildHouseMap.clear();
+    m_buildHouseMap.clear();
+    m_buildTypeMap.clear();
     if (m_exploringData->rangedBaseCount < 1 &&
             m_resourcesCount + m_exploringData->builderUnitsCount >= m_exploringData->entityCost[EntityType::RANGED_BASE])
     {
-        if (m_buildHouseMap.size() == 0)
+        if (m_buildHouseMap.size() < 3)
         {
             fillBuildRangeBaseaMap();
         }
     } else if (m_resourcesCount >= 50 && (m_exploringData->freePopulation < 10))
     {
-        if (m_buildHouseMap.size() == 0)
+        if (m_buildHouseMap.size() < 2)
         {
             fillBuildHouseMap();
         }
@@ -46,8 +51,7 @@ void StartGameEconomicMinister2::addMinistryAction(Action &act)
             m_resourcesCount -= m_exploringData->entityCost[m_buildTypeMap[i]];
             if (m_buildHouseMap[i].second == entity.position)
             {
-                    m_buildHouseMap.clear();
-                    m_buildTypeMap.clear();
+                    m_buildHouseMap.erase(i);
             }
             continue;
         }

@@ -8,6 +8,7 @@
 class StartGameEconomicMinister2 : public IEconomicsMinistry
 {
 public:
+    virtual void activate();
     virtual void addMinistryAction(Action &act);
 };
 

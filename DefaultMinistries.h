@@ -9,6 +9,10 @@ class DefaultEconomicMinister : public IEconomicsMinistry
 {
 public:
     virtual void addMinistryAction(Action &act);
+
+protected:
+
+
 };
 
 class DefaultWarMinister : public IWarMinistry

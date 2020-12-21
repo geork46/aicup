@@ -91,10 +91,8 @@ struct ExploringData
     bool getFreeHouseCoordinate(int &x, int &y) const;
 
 
-    std::vector<Vec2Int> getFreeTurretsCoordinates() const;
+    std::vector<Vec2Int> getFreeBuildingsCoordinates(const std::vector<Vec2Int> &init, int size) const;
 
-    std::vector<Vec2Int> getFreeHouseCoordinates() const;
-    std::vector<Vec2Int> getFreeRangeBaseCoordinates() const;
     std::vector<Vec2Int> getFreeCoordinateForBuilding(Vec2Int point, size_t size) const;
     std::vector<Vec2Int> getFreeCoordinateForHouseBuild(Vec2Int point) const;
 
@@ -174,9 +172,15 @@ protected:
 
     virtual void fillRepairMap();
     virtual void getCreateUnitCoordinates(int &x, int &y);
-    virtual void fillBuildHouseMap();
+
+    virtual std::vector<Vec2Int> getTurretsCoordinates() const;
+    virtual std::vector<Vec2Int> getHousesCoordinates() const;
+    virtual std::vector<Vec2Int> getRangedBaseCoordinates() const;
+
+    virtual void fillBuildingMap(EntityType type);
 
     virtual void fillBuildRangeBaseaMap();
+    virtual void fillBuildHouseMap();
     virtual void fillBuildTurrets();
 
     std::unordered_map<int, int> m_repairMap;

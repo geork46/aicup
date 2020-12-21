@@ -204,16 +204,8 @@ bool ExploringData::getFreeHouseCoordinate(int &x, int &y) const
     return false;
 }
 
-std::vector<Vec2Int> ExploringData::getFreeTurretsCoordinates() const
+std::vector<Vec2Int> ExploringData::getFreeBuildingsCoordinates(const std::vector<Vec2Int> &init, int size) const
 {
-    std::vector<Vec2Int> init{};
-    init.push_back(Vec2Int(3, 25));
-    init.push_back(Vec2Int(6, 25));
-    init.push_back(Vec2Int(9, 25));
-    init.push_back(Vec2Int(25, 3));
-    init.push_back(Vec2Int(25, 6));
-    init.push_back(Vec2Int(25, 9));
-
     std::vector<Vec2Int> result{};
 
     for (int k = 0; k < init.size(); ++k)
@@ -233,125 +225,9 @@ std::vector<Vec2Int> ExploringData::getFreeTurretsCoordinates() const
         continue;
     }
     return result;
-}
-
-std::vector<Vec2Int> ExploringData::getFreeHouseCoordinates() const
-{
-    std::vector<Vec2Int> init{};
-    init.push_back(Vec2Int(0, 0));
-    init.push_back(Vec2Int(0, 3));
-    init.push_back(Vec2Int(0, 6));
-    init.push_back(Vec2Int(0, 18));
-//    init.push_back(Vec2Int(0, 21));
-    init.push_back(Vec2Int(4, 0));
-    init.push_back(Vec2Int(7, 0));
-    init.push_back(Vec2Int(16, 0));
-    init.push_back(Vec2Int(19, 0));
-    init.push_back(Vec2Int(22, 0));
-
-
-    if (rangedBaseCount + meleeBaseCount > 1)
-    {
-        init.push_back(Vec2Int(0, 9));
-        init.push_back(Vec2Int(0, 12));
-        init.push_back(Vec2Int(0, 15));
-        init.push_back(Vec2Int(10, 0));
-        init.push_back(Vec2Int(13, 0));
-        init.push_back(Vec2Int(11, 4));
-        init.push_back(Vec2Int(11, 8));
-        init.push_back(Vec2Int(4, 11));
-        init.push_back(Vec2Int(7, 11));
-    }
-
-//    init.push_back(Vec2Int(22, 3));
-    init.push_back(Vec2Int(22, 6));
-    init.push_back(Vec2Int(22, 9));
-    init.push_back(Vec2Int(23, 12));
-    init.push_back(Vec2Int(3, 22));
-    init.push_back(Vec2Int(6, 22));
-    init.push_back(Vec2Int(9, 22));
-    init.push_back(Vec2Int(12, 23));
-
-    init.push_back(Vec2Int(18, 4));
-    init.push_back(Vec2Int(18, 8));
-    init.push_back(Vec2Int(18, 12));
-
-    init.push_back(Vec2Int(4, 18));
-    init.push_back(Vec2Int(8, 18));
-    init.push_back(Vec2Int(12, 18));
-
-
-    std::vector<Vec2Int> result{};
-
-    for (int k = 0; k < init.size(); ++k)
-    {
-        for (int i = 0; i < houseSize; ++i)
-        {
-            for (int j = 0; j < houseSize; ++j)
-            {
-                if (map.find(getIndex(init[k].x + i, init[k].y + j)) != map.end())
-                {
-                    goto next;
-                }
-            }
-        }
-        result.push_back(init[k]);
-        next:
-        continue;
-    }
-    return result;
-}
-
-std::vector<Vec2Int> ExploringData::getFreeRangeBaseCoordinates() const
-{
-    std::vector<Vec2Int> init{};
-    init.push_back(Vec2Int(11, 11));
-    init.push_back(Vec2Int(11, 6));
-    init.push_back(Vec2Int(11, 7));
-    init.push_back(Vec2Int(11, 8));
-    init.push_back(Vec2Int(11, 9));
-    init.push_back(Vec2Int(11, 10));
-    init.push_back(Vec2Int(6, 11));
-    init.push_back(Vec2Int(7, 11));
-    init.push_back(Vec2Int(8, 11));
-    init.push_back(Vec2Int(9, 11));
-    init.push_back(Vec2Int(10, 11));
-    init.push_back(Vec2Int(12, 12));
-
-    init.push_back(Vec2Int(0, 11));
-    init.push_back(Vec2Int(1, 11));
-    init.push_back(Vec2Int(2, 11));
-    init.push_back(Vec2Int(3, 11));
-    init.push_back(Vec2Int(4, 11));
-    init.push_back(Vec2Int(5, 11));
-    init.push_back(Vec2Int(11, 0));
-    init.push_back(Vec2Int(11, 1));
-    init.push_back(Vec2Int(11, 2));
-    init.push_back(Vec2Int(11, 3));
-    init.push_back(Vec2Int(11, 4));
-    init.push_back(Vec2Int(11, 5));
-
-    std::vector<Vec2Int> result{};
-
-    for (int k = 0; k < init.size(); ++k)
-    {
-        for (int i = 0; i < rangedBaseSize; ++i)
-        {
-            for (int j = 0; j < rangedBaseSize; ++j)
-            {
-                if (map.find(getIndex(init[k].x + i, init[k].y + j)) != map.end())
-                {
-                    goto next;
-                }
-            }
-        }
-        result.push_back(init[k]);
-        next:
-        continue;
-    }
-    return result;
 
 }
+
 
 std::vector<Vec2Int> ExploringData::getFreeCoordinateForBuilding(Vec2Int point, size_t size) const
 {
@@ -708,50 +584,138 @@ void IEconomicsMinistry::getCreateUnitCoordinates(int &x, int &y)
     //    y = entity.position.y + properties.size - 1;
 }
 
+std::vector<Vec2Int> IEconomicsMinistry::getTurretsCoordinates() const
+{
+    std::vector<Vec2Int> init{};
+    init.push_back(Vec2Int(3, 25));
+    init.push_back(Vec2Int(6, 25));
+    init.push_back(Vec2Int(9, 25));
+    init.push_back(Vec2Int(25, 3));
+    init.push_back(Vec2Int(25, 6));
+    init.push_back(Vec2Int(25, 9));
+    return init;
+}
+
+std::vector<Vec2Int> IEconomicsMinistry::getHousesCoordinates() const
+{
+    std::vector<Vec2Int> init{};
+    init.push_back(Vec2Int(0, 0));
+    init.push_back(Vec2Int(0, 3));
+    init.push_back(Vec2Int(0, 6));
+    init.push_back(Vec2Int(0, 18));
+//    init.push_back(Vec2Int(0, 21));
+    init.push_back(Vec2Int(4, 0));
+    init.push_back(Vec2Int(7, 0));
+    init.push_back(Vec2Int(16, 0));
+    init.push_back(Vec2Int(19, 0));
+    init.push_back(Vec2Int(22, 0));
+
+
+    if (m_exploringData->rangedBaseCount + m_exploringData->meleeBaseCount > 1)
+    {
+        init.push_back(Vec2Int(0, 9));
+        init.push_back(Vec2Int(0, 12));
+        init.push_back(Vec2Int(0, 15));
+        init.push_back(Vec2Int(10, 0));
+        init.push_back(Vec2Int(13, 0));
+        init.push_back(Vec2Int(11, 4));
+        init.push_back(Vec2Int(11, 8));
+        init.push_back(Vec2Int(4, 11));
+        init.push_back(Vec2Int(7, 11));
+    }
+
+//    init.push_back(Vec2Int(22, 3));
+    init.push_back(Vec2Int(22, 6));
+    init.push_back(Vec2Int(22, 9));
+    init.push_back(Vec2Int(23, 12));
+    init.push_back(Vec2Int(3, 22));
+    init.push_back(Vec2Int(6, 22));
+    init.push_back(Vec2Int(9, 22));
+    init.push_back(Vec2Int(12, 23));
+
+    init.push_back(Vec2Int(18, 4));
+    init.push_back(Vec2Int(18, 8));
+    init.push_back(Vec2Int(18, 12));
+
+    init.push_back(Vec2Int(4, 18));
+    init.push_back(Vec2Int(8, 18));
+    init.push_back(Vec2Int(12, 18));
+
+    return init;
+}
+
+std::vector<Vec2Int> IEconomicsMinistry::getRangedBaseCoordinates() const
+{
+    std::vector<Vec2Int> init{};
+    init.push_back(Vec2Int(11, 11));
+    init.push_back(Vec2Int(11, 6));
+    init.push_back(Vec2Int(11, 7));
+    init.push_back(Vec2Int(11, 8));
+    init.push_back(Vec2Int(11, 9));
+    init.push_back(Vec2Int(11, 10));
+    init.push_back(Vec2Int(6, 11));
+    init.push_back(Vec2Int(7, 11));
+    init.push_back(Vec2Int(8, 11));
+    init.push_back(Vec2Int(9, 11));
+    init.push_back(Vec2Int(10, 11));
+    init.push_back(Vec2Int(12, 12));
+
+    init.push_back(Vec2Int(0, 11));
+    init.push_back(Vec2Int(1, 11));
+    init.push_back(Vec2Int(2, 11));
+    init.push_back(Vec2Int(3, 11));
+    init.push_back(Vec2Int(4, 11));
+    init.push_back(Vec2Int(5, 11));
+    init.push_back(Vec2Int(11, 0));
+    init.push_back(Vec2Int(11, 1));
+    init.push_back(Vec2Int(11, 2));
+    init.push_back(Vec2Int(11, 3));
+    init.push_back(Vec2Int(11, 4));
+    init.push_back(Vec2Int(11, 5));
+
+    return init;
+}
+
 void IEconomicsMinistry::fillBuildHouseMap()
 {
-    double maxDistance = 1000;
-    int num = -1;
-    Vec2Int p1, p2;
-    std::vector<Vec2Int> freeHousePoints = m_exploringData->getFreeHouseCoordinates();
-    for(Vec2Int v : freeHousePoints)
-    {
-        std::vector<Vec2Int> freeNearPoints = m_exploringData->getFreeCoordinateForHouseBuild(v);
-        for (Vec2Int v2 : freeNearPoints)
-        {
-            for (int i = 0; i < m_units.size(); ++i)
-            {
-                if (m_buildHouseMap.find(i) != m_buildHouseMap.end())
-                {
-                    continue;
-                }
-                const Entity & entity = m_units[i];
-                if (m_exploringData->getDistance(entity, v2.x, v2.y) < maxDistance)
-                {
-                    maxDistance = m_exploringData->getDistance(entity, v2.x, v2.y);
-                    num = i;
-                    p1 = v;
-                    p2 = v2;
-                }
-            }
-        }
-    }
-    if (num >= 0)
-    {
-        m_buildHouseMap[num] = std::pair<Vec2Int, Vec2Int>(p1, p2);
-        m_buildTypeMap[num] = EntityType::HOUSE;
-    }
+    fillBuildingMap(HOUSE);
 }
 
 void IEconomicsMinistry::fillBuildRangeBaseaMap()
 {
+    fillBuildingMap(RANGED_BASE);
+}
+
+void IEconomicsMinistry::fillBuildingMap(EntityType type)
+{
     double maxDistance = 1000000;
     int num = -1;
     Vec2Int p1, p2;
-    std::vector<Vec2Int> freeHousePoints = m_exploringData->getFreeRangeBaseCoordinates();
+    std::vector<Vec2Int> freeHousePoints;
+    int size = 3;
+
+    switch (type) {
+    case TURRET:
+        size = m_exploringData->turretSize;
+        freeHousePoints = m_exploringData->getFreeBuildingsCoordinates(
+                    getTurretsCoordinates(), size);
+        break;
+    case HOUSE:
+        size = m_exploringData->houseSize;
+        freeHousePoints = m_exploringData->getFreeBuildingsCoordinates(
+                    getHousesCoordinates(), size);
+        break;
+    case RANGED_BASE:
+        size = m_exploringData->rangedBaseSize;
+        freeHousePoints = m_exploringData->getFreeBuildingsCoordinates(
+                    getRangedBaseCoordinates(), size);
+        break;
+    default:
+        break;
+    }
     for(Vec2Int v : freeHousePoints)
     {
-        std::vector<Vec2Int> freeNearPoints = m_exploringData->getFreeCoordinateForBuilding(v, m_exploringData->rangedBaseSize);
+        std::vector<Vec2Int> freeNearPoints = m_exploringData->getFreeCoordinateForBuilding(v, size);
         for (Vec2Int v2 : freeNearPoints)
         {
             for (int i = 0; i < m_units.size(); ++i)
@@ -767,7 +731,7 @@ void IEconomicsMinistry::fillBuildRangeBaseaMap()
                     if (maxDistance < 2)
                     {
                         m_buildHouseMap[num] = std::pair<Vec2Int, Vec2Int>(p1, p2);
-                        m_buildTypeMap[num] = EntityType::RANGED_BASE;
+                        m_buildTypeMap[num] = type;
                         return;
                     }
                 }
@@ -777,45 +741,15 @@ void IEconomicsMinistry::fillBuildRangeBaseaMap()
     if (num >= 0)
     {
         m_buildHouseMap[num] = std::pair<Vec2Int, Vec2Int>(p1, p2);
-        m_buildTypeMap[num] = EntityType::RANGED_BASE;
+        m_buildTypeMap[num] = type;
     }
+
 
 }
 
 void IEconomicsMinistry::fillBuildTurrets()
 {
-    double maxDistance = 1000;
-    int num = -1;
-    Vec2Int p1, p2;
-    std::vector<Vec2Int> freeHousePoints = m_exploringData->getFreeTurretsCoordinates();
-    for(Vec2Int v : freeHousePoints)
-    {
-        std::vector<Vec2Int> freeNearPoints = m_exploringData->getFreeCoordinateForBuilding(v, m_exploringData->turretSize);
-        for (Vec2Int v2 : freeNearPoints)
-        {
-            for (int i = 0; i < m_units.size(); ++i)
-            {
-                if (m_buildHouseMap.find(i) != m_buildHouseMap.end())
-                {
-                    continue;
-                }
-                const Entity & entity = m_units[i];
-                if (m_exploringData->getDistance(entity, v2.x, v2.y) < maxDistance)
-                {
-                    maxDistance = m_exploringData->getDistance(entity, v2.x, v2.y);
-                    num = i;
-                    p1 = v;
-                    p2 = v2;
-                }
-            }
-        }
-    }
-    if (num >= 0)
-    {
-        m_buildHouseMap[num] = std::pair<Vec2Int, Vec2Int>(p1, p2);
-        m_buildTypeMap[num] = EntityType::TURRET;
-    }
-
+    fillBuildingMap(TURRET);
 }
 
 Vec2Int IWarMinistry::getNearestEnemyBuilderUnitCoords(const Entity &entity)

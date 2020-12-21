@@ -108,6 +108,10 @@ void MainFactory::initMinisters()
     updateMinister(m_warMinister, m_ministers[WAR_START]);
     updateMinister(m_defenceMinister, m_ministers[DEFENCE_START]);
 
+//    updateMinister(m_economicMinister, m_ministers[ECONOMIC_DEFAULT]);
+//    updateMinister(m_warMinister, m_ministers[WAR_DEFAULT]);
+//    updateMinister(m_defenceMinister, m_ministers[DEFENCE_DEFAULT]);
+
     updateMinister(m_exploringMinister, new DefaultExploringMinister());
 }
 
@@ -122,7 +126,9 @@ void MainFactory::initDistributors()
     m_distributors[DISTRIBUTOR_START2] = new StartGameDistributor2();
     m_distributors[DISTRIBUTOR_MORE_WAR] = new MoreWarDistributor();
     m_distributors[DISTRIBUTOR_ALARMING] = new AlarmingDistributor();
+
     updateMinister(m_distributor, m_distributors[DISTRIBUTOR_START]);
+//    updateMinister(m_distributor, m_distributors[DISTRIBUTOR_DEFAULT]);
 }
 
 MainFactory::MainFactory()

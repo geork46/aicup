@@ -113,15 +113,18 @@ void StartGameWarMinister2::addMinistryAction(Action &act)
 
         int x = m_playerView->mapSize - 5, y = m_playerView->mapSize - 5;
 
-        switch (i % 3) {
-        case 0:
-            x = 10;
-            break;
-        case 1:
-            y = 10;
-            break;
-        default:
-            break;
+        if (m_exploringData->playersCount > 2)
+        {
+            switch (i % 3) {
+            case 0:
+                x = 10;
+                break;
+            case 1:
+                y = 10;
+                break;
+            default:
+                break;
+            }
         }
         Vec2Int v = getNearestEnemyBuilderUnitCoords(entity);
         if (!(v == Vec2Int(0, 0)))

@@ -210,9 +210,9 @@ std::vector<Vec2Int> ExploringData::getFreeBuildingsCoordinates(const std::vecto
 
     for (int k = 0; k < init.size(); ++k)
     {
-        for (int i = 0; i < turretSize; ++i)
+        for (int i = 0; i < size; ++i)
         {
-            for (int j = 0; j < turretSize; ++j)
+            for (int j = 0; j < size; ++j)
             {
                 if (map.find(getIndex(init[k].x + i, init[k].y + j)) != map.end())
                 {
@@ -720,6 +720,10 @@ void IEconomicsMinistry::fillBuildingMap(EntityType type)
         {
             for (int i = 0; i < m_units.size(); ++i)
             {
+                if (m_buildHouseMap.find(i) != m_buildHouseMap.end())
+                {
+                    continue;
+                }
                 const Entity & entity = m_units[i];
                 double sqrDistance = m_exploringData->getDistanceSqr(entity, v2.x, v2.y);
                 if (sqrDistance < maxDistance)
@@ -821,5 +825,15 @@ void IDefenceMinistry::fillAttackMap()
         }
     }
 
+
+}
+
+std::vector<Vec2Int> IWarMinistry::getDefencePositions() const
+{
+
+}
+
+void IWarMinistry::fillPositionMap()
+{
 
 }

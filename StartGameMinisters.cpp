@@ -160,6 +160,7 @@ void StartGameDistributor::innerDistribute(const PlayerView &playerView, const E
             m_warMinister->addEntity(entity);
             break;
         case EntityType::MELEE_BASE :
+        case EntityType::TURRET :
             m_defenceMinister->addEntity(entity);
         default:
             break;

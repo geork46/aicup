@@ -193,6 +193,13 @@ class IWarMinistry : public IMinistry
 public:
 protected:
     virtual Vec2Int getNearestEnemyBuilderUnitCoords(const Entity & entity);
+
+    virtual std::vector<Vec2Int> getDefencePositions() const;
+
+    virtual void fillPositionMap();
+
+    std::unordered_map<int, Vec2Int> m_positionMap;
+    std::unordered_map<Vec2Int, int> m_reversePositionMap;
 };
 
 class IDefenceMinistry : public IMinistry

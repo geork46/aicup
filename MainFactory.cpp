@@ -60,18 +60,24 @@ void MainFactory::updateMinisters(const PlayerView &playerView, const ExploringD
                 updateMinister(m_distributor, m_distributors[DISTRIBUTOR_START2]);
             }
         } else {
-            if (data.isBaseAttacked)
+//            if (data.isBaseAttacked)
+//            {
+//                updateMinister(m_economicMinister, m_ministers[ECONOMIC_ALARMING]);
+//                updateMinister(m_warMinister, m_ministers[WAR_ALARMING]);
+//                updateMinister(m_defenceMinister, m_ministers[DEFENCE_ALARMING]);
+//                updateMinister(m_distributor, m_distributors[DISTRIBUTOR_ALARMING]);
+//            } else
             {
-                updateMinister(m_economicMinister, m_ministers[ECONOMIC_ALARMING]);
-                updateMinister(m_warMinister, m_ministers[WAR_ALARMING]);
-                updateMinister(m_defenceMinister, m_ministers[DEFENCE_ALARMING]);
-                updateMinister(m_distributor, m_distributors[DISTRIBUTOR_ALARMING]);
-            } else
-            {
-                updateMinister(m_economicMinister, m_ministers[ECONOMIC_START3]);
-                updateMinister(m_warMinister, m_ministers[WAR_START3]);
-                updateMinister(m_defenceMinister, m_ministers[DEFENCE_START3]);
-                updateMinister(m_distributor, m_distributors[DISTRIBUTOR_START3]);
+                updateMinister(m_economicMinister, m_ministers[ECONOMIC_DEFAULT]);
+                updateMinister(m_warMinister, m_ministers[WAR_DEFAULT]);
+                updateMinister(m_defenceMinister, m_ministers[DEFENCE_DEFAULT]);
+                updateMinister(m_distributor, m_distributors[DISTRIBUTOR_START2]);
+//                updateMinister(m_distributor, m_distributors[DISTRIBUTOR_DEFAULT]);
+
+//                updateMinister(m_economicMinister, m_ministers[ECONOMIC_START2]);
+//                updateMinister(m_warMinister, m_ministers[WAR_START2]);
+//                updateMinister(m_defenceMinister, m_ministers[DEFENCE_START2]);
+//                updateMinister(m_distributor, m_distributors[DISTRIBUTOR_START2]);
             }
 
         }

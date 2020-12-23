@@ -293,9 +293,9 @@ void DefaultWarMinister::addMinistryAction(Action &act)
         std::shared_ptr<MoveAction> moveAction = nullptr;
         std::shared_ptr<BuildAction> buildAction = nullptr;
 
-//        int x = m_playerView->mapSize - 5, y = m_playerView->mapSize - 5;
+        int x = m_playerView->mapSize - 5, y = m_playerView->mapSize - 5;
 
-        int x =  25, y = 25;
+//        int x =  25, y = 25;
 
         if (m_positionMap.find(i) != m_positionMap.end())
         {

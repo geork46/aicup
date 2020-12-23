@@ -25,7 +25,7 @@ DrawerHolder::DrawerHolder()
 {
 #ifdef GUI_TEST
     m_drawer = new DrawerImpl();
-#elif
+#else
     m_drawer = new EmptyDrawer();
 #endif
 

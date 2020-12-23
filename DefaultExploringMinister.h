@@ -20,8 +20,12 @@ private:
     void exploring3(const PlayerView &playerView, ExploringData &data);
 
 
-    void clearEnemyInfo(ExploringData &data);
+    void fillSightMap(const PlayerView &playerView, ExploringData &data, const Entity &entity);
+    void fillAttackMap(const PlayerView &playerView, ExploringData &data, const Entity &entity);
 
+
+
+    void clearEnemyInfo(ExploringData &data);
 
     void fillMap(const PlayerView &playerView, ExploringData &data, int index);
 

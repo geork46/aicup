@@ -41,17 +41,17 @@ void IDrawer::drawPlayerView(const PlayerView &playerView)
 
 }
 
+void IDrawer::drawAction(const PlayerView &playerView, const Action &action)
+{
+
+}
+
+void IDrawer::drawExploringData(const PlayerView &playerView, const ExploringData &data)
+{
+
+}
+
 void IDrawer::turningEnd()
-{
-
-}
-
-void IDrawer::drawBuilderUnit(int x, int y, int player)
-{
-
-}
-
-void IDrawer::drawBuilderBase(int x, int y, int player)
 {
 
 }

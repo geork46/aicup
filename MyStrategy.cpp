@@ -8,12 +8,8 @@ MyStrategy::MyStrategy() {}
 
 Action MyStrategy::getAction(const PlayerView& playerView, DebugInterface* debugInterface)
 {
-    DrawerHolder::instance()->getDrawer()->drawPlayerView(playerView);
-    DrawerHolder::instance()->getDrawer()->turningEnd();
-
     Action result = Action(std::unordered_map<int, EntityAction>());
     MainFactory *factory = MainFactory::instance();
-
 
     IExploringMinistry *exploring = factory->getExploringMinister();
 
@@ -39,6 +35,11 @@ Action MyStrategy::getAction(const PlayerView& playerView, DebugInterface* debug
     {
         factory->getDefenceMinister()->addMinistryAction(result);
     }
+
+    DrawerHolder::instance()->getDrawer()->drawPlayerView(playerView);
+    DrawerHolder::instance()->getDrawer()->drawAction(playerView, result);
+    DrawerHolder::instance()->getDrawer()->drawExploringData(playerView, data);
+    DrawerHolder::instance()->getDrawer()->turningEnd();
 
     return result;
 }

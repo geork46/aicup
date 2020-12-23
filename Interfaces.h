@@ -3,6 +3,7 @@
 
 #include "model/Model.hpp"
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <list>
 #include <utility>
@@ -74,6 +75,9 @@ struct ExploringData
 
     std::unordered_map<int, int> map;
 
+    std::unordered_map<int, Vec2Int> sightMap;
+    std::unordered_map<int, int> attackMap;
+
     std::vector<int> needRepairBuildings;
 
     bool isBaseAttacked = false;
@@ -104,6 +108,8 @@ struct ExploringData
         }
         return y * mapSize + x;
     }
+
+    void getXYfromIndex(int index, int&x, int&y) const;
 
     bool isSafetryPosition(int x, int y) const;
 

@@ -5,8 +5,6 @@
 #include <memory>
 #include <string>
 
-#include "DrawerHolder.h"
-
 class Runner {
 public:
     Runner(const std::string& host, int port, const std::string& token)
@@ -45,7 +43,6 @@ private:
 
 int main(int argc, char* argv[])
 {
-    DrawerHolder::instance();
     std::string host = argc < 2 ? "127.0.0.1" : argv[1];
     int port = argc < 3 ? 31001 : atoi(argv[2]);
     std::string token = argc < 4 ? "0000000000000000" : argv[3];

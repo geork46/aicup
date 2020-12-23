@@ -260,6 +260,12 @@ std::vector<Vec2Int> ExploringData::getFreeCoordinateForHouseBuild(Vec2Int point
     return getFreeCoordinateForBuilding(point, houseSize);
 }
 
+void ExploringData::getXYfromIndex(int index, int &x, int &y) const
+{
+    y = index / mapSize;
+    x = index % mapSize;
+}
+
 //int ExploringData::getIndex(int x, int y) const
 
 bool ExploringData::isSafetryPosition(int x, int y) const

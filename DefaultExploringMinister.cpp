@@ -49,6 +49,10 @@ void DefaultExploringMinister::clearExploringData(ExploringData &data)
     data.isBaseAttacked = false;
 
     data.map.clear();
+
+    data.sightMap.clear();
+    data.attackMap.clear();
+
     data.needRepairBuildings.clear();
     data.attackingEnemyUnits.clear();
     data.enemyUnits.clear();
@@ -216,9 +220,12 @@ void DefaultExploringMinister::exploring2(const PlayerView &playerView, Explorin
             if (entity.playerId != nullptr)
             {
                 enemyAnalize(playerView, data, entity, i);
+                fillAttackMap(playerView, data, entity);
             }
             continue;
         }
+        fillSightMap(playerView, data, entity);
+
 
         const EntityProperties& properties = data.entityProperties[entity.entityType];
 
@@ -309,6 +316,107 @@ void DefaultExploringMinister::exploring2(const PlayerView &playerView, Explorin
 void DefaultExploringMinister::exploring3(const PlayerView &playerView, ExploringData &data)
 {
     exploring2(playerView, data);
+}
+
+void DefaultExploringMinister::fillSightMap(const PlayerView &playerView, ExploringData &data, const Entity &entity)
+{
+    const EntityProperties& properties = data.entityProperties[entity.entityType];
+    int size = properties.size;
+    int sight = properties.sightRange;
+
+    for (int i = -sight; i <= sight; ++i)
+    {
+        for (int j = -sight + abs(i); j <= sight - abs(i); ++j)
+        {
+            for (int k = 0; k < size; ++k)
+            {
+                int x, y;
+                x = entity.position.x + k;
+                y = entity.position.y;
+                data.sightMap[data.getIndex(x + i, y + j)] = Vec2Int(x + i, y + j);
+                x = entity.position.x;
+                y = entity.position.y + k;
+                data.sightMap[data.getIndex(x + i, y + j)] = Vec2Int(x + i, y + j);
+                x = entity.position.x + k;
+                y = entity.position.y + size - 1;
+                data.sightMap[data.getIndex(x + i, y + j)] = Vec2Int(x + i, y + j);
+                x = entity.position.x + size - 1;
+                y = entity.position.y + k;
+                data.sightMap[data.getIndex(x + i, y + j)] = Vec2Int(x + i, y + j);
+            }
+        }
+    }
+
+}
+
+void DefaultExploringMinister::fillAttackMap(const PlayerView &playerView, ExploringData &data, const Entity &entity)
+{
+    const EntityProperties& properties = data.entityProperties[entity.entityType];
+    int size = properties.size;
+    if (properties.attack == nullptr)
+    {
+        return;
+    }
+
+    int sight = properties.attack->attackRange + 1;
+
+    std::unordered_set<Vec2Int> set;
+
+    for (int i = -sight; i <= sight; ++i)
+    {
+        for (int j = -sight + abs(i); j <= sight - abs(i); ++j)
+        {
+            for (int k = 0; k < size; ++k)
+            {
+                int damage = properties.attack->damage;
+                if (abs(i) + abs(j) == sight)
+                {
+                    damage /= 2;
+                    if (damage < 1)
+                    {
+                        continue;
+                    }
+                }
+                int x, y;
+                if (size > 1)
+                {
+                    x = entity.position.x + k;
+                    y = entity.position.y;
+                    if (set.find(Vec2Int(x, y)) == set.end())
+                    {
+                        data.attackMap[data.getIndex(x + i, y + j)] += damage;
+                        set.insert(Vec2Int(x, y));
+                    }
+                    x = entity.position.x;
+                    y = entity.position.y + k;
+                    if (set.find(Vec2Int(x, y)) == set.end())
+                    {
+                        data.attackMap[data.getIndex(x + i, y + j)] += damage;
+                        set.insert(Vec2Int(x, y));
+                    }
+                    x = entity.position.x + k;
+                    y = entity.position.y + size - 1;
+                    if (set.find(Vec2Int(x, y)) == set.end())
+                    {
+                        data.attackMap[data.getIndex(x + i, y + j)] += damage;
+                        set.insert(Vec2Int(x, y));
+                    }
+                    x = entity.position.x + size - 1;
+                    y = entity.position.y + k;
+                    if (set.find(Vec2Int(x, y)) == set.end())
+                    {
+                        data.attackMap[data.getIndex(x + i, y + j)] += damage;
+                        set.insert(Vec2Int(x, y));
+                    }
+                } else {
+                    x = entity.position.x;
+                    y = entity.position.y;
+                    data.attackMap[data.getIndex(x + i, y + j)] +=  damage;
+                }
+            }
+        }
+    }
+
 }
 
 void DefaultExploringMinister::clearEnemyInfo(ExploringData &data)

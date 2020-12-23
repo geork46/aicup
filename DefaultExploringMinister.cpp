@@ -332,23 +332,32 @@ void DefaultExploringMinister::fillSightMap(const PlayerView &playerView, Explor
     {
         for (int j = -sight + abs(i); j <= sight - abs(i); ++j)
         {
-            for (int k = 0; k < size; ++k)
+            if (size > 0)
             {
+                for (int k = 0; k < size; ++k)
+                {
+                    int x, y;
+                    x = entity.position.x + k;
+                    y = entity.position.y;
+                    updateLastMap(playerView, data, x + i, y + j);
+                    data.sightMap[data.getIndex(x + i, y + j)] = Vec2Int(x + i, y + j);
+                    x = entity.position.x;
+                    y = entity.position.y + k;
+                    updateLastMap(playerView, data, x + i, y + j);
+                    data.sightMap[data.getIndex(x + i, y + j)] = Vec2Int(x + i, y + j);
+                    x = entity.position.x + k;
+                    y = entity.position.y + size - 1;
+                    updateLastMap(playerView, data, x + i, y + j);
+                    data.sightMap[data.getIndex(x + i, y + j)] = Vec2Int(x + i, y + j);
+                    x = entity.position.x + size - 1;
+                    y = entity.position.y + k;
+                    updateLastMap(playerView, data, x + i, y + j);
+                    data.sightMap[data.getIndex(x + i, y + j)] = Vec2Int(x + i, y + j);
+                }
+            } else {
                 int x, y;
-                x = entity.position.x + k;
-                y = entity.position.y;
-                updateLastMap(playerView, data, x + i, y + j);
-                data.sightMap[data.getIndex(x + i, y + j)] = Vec2Int(x + i, y + j);
                 x = entity.position.x;
-                y = entity.position.y + k;
-                updateLastMap(playerView, data, x + i, y + j);
-                data.sightMap[data.getIndex(x + i, y + j)] = Vec2Int(x + i, y + j);
-                x = entity.position.x + k;
-                y = entity.position.y + size - 1;
-                updateLastMap(playerView, data, x + i, y + j);
-                data.sightMap[data.getIndex(x + i, y + j)] = Vec2Int(x + i, y + j);
-                x = entity.position.x + size - 1;
-                y = entity.position.y + k;
+                y = entity.position.y;
                 updateLastMap(playerView, data, x + i, y + j);
                 data.sightMap[data.getIndex(x + i, y + j)] = Vec2Int(x + i, y + j);
             }
@@ -361,32 +370,29 @@ void DefaultExploringMinister::fillAttackMap(const PlayerView &playerView, Explo
 {
     const EntityProperties& properties = data.entityProperties[entity.entityType];
     int size = properties.size;
-    if (properties.attack == nullptr)
+    if (properties.attack == nullptr || properties.attack->damage < 2)
     {
         return;
     }
 
+
     int sight = properties.attack->attackRange + 1;
 
     std::unordered_set<Vec2Int> set;
+    int x, y;
 
     for (int i = -sight; i <= sight; ++i)
     {
         for (int j = -sight + abs(i); j <= sight - abs(i); ++j)
         {
-            for (int k = 0; k < size; ++k)
+            int damage = properties.attack->damage;
+            if (abs(i) + abs(j) == sight)
             {
-                int damage = properties.attack->damage;
-                if (abs(i) + abs(j) == sight)
-                {
-                    damage /= 2;
-                    if (damage < 1)
-                    {
-                        continue;
-                    }
-                }
-                int x, y;
-                if (size > 1)
+                damage /= 2;
+            }
+            if (size > 1)
+            {
+                for (int k = 0; k < size; ++k)
                 {
                     x = entity.position.x + k;
                     y = entity.position.y;
@@ -416,11 +422,11 @@ void DefaultExploringMinister::fillAttackMap(const PlayerView &playerView, Explo
                         data.attackMap[data.getIndex(x + i, y + j)] += damage;
                         set.insert(Vec2Int(x, y));
                     }
-                } else {
-                    x = entity.position.x;
-                    y = entity.position.y;
-                    data.attackMap[data.getIndex(x + i, y + j)] +=  damage;
                 }
+            } else {
+                x = entity.position.x;
+                y = entity.position.y;
+                data.attackMap[data.getIndex(x + i, y + j)] +=  damage;
             }
         }
     }

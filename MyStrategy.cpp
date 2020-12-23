@@ -2,11 +2,14 @@
 #include <exception>
 
 #include "MainFactory.h"
+#include "DrawerHolder.h"
 
 MyStrategy::MyStrategy() {}
 
 Action MyStrategy::getAction(const PlayerView& playerView, DebugInterface* debugInterface)
 {
+    DrawerHolder::instance();
+
     Action result = Action(std::unordered_map<int, EntityAction>());
     MainFactory *factory = MainFactory::instance();
 

@@ -87,6 +87,9 @@ void DefaultExploringMinister::fillExploringDataFromPlayerView(ExploringData &da
         data.turretSize = data.entityProperties[EntityType::TURRET].size;
         data.rangedBaseSize = data.entityProperties[EntityType::RANGED_BASE].size;
 
+        data.lastMap.clear();
+        data.lastUpdatedMap.clear();
+
         data.playersCount = playerView.players.size();
         onlyOne = false;
     }
@@ -111,6 +114,7 @@ void DefaultExploringMinister::exploring1(const PlayerView &playerView, Explorin
             if (entity.playerId != nullptr)
             {
                 enemyAnalize(playerView, data, entity, i);
+                fillAttackMap(playerView, data, entity);
             }
             continue;
         }
@@ -224,8 +228,6 @@ void DefaultExploringMinister::exploring2(const PlayerView &playerView, Explorin
             }
             continue;
         }
-        fillSightMap(playerView, data, entity);
-
 
         const EntityProperties& properties = data.entityProperties[entity.entityType];
 
@@ -277,6 +279,8 @@ void DefaultExploringMinister::exploring2(const PlayerView &playerView, Explorin
         data.maxPopulation += properties.populationProvide;
         data.currentPopulation += properties.populationUse;
     }
+
+    updateLastMap(playerView, data);
 
     for (int i = 0; i < playerView.players.size(); ++i )
     {
@@ -333,15 +337,19 @@ void DefaultExploringMinister::fillSightMap(const PlayerView &playerView, Explor
                 int x, y;
                 x = entity.position.x + k;
                 y = entity.position.y;
+                updateLastMap(playerView, data, x + i, y + j);
                 data.sightMap[data.getIndex(x + i, y + j)] = Vec2Int(x + i, y + j);
                 x = entity.position.x;
                 y = entity.position.y + k;
+                updateLastMap(playerView, data, x + i, y + j);
                 data.sightMap[data.getIndex(x + i, y + j)] = Vec2Int(x + i, y + j);
                 x = entity.position.x + k;
                 y = entity.position.y + size - 1;
+                updateLastMap(playerView, data, x + i, y + j);
                 data.sightMap[data.getIndex(x + i, y + j)] = Vec2Int(x + i, y + j);
                 x = entity.position.x + size - 1;
                 y = entity.position.y + k;
+                updateLastMap(playerView, data, x + i, y + j);
                 data.sightMap[data.getIndex(x + i, y + j)] = Vec2Int(x + i, y + j);
             }
         }
@@ -417,6 +425,56 @@ void DefaultExploringMinister::fillAttackMap(const PlayerView &playerView, Explo
         }
     }
 
+}
+
+void DefaultExploringMinister::updateLastMap(const PlayerView &playerView, ExploringData &data)
+{
+    int myId = playerView.myId;
+
+    for (int i = 0; i < playerView.entities.size(); i++) {
+        const Entity& entity = playerView.entities[i];
+
+        if (entity.playerId == nullptr || *entity.playerId != myId) {
+            continue;
+        }
+        fillSightMap(playerView, data, entity);
+    }
+}
+
+void DefaultExploringMinister::updateLastMap(const PlayerView &playerView, ExploringData &data, int x, int y)
+{
+    int index = data.getIndex(x, y);
+    if (data.lastUpdatedMap.find(index) == data.lastUpdatedMap.end())
+    {
+        int res = -1;
+        if (data.map.find(index) != data.map.end())
+        {
+            res = playerView.entities[data.map[index]].entityType;
+        }
+
+        data.lastMap[index] = res;
+        data.lastUpdatedMap[index] = playerView.currentTick;
+        int tx;
+
+        for (int i = 0; i < 3; ++i)
+        {
+            tx = x;
+            x = data.mapSize - 1 -y;
+            y = tx;
+            index = data.getIndex(x, y);
+            data.lastMap[index] = res;
+            data.lastUpdatedMap[index] = playerView.currentTick;
+        }
+
+    } else {
+        if (data.map.find(index) == data.map.end())
+        {
+            data.lastMap[index] = -1;
+        } else {
+            data.lastMap[index] = playerView.entities[data.map[index]].entityType;
+        }
+        data.lastUpdatedMap[index] = playerView.currentTick;
+    }
 }
 
 void DefaultExploringMinister::clearEnemyInfo(ExploringData &data)

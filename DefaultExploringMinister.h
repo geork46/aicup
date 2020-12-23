@@ -23,6 +23,8 @@ private:
     void fillSightMap(const PlayerView &playerView, ExploringData &data, const Entity &entity);
     void fillAttackMap(const PlayerView &playerView, ExploringData &data, const Entity &entity);
 
+    void updateLastMap(const PlayerView &playerView, ExploringData &data);
+    void updateLastMap(const PlayerView &playerView, ExploringData &data, int x, int y);
 
 
     void clearEnemyInfo(ExploringData &data);

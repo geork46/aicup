@@ -78,6 +78,9 @@ struct ExploringData
     std::unordered_map<int, Vec2Int> sightMap;
     std::unordered_map<int, int> attackMap;
 
+    static std::unordered_map<int, int> lastMap; // EntityType
+    static std::unordered_map<int, int> lastUpdatedMap;
+
     std::vector<int> needRepairBuildings;
 
     bool isBaseAttacked = false;

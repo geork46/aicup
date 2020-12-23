@@ -15,6 +15,10 @@ int ExploringData::turretSize;
 int ExploringData::rangedBaseSize;
 int ExploringData::mapSize;
 int ExploringData::playersCount;
+
+std::unordered_map<int, int> ExploringData::lastMap; // EntityType
+std::unordered_map<int, int> ExploringData::lastUpdatedMap;
+
 EnemyInfo ExploringData::enemies[ExploringData::MAX_ENEMIES];
 
 EntityProperties ExploringData::entityProperties[EntityType::TURRET + 1];

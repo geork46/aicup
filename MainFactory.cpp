@@ -7,6 +7,7 @@
 
 #include "StartGameMinisters.h"
 #include "StartGameMinisters2.h"
+#include "StartGameMinisters3.h"
 
 MainFactory *MainFactory::m_inst = nullptr;
 
@@ -43,19 +44,38 @@ void MainFactory::updateMinisters(const PlayerView &playerView, const ExploringD
 {
     if (playerView.fogOfWar)
     {
-        if (data.isBaseAttacked)
+        if (data.playersCount > 2)
         {
-            updateMinister(m_economicMinister, m_ministers[ECONOMIC_ALARMING]);
-            updateMinister(m_warMinister, m_ministers[WAR_ALARMING]);
-            updateMinister(m_defenceMinister, m_ministers[DEFENCE_ALARMING]);
-            updateMinister(m_distributor, m_distributors[DISTRIBUTOR_ALARMING]);
-        } else
-        {
-            updateMinister(m_economicMinister, m_ministers[ECONOMIC_START2]);
-            updateMinister(m_warMinister, m_ministers[WAR_START2]);
-            updateMinister(m_defenceMinister, m_ministers[DEFENCE_START2]);
-            updateMinister(m_distributor, m_distributors[DISTRIBUTOR_START2]);
+            if (data.isBaseAttacked)
+            {
+                updateMinister(m_economicMinister, m_ministers[ECONOMIC_ALARMING]);
+                updateMinister(m_warMinister, m_ministers[WAR_ALARMING]);
+                updateMinister(m_defenceMinister, m_ministers[DEFENCE_ALARMING]);
+                updateMinister(m_distributor, m_distributors[DISTRIBUTOR_ALARMING]);
+            } else
+            {
+                updateMinister(m_economicMinister, m_ministers[ECONOMIC_START2]);
+                updateMinister(m_warMinister, m_ministers[WAR_START2]);
+                updateMinister(m_defenceMinister, m_ministers[DEFENCE_START2]);
+                updateMinister(m_distributor, m_distributors[DISTRIBUTOR_START2]);
+            }
+        } else {
+            if (data.isBaseAttacked)
+            {
+                updateMinister(m_economicMinister, m_ministers[ECONOMIC_ALARMING]);
+                updateMinister(m_warMinister, m_ministers[WAR_ALARMING]);
+                updateMinister(m_defenceMinister, m_ministers[DEFENCE_ALARMING]);
+                updateMinister(m_distributor, m_distributors[DISTRIBUTOR_ALARMING]);
+            } else
+            {
+                updateMinister(m_economicMinister, m_ministers[ECONOMIC_START3]);
+                updateMinister(m_warMinister, m_ministers[WAR_START3]);
+                updateMinister(m_defenceMinister, m_ministers[DEFENCE_START3]);
+                updateMinister(m_distributor, m_distributors[DISTRIBUTOR_START3]);
+            }
+
         }
+
     } else
     {
         if (data.isBaseAttacked)
@@ -104,6 +124,10 @@ void MainFactory::initMinisters()
     m_ministers[WAR_START2] = new StartGameWarMinister2();
     m_ministers[DEFENCE_START2] = new StartGameDefenceMinister2();
 
+    m_ministers[ECONOMIC_START3] = new StartGameEconomicMinister3();
+    m_ministers[WAR_START3] = new StartGameWarMinister3();
+    m_ministers[DEFENCE_START3] = new StartGameDefenceMinister3();
+
     updateMinister(m_economicMinister, m_ministers[ECONOMIC_START]);
     updateMinister(m_warMinister, m_ministers[WAR_START]);
     updateMinister(m_defenceMinister, m_ministers[DEFENCE_START]);
@@ -124,6 +148,7 @@ void MainFactory::initDistributors()
     m_distributors[DISTRIBUTOR_DEFAULT] = new DefaultDistributor();
     m_distributors[DISTRIBUTOR_START] = new StartGameDistributor();
     m_distributors[DISTRIBUTOR_START2] = new StartGameDistributor2();
+    m_distributors[DISTRIBUTOR_START3] = new StartGameDistributor3();
     m_distributors[DISTRIBUTOR_MORE_WAR] = new MoreWarDistributor();
     m_distributors[DISTRIBUTOR_ALARMING] = new AlarmingDistributor();
 

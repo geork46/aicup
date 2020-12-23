@@ -36,6 +36,16 @@ IDrawer *DrawerHolder::getDrawer()
     return m_drawer;
 }
 
+void IDrawer::drawPlayerView(const PlayerView &playerView)
+{
+
+}
+
+void IDrawer::turningEnd()
+{
+
+}
+
 void IDrawer::drawBuilderUnit(int x, int y, int player)
 {
 

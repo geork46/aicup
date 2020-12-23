@@ -8,7 +8,8 @@ MyStrategy::MyStrategy() {}
 
 Action MyStrategy::getAction(const PlayerView& playerView, DebugInterface* debugInterface)
 {
-    DrawerHolder::instance();
+    DrawerHolder::instance()->getDrawer()->drawPlayerView(playerView);
+    DrawerHolder::instance()->getDrawer()->turningEnd();
 
     Action result = Action(std::unordered_map<int, EntityAction>());
     MainFactory *factory = MainFactory::instance();

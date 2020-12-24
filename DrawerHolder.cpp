@@ -65,3 +65,13 @@ void IDrawer::fillColorCell(int x, int y, uint32_t color)
 {
 
 }
+
+void IDrawer::drawPolyLine(std::vector<Vec2Int> points)
+{
+
+}
+
+void IDrawer::drawPolyLine(std::vector<Vec2Int> points, uint32_t color1, uint32_t color2)
+{
+
+}

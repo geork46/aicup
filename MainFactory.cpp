@@ -60,13 +60,13 @@ void MainFactory::updateMinisters(const PlayerView &playerView, const ExploringD
                 updateMinister(m_distributor, m_distributors[DISTRIBUTOR_START2]);
             }
         } else {
-//            if (data.isBaseAttacked)
-//            {
-//                updateMinister(m_economicMinister, m_ministers[ECONOMIC_ALARMING]);
-//                updateMinister(m_warMinister, m_ministers[WAR_ALARMING]);
-//                updateMinister(m_defenceMinister, m_ministers[DEFENCE_ALARMING]);
-//                updateMinister(m_distributor, m_distributors[DISTRIBUTOR_ALARMING]);
-//            } else
+            if (data.isBaseAttacked)
+            {
+                updateMinister(m_economicMinister, m_ministers[ECONOMIC_ALARMING]);
+                updateMinister(m_warMinister, m_ministers[WAR_ALARMING]);
+                updateMinister(m_defenceMinister, m_ministers[DEFENCE_ALARMING]);
+                updateMinister(m_distributor, m_distributors[DISTRIBUTOR_ALARMING]);
+            } else
             {
 
 //                updateMinister(m_economicMinister, m_ministers[ECONOMIC_DEFAULT]);

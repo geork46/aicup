@@ -462,14 +462,23 @@ void DefaultExploringMinister::updateLastMap(const PlayerView &playerView, Explo
         data.lastUpdatedMap[index] = playerView.currentTick;
         int tx;
 
-        for (int i = 0; i < 3; ++i)
+        if (data.playersCount < 4)
         {
-            tx = x;
-            x = data.mapSize - 1 -y;
-            y = tx;
+            x = data.mapSize - 1 -x;
+            y = data.mapSize - 1 -y;
             index = data.getIndex(x, y);
             data.lastMap[index] = res;
             data.lastUpdatedMap[index] = playerView.currentTick;
+        } else {
+            for (int i = 0; i < 3; ++i)
+            {
+                tx = x;
+                x = data.mapSize - 1 -y;
+                y = tx;
+                index = data.getIndex(x, y);
+                data.lastMap[index] = res;
+                data.lastUpdatedMap[index] = playerView.currentTick;
+            }
         }
 
     } else {

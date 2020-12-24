@@ -18,6 +18,9 @@ public:
 
     virtual void selectLayer(int layer);
     virtual void fillColorCell(int x, int y, uint32_t color);
+
+    virtual void drawPolyLine(std::vector<Vec2Int> points);
+    virtual void drawPolyLine(std::vector<Vec2Int> points, uint32_t color1, uint32_t color2);
 };
 
 

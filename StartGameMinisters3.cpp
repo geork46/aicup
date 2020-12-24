@@ -126,9 +126,20 @@ void StartGameWarMinister3::addMinistryAction(Action &act)
         std::shared_ptr<MoveAction> moveAction = nullptr;
         std::shared_ptr<BuildAction> buildAction = nullptr;
 
-        int x = m_playerView->mapSize - 5, y = m_playerView->mapSize - 5;
-
+        int x = m_playerView->mapSize - 5, y = m_playerView->mapSize - 6;
         moveAction = std::shared_ptr<MoveAction>(new MoveAction( Vec2Int(x, y), true, true));
+
+        if (i % 2 == 0)
+        {
+            DrawerHolder::instance()->getDrawer()->selectLayer(6);
+            std::vector<Vec2Int> v = m_exploringData->getRouteAStar(entity, Vec2Int(x, y));
+
+            if (v.size() > 0)
+            {
+                moveAction = std::shared_ptr<MoveAction>(new MoveAction( v[0], true, true));
+            }
+        }
+
 
         std::vector<EntityType> validAutoAttackTargets;
         act.entityActions[entity.id] = EntityAction(
@@ -147,7 +158,7 @@ std::vector<Vec2Int> StartGameWarMinister3::getSpyPositions()
 {
     std::vector<Vec2Int> init{};
     init.push_back(Vec2Int(31, 31));
-    init.push_back(Vec2Int(41, 41));
+    init.push_back(Vec2Int(40, 40));
     init.push_back(Vec2Int(42, 15));
     init.push_back(Vec2Int(42, 5));
     init.push_back(Vec2Int(15, 42));
@@ -173,7 +184,7 @@ void StartGameWarMinister3::addSpyAction(Action &act, const Entity &entity)
             counter++;
             continue;
         }
-        DrawerHolder::instance()->getDrawer()->selectLayer(9 - counter);
+        DrawerHolder::instance()->getDrawer()->selectLayer(9);
         std::vector<Vec2Int> v = m_exploringData->getRouteAStar(entity, p);
 
         if (v.size() > 0)
@@ -238,13 +249,14 @@ void StartGameDistributor3::innerDistribute(const PlayerView &playerView, const 
             m_economicMinister->addEntity(entity);
             break;
         case EntityType::BUILDER_UNIT :
-            if (needSpy(data) && (counter >5 && entity.id % 3 == 0))
+            if (needSpy(data) && (counter >5 && entity.id % 3 == 0) && counter < 10)
             {
                 m_warMinister->addEntity(entity);
             } else
             {
                 m_economicMinister->addEntity(entity);
             }
+            counter++;
             break;
         case EntityType::RANGED_BASE :
         case EntityType::RANGED_UNIT :
@@ -257,7 +269,6 @@ void StartGameDistributor3::innerDistribute(const PlayerView &playerView, const 
         default:
             break;
         }
-        counter++;
     }
 
     if (data.isBaseAttacked)

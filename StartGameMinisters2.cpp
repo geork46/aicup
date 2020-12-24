@@ -1,5 +1,7 @@
 #include "StartGameMinisters2.h"
 
+#include "DrawerHolder.h"
+
 void StartGameEconomicMinister2::activate()
 {
     m_buildHouseMap.clear();
@@ -108,6 +110,14 @@ void StartGameWarMinister2::addMinistryAction(Action &act)
     for (size_t i = 0; i < m_units.size(); i++) {
         const Entity& entity = m_units[i];
         const EntityProperties& properties = m_exploringData->entityProperties[entity.entityType];
+
+        if (entity.entityType == BUILDER_UNIT)
+        {
+            addSpyAction(act, entity);
+            m_spyCounter++;
+            continue;
+        }
+
         std::shared_ptr<MoveAction> moveAction = nullptr;
         std::shared_ptr<BuildAction> buildAction = nullptr;
 
@@ -148,6 +158,58 @@ void StartGameWarMinister2::addMinistryAction(Action &act)
 
 }
 
+void StartGameWarMinister2::addSpyAction(Action &act, const Entity &entity)
+{
+    std::vector<Vec2Int> positions = ExploringData::getSpyPositions();
+    int counter = 0;
+    for (auto p : positions)
+    {
+        if (m_exploringData->lastUpdatedMap.find(m_exploringData->getIndex(p.x, p.y))
+                != m_exploringData->lastUpdatedMap.end())
+        {
+            continue;
+        }
+        if (counter <  m_spyCounter)
+        {
+            counter++;
+            continue;
+        }
+        DrawerHolder::instance()->getDrawer()->selectLayer(9);
+        std::vector<Vec2Int> v = m_exploringData->getRouteAStar(entity, p);
+
+        if (v.size() > 0)
+        {
+            if (m_exploringData->map.find(m_exploringData->getIndex(v[0].x, v[0].y)) != m_exploringData->map.end())
+            {
+                std::shared_ptr<MoveAction> moveAction;
+                moveAction.reset(new MoveAction(Vec2Int(v[0].x, v[0].y), true, true));
+                std::shared_ptr<int> attackId;
+                attackId.reset(new int(m_playerView->entities[m_exploringData->map.at(m_exploringData->getIndex(v[0].x, v[0].y)) ].id));
+
+                std::vector<EntityType> validAutoAttackTargets;
+                if (entity.entityType == BUILDER_UNIT) {
+                    validAutoAttackTargets.push_back(RESOURCE);
+                }
+                act.entityActions[entity.id] = EntityAction( moveAction, nullptr,
+                                                             std::shared_ptr<AttackAction>(new AttackAction(attackId, nullptr)), nullptr);
+
+
+            }
+
+            std::shared_ptr<MoveAction> moveAction = nullptr;
+            moveAction = std::shared_ptr<MoveAction>(new MoveAction(Vec2Int(v[0].x, v[0].y), true, true));
+            act.entityActions[entity.id] = EntityAction( moveAction, nullptr, nullptr, nullptr);
+            return;
+        }
+        std::shared_ptr<MoveAction> moveAction = nullptr;
+        moveAction = std::shared_ptr<MoveAction>(new MoveAction(Vec2Int(p.x, p.y), true, true));
+        act.entityActions[entity.id] = EntityAction( moveAction, nullptr, nullptr, nullptr);
+        return;
+    }
+    farmResources(act, entity, m_spyCounter);
+
+}
+
 void StartGameDefenceMinister2::addMinistryAction(Action &act)
 {
     for (size_t i = 0; i < m_buildings.size(); i++) {
@@ -164,7 +226,7 @@ void StartGameDefenceMinister2::addMinistryAction(Action &act)
 
 void StartGameDistributor2::innerDistribute(const PlayerView &playerView, const ExploringData &data)
 {
-
+    int counter = 0;
     int myId = playerView.myId;
     for (size_t i = 0; i < playerView.entities.size(); i++) {
         const Entity& entity = playerView.entities[i];
@@ -174,8 +236,18 @@ void StartGameDistributor2::innerDistribute(const PlayerView &playerView, const 
 
         switch (entity.entityType) {
         case EntityType::BUILDER_BASE :
-        case EntityType::BUILDER_UNIT :
             m_economicMinister->addEntity(entity);
+            break;
+        case EntityType::BUILDER_UNIT :
+            if (needSpy(data) && (((counter >5 && entity.id % 3 == 0) && counter < 10)||
+                                  (data.myResourcesCount > 70  && counter == 1)))
+            {
+                m_warMinister->addEntity(entity);
+            } else
+            {
+                m_economicMinister->addEntity(entity);
+            }
+            counter++;
             break;
         case EntityType::RANGED_BASE :
         case EntityType::RANGED_UNIT :

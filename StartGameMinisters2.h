@@ -17,6 +17,10 @@ class StartGameWarMinister2 : public IWarMinistry
 public:
     virtual void addMinistryAction(Action &act);
 
+private:
+    int m_spyCounter;
+
+    void addSpyAction(Action &act, const Entity &entity);
 };
 
 class StartGameDefenceMinister2 : public IDefenceMinistry

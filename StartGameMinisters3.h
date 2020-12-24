@@ -17,8 +17,6 @@ class StartGameWarMinister3 : public IWarMinistry
 public:
     virtual void addMinistryAction(Action &act);
 
-    static std::vector<Vec2Int> getSpyPositions();
-protected:
 private:
     int m_spyCounter;
 
@@ -37,8 +35,6 @@ class StartGameDistributor3 : public IDistributor
 protected:
     virtual void innerDistribute(const PlayerView &playerView, ExploringData const &data);
 
-private:
-    bool needSpy(ExploringData const &data);
 };
 
 #endif // STARTGAMEMINISTERS3_H

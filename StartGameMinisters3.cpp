@@ -154,23 +154,9 @@ void StartGameWarMinister3::addMinistryAction(Action &act)
 
 }
 
-std::vector<Vec2Int> StartGameWarMinister3::getSpyPositions()
-{
-    std::vector<Vec2Int> init{};
-    init.push_back(Vec2Int(31, 31));
-    init.push_back(Vec2Int(40, 40));
-    init.push_back(Vec2Int(42, 15));
-    init.push_back(Vec2Int(42, 5));
-    init.push_back(Vec2Int(15, 42));
-    init.push_back(Vec2Int(5, 42));
-    init.push_back(Vec2Int(5, 30));
-    init.push_back(Vec2Int(30, 5));
-    return init;
-}
-
 void StartGameWarMinister3::addSpyAction(Action &act, const Entity &entity)
 {
-    std::vector<Vec2Int> positions = getSpyPositions();
+    std::vector<Vec2Int> positions = ExploringData::getSpyPositions();
     int counter = 0;
     for (auto p : positions)
     {
@@ -249,7 +235,8 @@ void StartGameDistributor3::innerDistribute(const PlayerView &playerView, const 
             m_economicMinister->addEntity(entity);
             break;
         case EntityType::BUILDER_UNIT :
-            if (needSpy(data) && (counter >5 && entity.id % 3 == 0) && counter < 10)
+            if (needSpy(data) && (((counter >5 && entity.id % 3 == 0) && counter < 10)||
+                                  (data.myResourcesCount > 70  && counter == 1)))
             {
                 m_warMinister->addEntity(entity);
             } else
@@ -301,13 +288,3 @@ void StartGameDistributor3::innerDistribute(const PlayerView &playerView, const 
 
 }
 
-bool StartGameDistributor3::needSpy(ExploringData const &data)
-{
-    std::vector<Vec2Int> positions = StartGameWarMinister3::getSpyPositions();
-    bool f = false;
-    for (auto p : positions)
-    {
-        f = f || (data.lastUpdatedMap.find(data.getIndex(p.x, p.y)) == data.lastUpdatedMap.end());
-    }
-    return f;
-}

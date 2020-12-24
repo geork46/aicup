@@ -126,6 +126,8 @@ struct ExploringData
     double getDistance(const Entity &unit, int x, int y) const;
     double getDistance(int x, int y, int px, int py) const;
     double getDistance(const Entity &unit, const Entity &building) const;
+
+    static std::vector<Vec2Int> getSpyPositions();
 };
 
 
@@ -150,6 +152,7 @@ public:
     void setMaxPopulation(int maxPopulation);
 
 protected:
+
     virtual void createEntitiesByBuildings(Action &act);
 
     virtual void farmResources(Action &act, const Entity& entity, int i);
@@ -237,6 +240,8 @@ public:
                               IWarMinistry *war,
                               IDefenceMinistry *defence);
 protected:
+    virtual bool needSpy(ExploringData const &data);
+
     virtual void innerDistribute(const PlayerView &playerView, ExploringData const &data);
     IEconomicsMinistry* 	m_economicMinister = nullptr;
     IWarMinistry* 			m_warMinister = nullptr;

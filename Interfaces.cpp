@@ -637,6 +637,20 @@ double ExploringData::getDistance(const Entity &unit, const Entity &building) co
     return abs(px - x) + abs(py - y);
 }
 
+std::vector<Vec2Int> ExploringData::getSpyPositions()
+{
+    std::vector<Vec2Int> init{};
+    init.push_back(Vec2Int(31, 31));
+    init.push_back(Vec2Int(40, 40));
+    init.push_back(Vec2Int(42, 15));
+    init.push_back(Vec2Int(42, 5));
+    init.push_back(Vec2Int(15, 42));
+    init.push_back(Vec2Int(5, 42));
+    init.push_back(Vec2Int(5, 30));
+    init.push_back(Vec2Int(30, 5));
+    return init;
+}
+
 void IEconomicsMinistry::createBuilderUnit(Action &act)
 {
     if (m_exploringData->builderBaseCount > 0)
@@ -1063,6 +1077,17 @@ void IDefenceMinistry::fillAttackMap()
 std::vector<Vec2Int> IWarMinistry::getDefencePositions() const
 {
 
+}
+
+bool IDistributor::needSpy(ExploringData const &data)
+{
+    std::vector<Vec2Int> positions = data.getSpyPositions();
+    bool f = false;
+    for (auto p : positions)
+    {
+        f = f || (data.lastUpdatedMap.find(data.getIndex(p.x, p.y)) == data.lastUpdatedMap.end());
+    }
+    return f;
 }
 
 void IWarMinistry::fillPositionMap()

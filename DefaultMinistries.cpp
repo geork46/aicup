@@ -99,54 +99,12 @@ void DefaultEconomicMinister::addMinistryAction(Action &act)
 std::vector<Vec2Int> DefaultWarMinister::getDefencePositions() const
 {
     std::vector<Vec2Int> init{};
-//    init.push_back(Vec2Int(0, 26));
-//    init.push_back(Vec2Int(1, 25));
-//    init.push_back(Vec2Int(2, 24));
 
-//    init.push_back(Vec2Int(4, 22));
-//    init.push_back(Vec2Int(5, 21));
-//    init.push_back(Vec2Int(6, 20));
-
-//    init.push_back(Vec2Int(8, 18));
-//    init.push_back(Vec2Int(9, 17));
-//    init.push_back(Vec2Int(10, 16));
-
-//    init.push_back(Vec2Int(12, 14));
-//    init.push_back(Vec2Int(13, 13));
-//    init.push_back(Vec2Int(14, 12));
-
-//    init.push_back(Vec2Int(16, 10));
-//    init.push_back(Vec2Int(17, 9));
-//    init.push_back(Vec2Int(18, 8));
-
-//    init.push_back(Vec2Int(20, 6));
-//    init.push_back(Vec2Int(21, 5));
-//    init.push_back(Vec2Int(22, 4));
-
-//    init.push_back(Vec2Int(24, 2));
-//    init.push_back(Vec2Int(25, 1));
-//    init.push_back(Vec2Int(26, 0));
-
-//    init.push_back(Vec2Int(0, 25));
-//    init.push_back(Vec2Int(1, 24));
-
-//    init.push_back(Vec2Int(4, 21));
-//    init.push_back(Vec2Int(5, 20));
-
-//    init.push_back(Vec2Int(8, 17));
-//    init.push_back(Vec2Int(9, 16));
-
-//    init.push_back(Vec2Int(12, 13));
-//    init.push_back(Vec2Int(13, 12));
-
-//    init.push_back(Vec2Int(16, 9));
-//    init.push_back(Vec2Int(17, 8));
-
-//    init.push_back(Vec2Int(20, 5));
-//    init.push_back(Vec2Int(21, 4));
-    int x = 0;
-    int y = 26;
-    while (y > 1)
+//    int x = 0;
+//    int y = 26;
+    int x = 10;
+    int y = 38;
+    while (y > 10)
     {
         init.push_back(Vec2Int(x++, y--));
         x += 1;
@@ -155,9 +113,11 @@ std::vector<Vec2Int> DefaultWarMinister::getDefencePositions() const
         x += 1;
         y -= 1;
     }
-    x = 0;
-    y = 25;
-    while (y > 1)
+//    x = 0;
+//    y = 25;
+    x = 10;
+    y = 37;
+    while (y > 10)
     {
         init.push_back(Vec2Int(x++, y--));
 //        init.push_back(Vec2Int(x++, y--));
@@ -329,7 +289,7 @@ void DefaultWarMinister::fillPositionMap()
     for (int i = 0; i < m_units.size(); ++i)
     {
         const Entity & entity = m_units[i];
-        double maxDistance = 1000000;
+        double maxDistance = 1000;
         Vec2Int p;
 
         for(Vec2Int v : positions)
@@ -338,10 +298,10 @@ void DefaultWarMinister::fillPositionMap()
             {
                 continue;
             }
-            double sqrDistance = m_exploringData->getDistanceSqr(entity, v.x, v.y);
-            if (sqrDistance < maxDistance)
+            double distance = m_exploringData->getDistance(entity, v.x, v.y);
+            if (distance < maxDistance)
             {
-                maxDistance = sqrDistance;
+                maxDistance = distance;
                 p = v;
                 if (maxDistance < 1)
                 {

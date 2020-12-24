@@ -16,6 +16,7 @@ public:
 
     virtual void turningEnd();
 
+    virtual void fillColorCell(int x, int y, uint32_t color);
 };
 
 

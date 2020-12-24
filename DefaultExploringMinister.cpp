@@ -494,7 +494,7 @@ void DefaultExploringMinister::clearEnemyInfo(ExploringData &data)
         data.enemies[i].builderUnitsCount = 0;
         data.enemies[i].rangedUnitsCount = 0;
         data.enemies[i].meleeUnitsCount = 0;
-        data.enemies[i].sqrDistance = 1000;
+        data.enemies[i].distance = 1000;
         data.enemies[i].entityCount = 0;
     }
 }
@@ -514,13 +514,13 @@ void DefaultExploringMinister::fillMap(const PlayerView &playerView, ExploringDa
 
 void DefaultExploringMinister::enemyAnalize(const PlayerView &playerView, ExploringData &data, const Entity &entity, int index)
 {
-    double sqrDistance = data.getDistanceSqr(entity, 0, 0);
+    double distance = data.getDistance(entity, 0, 0);
 
     int playerId = *entity.playerId;
 
     data.enemies[playerId].entityCount++;
 
-    if (data.enemies[playerId].sqrDistance > sqrDistance)
+    if (data.enemies[playerId].distance > distance)
     {
         switch (entity.entityType) {
         case EntityType::BUILDER_BASE :
@@ -532,7 +532,7 @@ void DefaultExploringMinister::enemyAnalize(const PlayerView &playerView, Explor
         case EntityType::HOUSE :
             data.enemies[playerId].mainX = entity.position.x;
             data.enemies[playerId].mainY = entity.position.y;
-            data.enemies[playerId].sqrDistance = sqrDistance;
+            data.enemies[playerId].distance = distance;
             break;
         default:
             break;
@@ -590,10 +590,10 @@ void DefaultExploringMinister::postEnemyAnalize(const PlayerView &playerView, Ex
         {
             const EntityProperties& properties = data.entityProperties[playerView.entities[j].entityType];
 
-            double sqrDistance = (8 + properties.size / 2) * (8 + properties.size / 2);
+            double distance = 8 + properties.size / 2;
 
-            if (m_exploringData->getDistanceSqr(playerView.entities[i], playerView.entities[j]) < sqrDistance
-                    && m_exploringData->getDistanceSqr(playerView.entities[j], 8, 8) < 40 * 40)
+            if (m_exploringData->getDistanceSqr(playerView.entities[i], playerView.entities[j]) < distance
+                    && m_exploringData->getDistance(playerView.entities[j], 8, 8) < 40 * 40)
             {
                 data.isBaseAttacked = true;
                 data.attackingEnemyUnits.push_back(i);

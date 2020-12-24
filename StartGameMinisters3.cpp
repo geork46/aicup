@@ -107,12 +107,20 @@ void StartGameEconomicMinister3::addMinistryAction(Action &act)
 
 void StartGameWarMinister3::addMinistryAction(Action &act)
 {
-
+    m_spyCounter = 0;
     int myId = m_playerView->myId;
 
     for (size_t i = 0; i < m_units.size(); i++) {
         const Entity& entity = m_units[i];
         const EntityProperties& properties = m_exploringData->entityProperties[entity.entityType];
+
+        if (entity.entityType == BUILDER_UNIT)
+        {
+            addSpyAction(act, entity);
+            m_spyCounter++;
+            continue;
+        }
+
         std::shared_ptr<MoveAction> moveAction = nullptr;
         std::shared_ptr<BuildAction> buildAction = nullptr;
 
@@ -131,6 +139,48 @@ void StartGameWarMinister3::addMinistryAction(Action &act)
 
     createEntitiesByBuildings(act);
 
+}
+
+std::vector<Vec2Int> StartGameWarMinister3::getSpyPositions()
+{
+    std::vector<Vec2Int> init{};
+    init.push_back(Vec2Int(31, 31));
+    init.push_back(Vec2Int(42, 15));
+    init.push_back(Vec2Int(15, 42));
+    return init;
+}
+
+void StartGameWarMinister3::addSpyAction(Action &act, const Entity &entity)
+{
+    std::vector<Vec2Int> positions = getSpyPositions();
+    int counter = 0;
+    for (auto p : positions)
+    {
+//        if (m_exploringData->lastUpdatedMap.find(m_exploringData->getIndex(p.x, p.y))
+//                != m_exploringData->lastUpdatedMap.end())
+//        {
+//            continue;
+//        }
+        if (counter <  m_spyCounter)
+        {
+            counter++;
+            continue;
+        }
+        std::vector<Vec2Int> v = m_exploringData->getRouteAStar(entity, p);
+
+        if (v.size() > 0)
+        {
+            std::shared_ptr<MoveAction> moveAction = nullptr;
+            moveAction = std::shared_ptr<MoveAction>(new MoveAction(Vec2Int(v[0].x, v[0].y), true, true));
+            act.entityActions[entity.id] = EntityAction( moveAction, nullptr, nullptr, nullptr);
+            return;
+        }
+        std::shared_ptr<MoveAction> moveAction = nullptr;
+        moveAction = std::shared_ptr<MoveAction>(new MoveAction(Vec2Int(p.x, p.y), true, true));
+        act.entityActions[entity.id] = EntityAction( moveAction, nullptr, nullptr, nullptr);
+        return;
+    }
+    farmResources(act, entity, m_spyCounter);
 }
 
 void StartGameDefenceMinister3::addMinistryAction(Action &act)
@@ -160,13 +210,15 @@ void StartGameDistributor3::innerDistribute(const PlayerView &playerView, const 
 
         switch (entity.entityType) {
         case EntityType::BUILDER_BASE :
+            m_economicMinister->addEntity(entity);
+            break;
         case EntityType::BUILDER_UNIT :
-            if (counter < 10)
-            {
-                m_economicMinister->addEntity(entity);
-            } else
+            if (needSpy(data) && (counter >5 || entity.id % 3 == 0))
             {
                 m_warMinister->addEntity(entity);
+            } else
+            {
+                m_economicMinister->addEntity(entity);
             }
             break;
         case EntityType::RANGED_BASE :
@@ -183,32 +235,44 @@ void StartGameDistributor3::innerDistribute(const PlayerView &playerView, const 
         counter++;
     }
 
-//    if (data.isBaseAttacked)
-//    {
-//        m_economicMinister->setMaxPopulation(0);
-//        m_warMinister->setMaxPopulation(data.freePopulation);
-//    } else if (data.builderUnitsCount < 12)
-//    {
+    if (data.isBaseAttacked)
+    {
+        m_economicMinister->setMaxPopulation(0);
+        m_warMinister->setMaxPopulation(data.freePopulation);
+    } else if (data.builderUnitsCount < 12)
+    {
         m_economicMinister->setMaxPopulation(data.maxPopulation - data.builderUnitsCount);
-//        m_warMinister->setMaxPopulation(data.maxPopulation * 0.2 - data.meleeUnitsCount - data.rangedUnitsCount);
-//    } else
-//    {
-//        if (data.myResourcesCount < 200)
-//        {
-//            m_economicMinister->setMaxPopulation(data.maxPopulation * 0.6 - data.builderUnitsCount);
-//            m_warMinister->setMaxPopulation(data.maxPopulation * 0.4 - data.meleeUnitsCount - data.rangedUnitsCount);
-//        } else
-//        {
-//            m_economicMinister->setMaxPopulation(data.maxPopulation * 0.4 - data.builderUnitsCount);
-//            m_warMinister->setMaxPopulation(data.maxPopulation * 0.6 - data.meleeUnitsCount - data.rangedUnitsCount);
-//        }
+        m_warMinister->setMaxPopulation(data.maxPopulation * 0.2 - data.meleeUnitsCount - data.rangedUnitsCount);
+    } else
+    {
+        if (data.myResourcesCount < 200)
+        {
+            m_economicMinister->setMaxPopulation(data.maxPopulation * 0.6 - data.builderUnitsCount);
+            m_warMinister->setMaxPopulation(data.maxPopulation * 0.4 - data.meleeUnitsCount - data.rangedUnitsCount);
+        } else
+        {
+            m_economicMinister->setMaxPopulation(data.maxPopulation * 0.4 - data.builderUnitsCount);
+            m_warMinister->setMaxPopulation(data.maxPopulation * 0.6 - data.meleeUnitsCount - data.rangedUnitsCount);
+        }
 
-//    }
+    }
 
     m_economicMinister->setResourcesCount(data.myResourcesCount);
     m_warMinister->setResourcesCount(data.myResourcesCount);
 
-//    m_defenceMinister->setMaxPopulation(0);
-//    m_defenceMinister->setResourcesCount(0);
+    m_defenceMinister->setMaxPopulation(0);
+    m_defenceMinister->setResourcesCount(0);
 
+}
+
+bool StartGameDistributor3::needSpy(ExploringData const &data)
+{
+    std::vector<Vec2Int> positions = StartGameWarMinister3::getSpyPositions();
+    bool f = false;
+    for (auto p : positions)
+    {
+        f = f || (data.lastUpdatedMap.find(data.getIndex(p.x, p.y))
+                == data.lastUpdatedMap.end());
+    }
+    return f;
 }

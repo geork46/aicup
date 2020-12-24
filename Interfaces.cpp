@@ -2,6 +2,8 @@
 
 #include <math.h>
 #include <queue>
+#include <algorithm>
+#include "DrawerHolder.h"
 
 int ExploringData::builderUnitPopulationUse;
 int ExploringData::rangedUnitPopulationUse;
@@ -218,7 +220,8 @@ std::vector<Vec2Int> ExploringData::getFreeBuildingsCoordinates(const std::vecto
         {
             for (int j = 0; j < size; ++j)
             {
-                if (map.find(getIndex(init[k].x + i, init[k].y + j)) != map.end())
+                if (map.find(getIndex(init[k].x + i, init[k].y + j)) != map.end() ||
+                lastUpdatedMap.find(getIndex(init[k].x + i, init[k].y + j)) == lastUpdatedMap.end())
                 {
                     goto next;
                 }
@@ -384,17 +387,135 @@ bool ExploringData::getNearestSafertyResources(const Entity &entity, int &x, int
 }
 
 
-double ExploringData::getDistanceSqr(const Entity &unit, int x, int y) const
+std::vector<Vec2Int> ExploringData::getRouteAStar(const Entity &entity, Vec2Int dest) const
 {
-    double px = unit.position.x;
-    double py = unit.position.y;
+    const EntityProperties& properties = entityProperties[entity.entityType];
+    int resourcePenalty = 5;
+    if (properties.attack != nullptr)
+    {
+        resourcePenalty = entityProperties[RESOURCE].maxHealth / properties.attack->damage + 1;
+    }
 
-    return (px - x)*(px - x) + (py - y) * (py - y);
+    std::unordered_map<Vec2Int, Vec2Int> traking;
+
+    std::unordered_map<Vec2Int, int> currentDistance;
+
+    std::vector<Vec2Int> add{};
+    add.push_back(Vec2Int(0, 1));
+    add.push_back(Vec2Int(0, -1));
+    add.push_back(Vec2Int(1, 0));
+    add.push_back(Vec2Int(-1, 0));
+
+    std::vector<Vec2Int> queue;
+    auto comp =  [&](Vec2Int const &a, Vec2Int const &b) {
+        int distA = currentDistance[a] + getDistance(a.x, a.y, dest.x, dest.y);
+        int distB = currentDistance[b] + getDistance(b.x, b.y, dest.x, dest.y);
+        return distA > distB;
+    };
+    std::make_heap(queue.begin(), queue.end(), comp );
+
+    std::vector<Vec2Int> log;
+    queue.push_back(entity.position);
+    currentDistance[entity.position] = 0;
+    std::push_heap(queue.begin(), queue.end(), comp );
+
+    Vec2Int finish;
+    bool f = false;
+
+    for (int i = 0; i < 3000 && !f && queue.size() > 0; ++i)
+    {
+        std::pop_heap(queue.begin(), queue.end(), comp );
+        Vec2Int current = queue.back();
+        queue.pop_back();
+        DrawerHolder::instance()->getDrawer()->fillColorCell(current.x, current.y, 0x23E9E9);
+
+        log.push_back(current);
+        for (int j = 0; j < add.size(); ++j)
+        {
+            if (traking.find(Vec2Int(current.x + add[j].x, current.y + add[j].y)) != traking.end())
+            {
+                continue;
+            }
+            traking[Vec2Int(current.x + add[j].x, current.y + add[j].y)] = current;
+
+            if (current == dest)
+            {
+                finish = dest;
+                f = true;
+                break;
+            }
+//            if (lastMap.find(getIndex(current.x + add[j].x, current.y + add[j].y)) != lastMap.end())
+//            {
+//                if (playerView->entities[lastMap.at(getIndex(current.x + add[j].x, current.y + add[j].y))].entityType == EntityType::RESOURCE
+//                        && isSafetryPosition(current.x, current.y) && isSafetryPosition(current.x + add[j].x, current.y + add[j].y))
+//                {
+//                    finish = current;
+//                    f = true;
+//                    break;
+//                }
+//                continue;
+//            }
+
+            if (isSafetryPosition(current.x + add[j].x, current.y + add[j].y) &&
+                    (lastMap.find(getIndex(current.x + add[j].x, current.y + add[j].y)) == lastMap.end() ||
+                     lastMap.at(getIndex(current.x + add[j].x, current.y + add[j].y)) == -1))
+            {
+                queue.push_back(Vec2Int(current.x + add[j].x, current.y + add[j].y));
+                currentDistance[Vec2Int(current.x + add[j].x, current.y + add[j].y)] = currentDistance[current] + 1;
+                std::push_heap(queue.begin(), queue.end(), comp );
+                continue;
+            }
+            if (isSafetryPosition(current.x + add[j].x, current.y + add[j].y) &&
+                    (lastMap.find(getIndex(current.x + add[j].x, current.y + add[j].y)) != lastMap.end() ||
+                     lastMap.at(getIndex(current.x + add[j].x, current.y + add[j].y)) == RESOURCE))
+            {
+                if (map.find(getIndex(current.x + add[j].x, current.y + add[j].y)) != map.end())
+                {
+                    int health = playerView->entities[map.at(getIndex(current.x + add[j].x, current.y + add[j].y))].health;
+                    resourcePenalty = health / properties.attack->damage + 1;
+                }
+                queue.push_back(Vec2Int(current.x + add[j].x, current.y + add[j].y));
+                currentDistance[Vec2Int(current.x + add[j].x, current.y + add[j].y)] = currentDistance[current] + resourcePenalty;
+                std::push_heap(queue.begin(), queue.end(), comp );
+                continue;
+            }
+        }
+    }
+    std::vector<Vec2Int> res;
+    if (f)
+    {
+        Vec2Int current = finish;
+        Vec2Int current2 = finish;
+        while (!(current == entity.position))
+        {
+            res.push_back(current);
+            DrawerHolder::instance()->getDrawer()->fillColorCell(current.x, current.y, 0x5AFF04);
+            current2 = current;
+            current = traking[Vec2Int(current.x, current.y)];
+        }
+        if (current == current2)
+        {
+            f = false;
+        }
+//        x = current2.x;
+//        y = current2.y;
+    }
+    std::reverse(res.begin(), res.end());
+    return res;
 }
+
+
 
 double ExploringData::getDistance(const Entity &unit, int x, int y) const
 {
-    return sqrt(getDistanceSqr(unit, x, y));
+    double px = unit.position.x;
+    double py = unit.position.y;
+    return abs(px - x) + abs(py - y);
+}
+
+double ExploringData::getDistance(int x, int y, int px, int py) const
+{
+    return abs(px - x) + abs(py - y);
 }
 
 
@@ -469,7 +590,7 @@ bool IEconomicsMinistry::tryRepair(Action &act, const Entity &entity)
     return f2;
 }
 
-void IEconomicsMinistry::farmResources(Action &act, const Entity &entity, int i)
+void IMinistry::farmResources(Action &act, const Entity &entity, int i)
 {
     const EntityProperties& properties = m_exploringData->entityProperties[entity.entityType];
     std::shared_ptr<MoveAction> moveAction = nullptr;
@@ -735,10 +856,10 @@ void IEconomicsMinistry::fillBuildingMap(EntityType type)
                     continue;
                 }
                 const Entity & entity = m_units[i];
-                double sqrDistance = m_exploringData->getDistanceSqr(entity, v2.x, v2.y);
-                if (sqrDistance < maxDistance)
+                double distance = m_exploringData->getDistance(entity, v2.x, v2.y);
+                if (distance < maxDistance)
                 {
-                    maxDistance = sqrDistance;
+                    maxDistance = distance;
                     num = i;
                     p1 = v;
                     p2 = v2;

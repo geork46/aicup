@@ -55,3 +55,8 @@ void IDrawer::turningEnd()
 {
 
 }
+
+void IDrawer::fillColorCell(int x, int y, uint32_t color)
+{
+
+}

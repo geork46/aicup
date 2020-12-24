@@ -22,7 +22,7 @@ struct EnemyInfo
     int builderBaseX = -1;
     int builderBaseY = -1;
 
-    double sqrDistance = 1000;
+    double distance = 1000;
 
     int entityCount = 0;
 };
@@ -119,10 +119,12 @@ struct ExploringData
     void getNearestResources(const Entity &entity, int &x, int &y) const;
     bool getNearestSafertyResources(const Entity &entity, int &x, int &y) const;
 
+    std::vector<Vec2Int> getRouteAStar(const Entity &entity, Vec2Int dest) const;
+
     double getDistance(const Entity &unit, const Entity &building) const;
     double getDistanceSqr(const Entity &unit, const Entity &building) const;
     double getDistance(const Entity &unit, int x, int y) const;
-    double getDistanceSqr(const Entity &unit, int x, int y) const;
+    double getDistance(int x, int y, int px, int py) const;
 };
 
 
@@ -149,6 +151,7 @@ public:
 protected:
     virtual void createEntitiesByBuildings(Action &act);
 
+    virtual void farmResources(Action &act, const Entity& entity, int i);
 
     virtual void turretAttack(Action &act);
     virtual void turretAttack(Action &act, int turretId);
@@ -177,7 +180,6 @@ protected:
 
     virtual bool tryRepair(Action &act, const Entity& entity);
 
-    virtual void farmResources(Action &act, const Entity& entity, int i);
 
     virtual void fillRepairMap();
     virtual void getCreateUnitCoordinates(int &x, int &y);

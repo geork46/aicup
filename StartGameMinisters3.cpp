@@ -1,5 +1,7 @@
 #include "StartGameMinisters3.h"
 
+#include "DrawerHolder.h"
+
 
 
 
@@ -145,8 +147,13 @@ std::vector<Vec2Int> StartGameWarMinister3::getSpyPositions()
 {
     std::vector<Vec2Int> init{};
     init.push_back(Vec2Int(31, 31));
+    init.push_back(Vec2Int(41, 41));
     init.push_back(Vec2Int(42, 15));
+    init.push_back(Vec2Int(42, 5));
     init.push_back(Vec2Int(15, 42));
+    init.push_back(Vec2Int(5, 42));
+    init.push_back(Vec2Int(5, 30));
+    init.push_back(Vec2Int(30, 5));
     return init;
 }
 
@@ -156,20 +163,38 @@ void StartGameWarMinister3::addSpyAction(Action &act, const Entity &entity)
     int counter = 0;
     for (auto p : positions)
     {
-//        if (m_exploringData->lastUpdatedMap.find(m_exploringData->getIndex(p.x, p.y))
-//                != m_exploringData->lastUpdatedMap.end())
-//        {
-//            continue;
-//        }
+        if (m_exploringData->lastUpdatedMap.find(m_exploringData->getIndex(p.x, p.y))
+                != m_exploringData->lastUpdatedMap.end())
+        {
+            continue;
+        }
         if (counter <  m_spyCounter)
         {
             counter++;
             continue;
         }
+        DrawerHolder::instance()->getDrawer()->selectLayer(9 - counter);
         std::vector<Vec2Int> v = m_exploringData->getRouteAStar(entity, p);
 
         if (v.size() > 0)
         {
+            if (m_exploringData->map.find(m_exploringData->getIndex(v[0].x, v[0].y)) != m_exploringData->map.end())
+            {
+                std::shared_ptr<MoveAction> moveAction;
+                moveAction.reset(new MoveAction(Vec2Int(v[0].x, v[0].y), true, true));
+                std::shared_ptr<int> attackId;
+                attackId.reset(new int(m_playerView->entities[m_exploringData->map.at(m_exploringData->getIndex(v[0].x, v[0].y)) ].id));
+
+                std::vector<EntityType> validAutoAttackTargets;
+                if (entity.entityType == BUILDER_UNIT) {
+                    validAutoAttackTargets.push_back(RESOURCE);
+                }
+                act.entityActions[entity.id] = EntityAction( moveAction, nullptr,
+                                                             std::shared_ptr<AttackAction>(new AttackAction(attackId, nullptr)), nullptr);
+
+
+            }
+
             std::shared_ptr<MoveAction> moveAction = nullptr;
             moveAction = std::shared_ptr<MoveAction>(new MoveAction(Vec2Int(v[0].x, v[0].y), true, true));
             act.entityActions[entity.id] = EntityAction( moveAction, nullptr, nullptr, nullptr);
@@ -213,7 +238,7 @@ void StartGameDistributor3::innerDistribute(const PlayerView &playerView, const 
             m_economicMinister->addEntity(entity);
             break;
         case EntityType::BUILDER_UNIT :
-            if (needSpy(data) && (counter >5 || entity.id % 3 == 0))
+            if (needSpy(data) && (counter >5 && entity.id % 3 == 0))
             {
                 m_warMinister->addEntity(entity);
             } else
@@ -271,8 +296,7 @@ bool StartGameDistributor3::needSpy(ExploringData const &data)
     bool f = false;
     for (auto p : positions)
     {
-        f = f || (data.lastUpdatedMap.find(data.getIndex(p.x, p.y))
-                == data.lastUpdatedMap.end());
+        f = f || (data.lastUpdatedMap.find(data.getIndex(p.x, p.y)) == data.lastUpdatedMap.end());
     }
     return f;
 }

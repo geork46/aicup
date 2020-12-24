@@ -56,6 +56,11 @@ void IDrawer::turningEnd()
 
 }
 
+void IDrawer::selectLayer(int layer)
+{
+
+}
+
 void IDrawer::fillColorCell(int x, int y, uint32_t color)
 {
 

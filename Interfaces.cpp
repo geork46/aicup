@@ -444,17 +444,6 @@ std::vector<Vec2Int> ExploringData::getRouteAStar(const Entity &entity, Vec2Int 
                 f = true;
                 break;
             }
-//            if (lastMap.find(getIndex(current.x + add[j].x, current.y + add[j].y)) != lastMap.end())
-//            {
-//                if (playerView->entities[lastMap.at(getIndex(current.x + add[j].x, current.y + add[j].y))].entityType == EntityType::RESOURCE
-//                        && isSafetryPosition(current.x, current.y) && isSafetryPosition(current.x + add[j].x, current.y + add[j].y))
-//                {
-//                    finish = current;
-//                    f = true;
-//                    break;
-//                }
-//                continue;
-//            }
 
             if (isSafetryPosition(current.x + add[j].x, current.y + add[j].y) &&
                     (lastMap.find(getIndex(current.x + add[j].x, current.y + add[j].y)) == lastMap.end() ||
@@ -466,7 +455,7 @@ std::vector<Vec2Int> ExploringData::getRouteAStar(const Entity &entity, Vec2Int 
                 continue;
             }
             if (isSafetryPosition(current.x + add[j].x, current.y + add[j].y) &&
-                    (lastMap.find(getIndex(current.x + add[j].x, current.y + add[j].y)) != lastMap.end() ||
+                    (lastMap.find(getIndex(current.x + add[j].x, current.y + add[j].y)) != lastMap.end() &&
                      lastMap.at(getIndex(current.x + add[j].x, current.y + add[j].y)) == RESOURCE))
             {
                 if (map.find(getIndex(current.x + add[j].x, current.y + add[j].y)) != map.end())
@@ -497,8 +486,6 @@ std::vector<Vec2Int> ExploringData::getRouteAStar(const Entity &entity, Vec2Int 
         {
             f = false;
         }
-//        x = current2.x;
-//        y = current2.y;
     }
     std::reverse(res.begin(), res.end());
     return res;

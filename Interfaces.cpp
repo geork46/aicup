@@ -625,7 +625,7 @@ double ExploringData::getDistance(int x, int y, int px, int py) const
 }
 
 
-double ExploringData::getDistanceSqr(const Entity &unit, const Entity &building) const
+double ExploringData::getDistance(const Entity &unit, const Entity &building) const
 {
     double x = unit.position.x + 0.5;
     double y = unit.position.y + 0.5;
@@ -634,12 +634,7 @@ double ExploringData::getDistanceSqr(const Entity &unit, const Entity &building)
     double px = building.position.x + properties.size / 2.0;
     double py = building.position.y + properties.size / 2.0;
 
-    return (px - x)*(px - x) + (py - y) * (py - y);
-}
-
-double ExploringData::getDistance(const Entity &unit, const Entity &building) const
-{
-    return sqrt(getDistanceSqr(unit, building));
+    return abs(px - x) + abs(py - y);
 }
 
 void IEconomicsMinistry::createBuilderUnit(Action &act)

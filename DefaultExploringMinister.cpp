@@ -25,6 +25,7 @@ void DefaultExploringMinister::getExploringData(const PlayerView &playerView, Ex
         }
 
     } else {
+        exploring1Fill(playerView, data);
         exploring1(playerView, data);
     }
 
@@ -492,6 +493,18 @@ void DefaultExploringMinister::updateLastMap(const PlayerView &playerView, Explo
     }
 }
 
+void DefaultExploringMinister::exploring1Fill(const PlayerView &playerView, ExploringData &data)
+{
+    for (int i = 0; i < playerView.mapSize; ++i)
+    {
+        for (int j = 0; j < playerView.mapSize; ++j)
+        {
+            data.lastUpdatedMap[data.getIndex(i, j)] = 1000;
+        }
+    }
+
+}
+
 void DefaultExploringMinister::clearEnemyInfo(ExploringData &data)
 {
     for (int i = 0; i < data.MAX_ENEMIES; ++i)
@@ -601,8 +614,8 @@ void DefaultExploringMinister::postEnemyAnalize(const PlayerView &playerView, Ex
 
             double distance = 8 + properties.size / 2;
 
-            if (m_exploringData->getDistanceSqr(playerView.entities[i], playerView.entities[j]) < distance
-                    && m_exploringData->getDistance(playerView.entities[j], 8, 8) < 40 * 40)
+            if (m_exploringData->getDistance(playerView.entities[i], playerView.entities[j]) < distance
+                    && m_exploringData->getDistance(playerView.entities[j], 8, 8) < 40)
             {
                 data.isBaseAttacked = true;
                 data.attackingEnemyUnits.push_back(i);
@@ -633,7 +646,7 @@ void DefaultExploringMinister::resourcesAnalize(const PlayerView &playerView, Ex
             for (int j : data.enemyUnits)
             {
                 const Entity& enemy = playerView.entities[j];
-                if (data.getDistanceSqr(entity, enemy) < 7*8 && enemy.entityType != EntityType::BUILDER_UNIT)
+                if (data.getDistance(entity, enemy) < 8 && enemy.entityType != EntityType::BUILDER_UNIT)
                 {
                     f = false;
                     break;

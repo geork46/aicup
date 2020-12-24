@@ -123,10 +123,9 @@ struct ExploringData
 
     std::vector<Vec2Int> getRouteAStarWar(const Entity &entity, Vec2Int dest) const;
 
-    double getDistance(const Entity &unit, const Entity &building) const;
-    double getDistanceSqr(const Entity &unit, const Entity &building) const;
     double getDistance(const Entity &unit, int x, int y) const;
     double getDistance(int x, int y, int px, int py) const;
+    double getDistance(const Entity &unit, const Entity &building) const;
 };
 
 

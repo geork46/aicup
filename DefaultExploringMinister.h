@@ -26,6 +26,7 @@ private:
     void updateLastMap(const PlayerView &playerView, ExploringData &data);
     void updateLastMap(const PlayerView &playerView, ExploringData &data, int x, int y);
 
+    void exploring1Fill(const PlayerView &playerView, ExploringData &data);
 
     void clearEnemyInfo(ExploringData &data);
 

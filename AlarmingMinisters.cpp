@@ -221,7 +221,7 @@ bool AlarmingDistributor::entityNearByAttackingEnemy(const PlayerView &playerVie
 {
     for (int i : data.attackingEnemyUnits)
     {
-        if (data.getDistanceSqr(entity, playerView.entities[i]) < 30 * 30)
+        if (data.getDistance(entity, playerView.entities[i]) < 40)
         {
             return true;
         }

@@ -119,9 +119,13 @@ struct ExploringData
     void getNearestResources(const Entity &entity, int &x, int &y) const;
     bool getNearestSafertyResources(const Entity &entity, int &x, int &y) const;
 
-    std::vector<Vec2Int> getRouteAStar(const Entity &entity, Vec2Int dest) const;
 
     std::vector<Vec2Int> getRouteAStarWar(const Entity &entity, Vec2Int dest) const;
+
+    std::vector<Vec2Int> getRouteAStar(const Entity &entity, Vec2Int dest) const;
+
+    template<class F>
+    std::vector<Vec2Int> getRouteAStarManual(const Entity &entity, Vec2Int dest, F func, int maxIter) const;
 
     double getDistance(const Entity &unit, int x, int y) const;
     double getDistance(int x, int y, int px, int py) const;

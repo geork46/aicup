@@ -142,6 +142,7 @@ void StartGameWarMinister3::addMinistryAction(Action &act)
         {
             DrawerHolder::instance()->getDrawer()->selectLayer(6);
             std::vector<Vec2Int> v = m_exploringData->getRouteAStar(entity, Vec2Int(x, y));
+//            std::vector<Vec2Int> v = m_exploringData->getRouteAStarWar(entity, Vec2Int(x, y));
 
             if (v.size() > 0)
             {

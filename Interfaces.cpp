@@ -106,6 +106,15 @@ void IMinistry::createEntitiesByBuildings(Action &act)
         if (properties.build == nullptr) {
             continue;
         }
+//        if (entity.entityType == MELEE_BASE)
+//        {
+//            if (isNearDefencer(entity))
+//            {
+//                act.entityActions[m_buildings[i].id] = EntityAction( nullptr, nullptr, nullptr, nullptr);
+//                continue;
+//            }
+//        }
+
         EntityType entityType = properties.build->options[0];
         if (m_exploringData->entityProperties[entityType].populationUse <= m_maxPopulation
                 && m_exploringData->entityCost[entityType] <= m_resourcesCount + m_exploringData->builderUnitsCount)
@@ -140,6 +149,19 @@ void IMinistry::turretAttack(Action &act, int turretId)
     autoAttack.reset(new AutoAttack(properties.sightRange, validAutoAttackTargets));
     attackAction.reset(new AttackAction( nullptr, autoAttack));
     act.entityActions[turretId] = EntityAction( nullptr, nullptr, attackAction, nullptr);
+
+}
+
+bool IMinistry::isNearDefencer(const Entity &entity)
+{
+    for (int i : m_exploringData->myWarriorUnits)
+    {
+        if (m_exploringData->getDistance(entity, m_playerView->entities[i]) < 10)
+        {
+            return true;
+        }
+    }
+    return false;
 
 }
 
@@ -275,6 +297,24 @@ void ExploringData::getXYfromIndex(int index, int &x, int &y) const
 }
 
 //int ExploringData::getIndex(int x, int y) const
+bool ExploringData::isMaxSafetryPosition(int x, int y) const
+{
+    bool f = true;
+    for (int i : enemyUnits)
+    {
+        if (playerView->entities[i].entityType == EntityType::BUILDER_UNIT)
+        {
+            continue;
+        }
+        double d = getDistance(playerView->entities[i], x, y);
+        if (d < 12)
+        {
+            f = false;
+            break;
+        }
+    }
+    return f;
+}
 
 bool ExploringData::isSafetryPosition(int x, int y) const
 {
@@ -317,6 +357,26 @@ void ExploringData::getNearestEnemyBuilder(const Entity &entity, int &x, int &y)
         y = 79;
     }
 
+}
+
+bool ExploringData::isUndexAttack(const Entity &entity) const
+{
+    const EntityProperties& properties = entityProperties[entity.entityType];
+    int size = properties.size;
+    for (int i = 0; i < size; ++i)
+    {
+        for (int j = 0; j < size; ++j)
+        {
+            int x = entity.position.x + i;
+            int y = entity.position.y + j;
+            if (attackMap.find(getIndex(x, y)) != attackMap.end() &&
+                 attackMap.at(getIndex(x, y)) > 2 )
+            {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 void ExploringData::getNearestResources(const Entity &entity, int &x, int &y) const
@@ -529,19 +589,22 @@ std::vector<Vec2Int> ExploringData::getRouteAStarAttackBuilder(const Entity &ent
             int distB = currentDistance[b] + getDistance(b.x, b.y, dest.x, dest.y);
             return distA > distB;
         };
+        int safertyPenalty = 0;
+        if (!isMaxSafetryPosition(x, y))
+        {
+            safertyPenalty = 8;
+        }
 
-        if (isSafetryPosition(x, y) &&
-                (lastMap.find(getIndex(x, y)) == lastMap.end() ||
+        if ( (lastMap.find(getIndex(x, y)) == lastMap.end() ||
                  lastMap.at(getIndex(x, y)) == -1))
         {
             queue.push_back(Vec2Int(x, y));
-            currentDistance[Vec2Int(x, y)] = currentDistance[current] + 1;
+            currentDistance[Vec2Int(x, y)] = currentDistance[current] + 1 + safertyPenalty;
             std::push_heap(queue.begin(), queue.end(), comp );
             return false;
         }
 
-        if (isSafetryPosition(x, y) &&
-                (lastMap.find(getIndex(x, y)) != lastMap.end() &&
+        if ( (lastMap.find(getIndex(x, y)) != lastMap.end() &&
                  lastMap.at(getIndex(x, y)) == RESOURCE))
         {
             if (map.find(getIndex(x, y)) != map.end())
@@ -550,13 +613,12 @@ std::vector<Vec2Int> ExploringData::getRouteAStarAttackBuilder(const Entity &ent
                 resourcePenalty = health / properties.attack->damage + 1;
             }
             queue.push_back(Vec2Int(x, y));
-            currentDistance[Vec2Int(x, y)] = currentDistance[current] + resourcePenalty;
+            currentDistance[Vec2Int(x, y)] = currentDistance[current] + resourcePenalty + safertyPenalty;
             std::push_heap(queue.begin(), queue.end(), comp );
             return false;
         }
 
-        if (isSafetryPosition(x, y) &&
-                (lastMap.find(getIndex(x, y)) != lastMap.end() &&
+        if ( (lastMap.find(getIndex(x, y)) != lastMap.end() &&
                  lastMap.at(getIndex(x, y)) == BUILDER_UNIT))
         {
             if (map.find(getIndex(x, y)) != map.end() &&
@@ -570,7 +632,7 @@ std::vector<Vec2Int> ExploringData::getRouteAStarAttackBuilder(const Entity &ent
 
     };
 
-    return getRouteAStarManual(entity, dest, func, 500);
+    return getRouteAStarManual(entity, dest, func, 800);
 
 }
 
@@ -718,7 +780,7 @@ void IEconomicsMinistry::fillRepairMap()
         const Entity& building = m_playerView->entities[ind];
 
         int n = 2;
-        if (building.entityType == RANGED_BASE)
+        if (building.entityType == RANGED_BASE && !building.active)
         {
             n = 5;
         }
@@ -1048,6 +1110,60 @@ bool IDistributor::needSpy(ExploringData const &data)
 void IWarMinistry::fillPositionMap()
 {
 
+}
+
+bool IWarMinistry::tryBuilderAttack(Action &act, const Entity &entity)
+{
+    const EntityProperties& properties = m_exploringData->entityProperties[entity.entityType];
+
+    int rangeAttack;
+    if (properties.attack != nullptr)
+    {
+        rangeAttack = properties.attack->attackRange;
+    }
+
+    if (m_exploringData->isUndexAttack(entity))
+    {
+        return trySoldersAttack(act, entity);
+    }
+
+    int x, y;
+    m_exploringData->getNearestEnemyBuilder(entity, x, y);
+
+    if (m_exploringData->getDistance(entity, x, y) <= rangeAttack)
+    {
+
+        int index = m_playerView->entities.at(m_exploringData->map.at(m_exploringData->getIndex(x, y))).id;
+
+        act.entityActions[entity.id] = EntityAction( nullptr, nullptr,
+                                                     std::shared_ptr<AttackAction>(new AttackAction(std::shared_ptr<int>(new int(index)), nullptr)), nullptr);
+        return true;
+    }
+    if (m_exploringData->getDistance(entity, x, y) <=  8)
+    {
+
+        std::shared_ptr<MoveAction> moveAction =  std::shared_ptr<MoveAction>(new MoveAction(Vec2Int(x, y), true, true));
+        act.entityActions[entity.id] = EntityAction( moveAction, nullptr, nullptr, nullptr);
+        return true;
+    }
+
+
+    return false;
+
+}
+
+bool IWarMinistry::trySoldersAttack(Action &act, const Entity &entity)
+{
+    const EntityProperties& properties = m_exploringData->entityProperties[entity.entityType];
+
+    std::vector<EntityType> validAutoAttackTargets;
+    validAutoAttackTargets.push_back(MELEE_UNIT);
+    validAutoAttackTargets.push_back(RANGED_UNIT);
+
+    act.entityActions[entity.id] = EntityAction( nullptr, nullptr,
+        std::shared_ptr<AttackAction>(new AttackAction( nullptr,
+        std::shared_ptr<AutoAttack>(new AutoAttack(properties.sightRange, validAutoAttackTargets)))), nullptr);
+    return true;
 }
 
 template<class F>

@@ -1,5 +1,7 @@
 #include "StartGameMinisters.h"
 
+#include "DrawerHolder.h"
+
 void StartGameEconomicMinister::activate()
 {
     m_buildHouseMap.clear();
@@ -89,31 +91,65 @@ void StartGameWarMinister::addMinistryAction(Action &act)
         std::shared_ptr<MoveAction> moveAction = nullptr;
         std::shared_ptr<BuildAction> buildAction = nullptr;
 
+        if (tryBuilderAttack(act, entity))
+        {
+            continue;
+        }
+
         int x = m_playerView->mapSize - 1, y = m_playerView->mapSize - 1;
 
-        int maxD = 500;
-        for (int i = 0; i < m_exploringData->MAX_ENEMIES; ++i)
-        {
-            if (m_exploringData->enemies[i].entityCount > 0)
-            {
-                if (m_exploringData->enemies[i].meleeUnitsCount + m_exploringData->enemies[i].rangedUnitsCount < maxD)
-                {
-                    x = m_exploringData->enemies[i].mainX;
-                    y = m_exploringData->enemies[i].mainY;
-                    maxD = m_exploringData->enemies[i].meleeUnitsCount + m_exploringData->enemies[i].rangedUnitsCount;
-                }
-            }
-        }
-        if (maxD > m_exploringData->meleeUnitsCount + m_exploringData->rangedUnitsCount + 2)
-        {
-            x = 15;
-            y = 15;
-        }
         if (i < 3)
         {
-            Vec2Int v = getNearestEnemyBuilderUnitCoords(entity);
-            x = v.x;
-            y = v.y;
+            Vec2Int vv = getNearestEnemyBuilderUnitCoords(entity);
+            x = vv.x;
+            y = vv.y;
+            DrawerHolder::instance()->getDrawer()->selectLayer(6);
+            std::vector<Vec2Int> v;
+            if (m_exploringData->enemyBuilderUnits.size() > 0)
+            {
+                m_exploringData->getNearestEnemyBuilder(entity, x, y);
+                v = m_exploringData->getRouteAStarAttackBuilder(entity, Vec2Int(x, y));
+            }
+
+            if (v.size() == 0)
+            {
+                v = m_exploringData->getRouteAStar(entity, Vec2Int(x, y));
+            }
+            if (v.size() > 0)
+            {
+                x = v[0].x;
+                y = v[0].y;
+            }
+
+        } else {
+            int maxD = 500;
+            for (int i = 0; i < m_exploringData->MAX_ENEMIES; ++i)
+            {
+                if (m_exploringData->enemies[i].entityCount > 0)
+                {
+                    if (m_exploringData->enemies[i].meleeUnitsCount + m_exploringData->enemies[i].rangedUnitsCount < maxD)
+                    {
+                        x = m_exploringData->enemies[i].mainX;
+                        y = m_exploringData->enemies[i].mainY;
+                        maxD = m_exploringData->enemies[i].meleeUnitsCount + m_exploringData->enemies[i].rangedUnitsCount;
+                    }
+                }
+            }
+            if (maxD > m_exploringData->meleeUnitsCount + m_exploringData->rangedUnitsCount + 2)
+            {
+                x = 15;
+                y = 15;
+            }
+//            if (i % 2 != 0)
+//            {
+//                std::vector<Vec2Int> v = m_exploringData->getRouteAStar(entity, Vec2Int(x, y));
+//                if (v.size() > 0)
+//                {
+//                    x = v[0].x;
+//                    y = v[0].y;
+//                }
+//            }
+
         }
 
 
@@ -137,6 +173,13 @@ void StartGameDefenceMinister::addMinistryAction(Action &act)
     for (size_t i = 0; i < m_buildings.size(); i++) {
         act.entityActions[m_buildings[i].id] = EntityAction( nullptr, nullptr, nullptr, nullptr);
     }
+    for (int i = 0; i < m_buildings.size(); ++i)
+    {
+        if (m_buildings[i].entityType == TURRET)
+        {
+            turretAttack(act, m_buildings[i].id);
+        }
+    }
 }
 
 
@@ -152,7 +195,12 @@ void StartGameDistributor::innerDistribute(const PlayerView &playerView, const E
         switch (entity.entityType) {
         case EntityType::BUILDER_BASE :
         case EntityType::BUILDER_UNIT :
-            m_economicMinister->addEntity(entity);
+            if (data.mapResourcesCount < 5)
+            {
+                m_warMinister->addEntity(entity);
+            } else {
+                m_economicMinister->addEntity(entity);
+            }
             break;
         case EntityType::RANGED_BASE :
         case EntityType::RANGED_UNIT :

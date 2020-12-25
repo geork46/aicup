@@ -245,7 +245,12 @@ void StartGameDistributor2::innerDistribute(const PlayerView &playerView, const 
                 m_warMinister->addEntity(entity);
             } else
             {
-                m_economicMinister->addEntity(entity);
+                if (data.mapResourcesCount < 5)
+                {
+                    m_warMinister->addEntity(entity);
+                } else {
+                    m_economicMinister->addEntity(entity);
+                }
             }
             counter++;
             break;

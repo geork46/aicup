@@ -86,6 +86,7 @@ struct ExploringData
     bool isBaseAttacked = false;
     std::vector<int> attackingEnemyUnits;
     std::vector<int> enemyUnits;
+    std::vector<int> myWarriorUnits;
     std::vector<int> enemyBuilderUnits;
     std::vector<int> myBuildings;
     std::vector<int> safertyResources;
@@ -115,8 +116,11 @@ struct ExploringData
     void getXYfromIndex(int index, int&x, int&y) const;
 
     bool isSafetryPosition(int x, int y) const;
+    bool isMaxSafetryPosition(int x, int y) const;
 
     void getNearestEnemyBuilder(const Entity &entity, int &x, int &y) const;
+
+    bool isUndexAttack(const Entity &entity) const;
 
     void getNearestResources(const Entity &entity, int &x, int &y) const;
     bool getNearestSafertyResources(const Entity &entity, int &x, int &y) const;
@@ -166,6 +170,8 @@ protected:
 
     virtual void turretAttack(Action &act);
     virtual void turretAttack(Action &act, int turretId);
+
+    virtual bool isNearDefencer(const Entity &entity);
 
 
     const ExploringData *m_exploringData = nullptr;
@@ -219,6 +225,9 @@ protected:
     virtual std::vector<Vec2Int> getDefencePositions() const;
 
     virtual void fillPositionMap();
+
+    virtual bool tryBuilderAttack(Action &act, const Entity & entity);
+    virtual bool trySoldersAttack(Action &act, const Entity & entity);
 
     std::unordered_map<int, Vec2Int> m_positionMap;
     std::unordered_map<Vec2Int, int> m_reversePositionMap;

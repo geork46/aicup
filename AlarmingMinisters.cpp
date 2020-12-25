@@ -179,7 +179,12 @@ void AlarmingDistributor::innerDistribute(const PlayerView &playerView, const Ex
         switch (entity.entityType) {
         case EntityType::BUILDER_BASE :
         case EntityType::BUILDER_UNIT :
-            m_economicMinister->addEntity(entity);
+            if (data.mapResourcesCount < 5)
+            {
+                m_warMinister->addEntity(entity);
+            } else {
+                m_economicMinister->addEntity(entity);
+            }
             break;
         case EntityType::RANGED_UNIT :
         case EntityType::MELEE_UNIT :

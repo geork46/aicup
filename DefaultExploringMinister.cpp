@@ -57,6 +57,7 @@ void DefaultExploringMinister::clearExploringData(ExploringData &data)
     data.needRepairBuildings.clear();
     data.attackingEnemyUnits.clear();
     data.enemyUnits.clear();
+    data.myWarriorUnits.clear();
     data.enemyBuilderUnits.clear();
     data.myBuildings.clear();
     data.safertyResources.clear();
@@ -150,6 +151,7 @@ void DefaultExploringMinister::exploring1(const PlayerView &playerView, Explorin
             break;
         case MELEE_UNIT:
             data.meleeUnitsCount++;
+            data.myWarriorUnits.push_back(i);
             break;
         case RANGED_BASE:
             data.rangedBaseID = entity.id;
@@ -158,6 +160,7 @@ void DefaultExploringMinister::exploring1(const PlayerView &playerView, Explorin
             break;
         case RANGED_UNIT:
             data.rangedUnitsCount++;
+            data.myWarriorUnits.push_back(i);
             break;
         default:
             break;
@@ -260,6 +263,7 @@ void DefaultExploringMinister::exploring2(const PlayerView &playerView, Explorin
             break;
         case MELEE_UNIT:
             data.meleeUnitsCount++;
+            data.myWarriorUnits.push_back(i);
             break;
         case RANGED_BASE:
             data.rangedBaseID = entity.id;
@@ -268,6 +272,7 @@ void DefaultExploringMinister::exploring2(const PlayerView &playerView, Explorin
             break;
         case RANGED_UNIT:
             data.rangedUnitsCount++;
+            data.myWarriorUnits.push_back(i);
             break;
         default:
             break;
@@ -397,31 +402,31 @@ void DefaultExploringMinister::fillAttackMap(const PlayerView &playerView, Explo
                 {
                     x = entity.position.x + k;
                     y = entity.position.y;
-                    if (set.find(Vec2Int(x, y)) == set.end())
+                    if (set.find(Vec2Int(x + i, y + j)) == set.end())
                     {
                         data.attackMap[data.getIndex(x + i, y + j)] += damage;
-                        set.insert(Vec2Int(x, y));
+                        set.insert(Vec2Int(x + i, y + j));
                     }
                     x = entity.position.x;
                     y = entity.position.y + k;
-                    if (set.find(Vec2Int(x, y)) == set.end())
+                    if (set.find(Vec2Int(x + i, y + j)) == set.end())
                     {
                         data.attackMap[data.getIndex(x + i, y + j)] += damage;
-                        set.insert(Vec2Int(x, y));
+                        set.insert(Vec2Int(x + i, y + j));
                     }
                     x = entity.position.x + k;
                     y = entity.position.y + size - 1;
-                    if (set.find(Vec2Int(x, y)) == set.end())
+                    if (set.find(Vec2Int(x + i, y + j)) == set.end())
                     {
                         data.attackMap[data.getIndex(x + i, y + j)] += damage;
-                        set.insert(Vec2Int(x, y));
+                        set.insert(Vec2Int(x + i, y + j));
                     }
                     x = entity.position.x + size - 1;
                     y = entity.position.y + k;
-                    if (set.find(Vec2Int(x, y)) == set.end())
+                    if (set.find(Vec2Int(x + i, y + j)) == set.end())
                     {
                         data.attackMap[data.getIndex(x + i, y + j)] += damage;
-                        set.insert(Vec2Int(x, y));
+                        set.insert(Vec2Int(x + i, y + j));
                     }
                 }
             } else {
@@ -495,6 +500,7 @@ void DefaultExploringMinister::updateLastMap(const PlayerView &playerView, Explo
 
 void DefaultExploringMinister::exploring1Fill(const PlayerView &playerView, ExploringData &data)
 {
+    data.lastMap.clear();
     for (int i = 0; i < playerView.mapSize; ++i)
     {
         for (int j = 0; j < playerView.mapSize; ++j)
@@ -530,6 +536,7 @@ void DefaultExploringMinister::fillMap(const PlayerView &playerView, ExploringDa
         for (int j = 0; j < properties.size; ++j)
         {
             data.map[data.getIndex(entity.position.x + j, entity.position.y + i)] = index;
+            data.lastMap[data.getIndex(entity.position.x + j, entity.position.y + i)] = entity.entityType;
         }
     }
 }

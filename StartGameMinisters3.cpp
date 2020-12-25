@@ -46,7 +46,7 @@ void StartGameEconomicMinister3::addMinistryAction(Action &act)
             fillBuildHouseMap();
         }
     }
-    if (m_resourcesCount >= 50 && (m_exploringData->freePopulation < 15))
+    if (m_exploringData->rangedBaseCount > 0 && m_resourcesCount >= 70)
     {
         if (m_buildHouseMap.size() < 2)
         {
@@ -104,6 +104,15 @@ void StartGameEconomicMinister3::addMinistryAction(Action &act)
 
         farmResources(act, entity, i);
     }
+
+}
+
+std::vector<Vec2Int> StartGameEconomicMinister3::getTurretsCoordinates() const
+{
+    std::vector<Vec2Int> init{};
+    init.push_back(Vec2Int(9, 25));
+    init.push_back(Vec2Int(25, 9));
+    return init;
 
 }
 
@@ -235,8 +244,7 @@ void StartGameDistributor3::innerDistribute(const PlayerView &playerView, const 
             m_economicMinister->addEntity(entity);
             break;
         case EntityType::BUILDER_UNIT :
-            if (needSpy(data) && (((counter >5 && entity.id % 3 == 0) && counter < 10)||
-                                  (data.myResourcesCount > 70  && counter == 1)))
+            if (needSpy(data) && ((counter == 6) || (data.maxPopulation < 20 && data.myResourcesCount > 70  && counter == 1)))
             {
                 m_warMinister->addEntity(entity);
             } else
@@ -258,11 +266,7 @@ void StartGameDistributor3::innerDistribute(const PlayerView &playerView, const 
         }
     }
 
-    if (data.isBaseAttacked)
-    {
-        m_economicMinister->setMaxPopulation(0);
-        m_warMinister->setMaxPopulation(data.freePopulation);
-    } else if (data.builderUnitsCount < 12)
+    if (data.builderUnitsCount < 12 || (data.builderUnitsCount < 30 && (data.rangedBaseCount + data.meleeBaseCount < 1)))
     {
         m_economicMinister->setMaxPopulation(data.maxPopulation - data.builderUnitsCount);
         m_warMinister->setMaxPopulation(data.maxPopulation * 0.2 - data.meleeUnitsCount - data.rangedUnitsCount);
@@ -277,7 +281,6 @@ void StartGameDistributor3::innerDistribute(const PlayerView &playerView, const 
             m_economicMinister->setMaxPopulation(data.maxPopulation * 0.4 - data.builderUnitsCount);
             m_warMinister->setMaxPopulation(data.maxPopulation * 0.6 - data.meleeUnitsCount - data.rangedUnitsCount);
         }
-
     }
 
     m_economicMinister->setResourcesCount(data.myResourcesCount);

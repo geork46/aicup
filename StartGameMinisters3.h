@@ -10,6 +10,8 @@ class StartGameEconomicMinister3 : public IEconomicsMinistry
 public:
     virtual void activate();
     virtual void addMinistryAction(Action &act);
+protected:
+    virtual std::vector<Vec2Int> getTurretsCoordinates() const;
 };
 
 class StartGameWarMinister3 : public IWarMinistry

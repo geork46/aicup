@@ -751,44 +751,35 @@ void IEconomicsMinistry::fillRepairMap()
 
     for (int ind : m_exploringData->needRepairBuildings)
     {
-        double dmax = 1000;
-        int k = -1;
         const Entity& building = m_playerView->entities[ind];
 
-        for (size_t i = 0; i < m_units.size(); i++) {
-            if (m_repairMap.find(i) != m_repairMap.end())
-            {
-                continue;
-            }
-
-            const Entity& entity = m_units[i];
-            double distance = m_exploringData->getDistance(entity, building);
-            if (distance < dmax)
-            {
-                dmax = distance;
-                k = i;
-            }
+        int n = 2;
+        if (building.entityType == RANGED_BASE)
+        {
+            n = 5;
         }
-        m_repairMap[k] = ind;
 
-        dmax = 1000;
-        k = -1;
+        for (int ii = 0; ii < n; ++ii)
+        {
+            double dmax = 1000;
+            int k = -1;
+            for (size_t i = 0; i < m_units.size(); i++) {
+                if (m_repairMap.find(i) != m_repairMap.end())
+                {
+                    continue;
+                }
 
-        for (size_t i = 0; i < m_units.size(); i++) {
-            if (m_repairMap.find(i) != m_repairMap.end())
-            {
-                continue;
+                const Entity& entity = m_units[i];
+                double distance = m_exploringData->getDistance(entity, building);
+                if (distance < dmax)
+                {
+                    dmax = distance;
+                    k = i;
+                }
             }
+            m_repairMap[k] = ind;
 
-            const Entity& entity = m_units[i];
-            double distance = m_exploringData->getDistance(entity, building);
-            if (distance < dmax)
-            {
-                dmax = distance;
-                k = i;
-            }
         }
-        m_repairMap[k] = ind;
     }
 }
 

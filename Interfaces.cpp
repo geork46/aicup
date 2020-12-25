@@ -867,8 +867,8 @@ std::vector<Vec2Int> IEconomicsMinistry::getHousesCoordinates() const
     init.push_back(Vec2Int(0, 6));
     init.push_back(Vec2Int(0, 18));
 //    init.push_back(Vec2Int(0, 21));
-    init.push_back(Vec2Int(4, 0));
-    init.push_back(Vec2Int(7, 0));
+    init.push_back(Vec2Int(4, 1));
+    init.push_back(Vec2Int(7, 1));
     init.push_back(Vec2Int(16, 0));
     init.push_back(Vec2Int(19, 0));
     init.push_back(Vec2Int(22, 0));

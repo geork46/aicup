@@ -15,8 +15,6 @@ void StartGameEconomicMinister2::addMinistryAction(Action &act)
     fillRepairMap();
     createBuilderUnit(act);
 
-
-
     static int tick = 0;
     tick++;
     if (tick % 3 == 0)

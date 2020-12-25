@@ -11,6 +11,7 @@ public:
     virtual void activate();
     virtual void addMinistryAction(Action &act);
 protected:
+    virtual void farmResources(Action &act, const Entity& entity, int i);
     virtual std::vector<Vec2Int> getTurretsCoordinates() const;
 };
 

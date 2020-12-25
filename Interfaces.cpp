@@ -295,10 +295,32 @@ bool ExploringData::isSafetryPosition(int x, int y) const
     return f;
 }
 
+void ExploringData::getNearestEnemyBuilder(const Entity &entity, int &x, int &y) const
+{
+    double dist = 1000;
+    int k = -1;
+    for (int i : enemyBuilderUnits)
+    {
+        if (getDistance(entity, playerView->entities[i]) < dist)
+        {
+            dist = getDistance(entity, playerView->entities[i]);
+            k = i;
+        }
+    }
+    if (k >= 0)
+    {
+        x = playerView->entities[k].position.x;
+        y = playerView->entities[k].position.y;
+    } else
+    {
+        x = 79;
+        y = 79;
+    }
+
+}
+
 void ExploringData::getNearestResources(const Entity &entity, int &x, int &y) const
 {
-    const EntityProperties& properties = entityProperties[entity.entityType];
-
     double dist = 1000;
     int k = 0;
     for (int i : safertyResources)
@@ -489,6 +511,67 @@ std::vector<Vec2Int> ExploringData::getRouteAStarWar(const Entity &entity, Vec2I
     };
 
     return getRouteAStarManual(entity, dest, func, 500);
+}
+
+std::vector<Vec2Int> ExploringData::getRouteAStarAttackBuilder(const Entity &entity, Vec2Int dest) const
+{
+    const EntityProperties& properties = entityProperties[entity.entityType];
+    int resourcePenalty = 5;
+    if (properties.attack != nullptr)
+    {
+        resourcePenalty = entityProperties[RESOURCE].maxHealth / properties.attack->damage + 1;
+    }
+
+    auto func = [&](std::vector<Vec2Int> &queue, std::unordered_map<Vec2Int, int> &currentDistance, const Vec2Int &current, int x, int y)
+    {
+        auto comp =  [&](Vec2Int const &a, Vec2Int const &b) {
+            int distA = currentDistance[a] + getDistance(a.x, a.y, dest.x, dest.y);
+            int distB = currentDistance[b] + getDistance(b.x, b.y, dest.x, dest.y);
+            return distA > distB;
+        };
+
+        if (isSafetryPosition(x, y) &&
+                (lastMap.find(getIndex(x, y)) == lastMap.end() ||
+                 lastMap.at(getIndex(x, y)) == -1))
+        {
+            queue.push_back(Vec2Int(x, y));
+            currentDistance[Vec2Int(x, y)] = currentDistance[current] + 1;
+            std::push_heap(queue.begin(), queue.end(), comp );
+            return false;
+        }
+
+        if (isSafetryPosition(x, y) &&
+                (lastMap.find(getIndex(x, y)) != lastMap.end() &&
+                 lastMap.at(getIndex(x, y)) == RESOURCE))
+        {
+            if (map.find(getIndex(x, y)) != map.end())
+            {
+                int health = playerView->entities[map.at(getIndex(x, y))].health;
+                resourcePenalty = health / properties.attack->damage + 1;
+            }
+            queue.push_back(Vec2Int(x, y));
+            currentDistance[Vec2Int(x, y)] = currentDistance[current] + resourcePenalty;
+            std::push_heap(queue.begin(), queue.end(), comp );
+            return false;
+        }
+
+        if (isSafetryPosition(x, y) &&
+                (lastMap.find(getIndex(x, y)) != lastMap.end() &&
+                 lastMap.at(getIndex(x, y)) == BUILDER_UNIT))
+        {
+            if (map.find(getIndex(x, y)) != map.end() &&
+                    *playerView->entities[map.at(getIndex(x, y))].playerId != playerView->myId)
+            {
+                return true;
+            }
+        }
+
+        return false;
+
+    };
+
+    return getRouteAStarManual(entity, dest, func, 500);
+
 }
 
 

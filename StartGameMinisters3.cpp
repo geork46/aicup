@@ -107,6 +107,47 @@ void StartGameEconomicMinister3::addMinistryAction(Action &act)
 
 }
 
+void StartGameEconomicMinister3::farmResources(Action &act, const Entity &entity, int i)
+{
+    const EntityProperties& properties = m_exploringData->entityProperties[entity.entityType];
+    std::shared_ptr<MoveAction> moveAction = nullptr;
+    int x = m_playerView->mapSize - 10;
+    int y = m_playerView->mapSize - 10;
+
+    if (i % 3 == 0)
+    {
+        x = 10;
+        y = m_playerView->mapSize - 10;
+    } else if (i % 3 == 1)
+    {
+         x = m_playerView->mapSize - 10;
+         y = 10;
+    }
+
+    std::vector<EntityType> validAutoAttackTargets;
+    if (entity.entityType == BUILDER_UNIT) {
+        validAutoAttackTargets.push_back(BUILDER_UNIT);
+        validAutoAttackTargets.push_back(RESOURCE);
+    }
+
+    if (!m_exploringData->isSafetryPosition(entity.position.x, entity.position.y))
+    {
+        x = 0;
+        y = 0;
+        moveAction = std::shared_ptr<MoveAction>(new MoveAction(Vec2Int(x, y), true, true));
+        act.entityActions[entity.id] = EntityAction( moveAction, nullptr, nullptr, nullptr);
+        return;
+
+    }
+
+    moveAction = std::shared_ptr<MoveAction>(new MoveAction(Vec2Int(x, y), true, true));
+
+    act.entityActions[entity.id] = EntityAction( moveAction, nullptr,
+        std::shared_ptr<AttackAction>(new AttackAction( nullptr,
+        std::shared_ptr<AutoAttack>(new AutoAttack(properties.sightRange, validAutoAttackTargets)))), nullptr);
+
+}
+
 std::vector<Vec2Int> StartGameEconomicMinister3::getTurretsCoordinates() const
 {
     std::vector<Vec2Int> init{};
@@ -138,11 +179,22 @@ void StartGameWarMinister3::addMinistryAction(Action &act)
         int x = m_playerView->mapSize - 5, y = m_playerView->mapSize - 6;
         moveAction = std::shared_ptr<MoveAction>(new MoveAction( Vec2Int(x, y), true, true));
 
-        if (i % 2 == 0)
+        if (i < 10)
         {
             DrawerHolder::instance()->getDrawer()->selectLayer(6);
-            std::vector<Vec2Int> v = m_exploringData->getRouteAStar(entity, Vec2Int(x, y));
-//            std::vector<Vec2Int> v = m_exploringData->getRouteAStarWar(entity, Vec2Int(x, y));
+
+
+            std::vector<Vec2Int> v;
+            if (m_exploringData->enemyBuilderUnits.size() > 0)
+            {
+                m_exploringData->getNearestEnemyBuilder(entity, x, y);
+                v = m_exploringData->getRouteAStarAttackBuilder(entity, Vec2Int(x, y));
+            }
+
+            if (v.size() == 0)
+            {
+                v = m_exploringData->getRouteAStar(entity, Vec2Int(x, y));
+            }
 
             if (v.size() > 0)
             {
@@ -210,6 +262,16 @@ void StartGameWarMinister3::addSpyAction(Action &act, const Entity &entity)
         std::shared_ptr<MoveAction> moveAction = nullptr;
         moveAction = std::shared_ptr<MoveAction>(new MoveAction(Vec2Int(p.x, p.y), true, true));
         act.entityActions[entity.id] = EntityAction( moveAction, nullptr, nullptr, nullptr);
+
+        std::vector<EntityType> validAutoAttackTargets;
+        if (entity.entityType == BUILDER_UNIT) {
+            validAutoAttackTargets.push_back(BUILDER_UNIT);
+            validAutoAttackTargets.push_back(RESOURCE);
+        }
+
+        act.entityActions[entity.id] = EntityAction( moveAction, nullptr,
+                                                     std::shared_ptr<AttackAction>(new AttackAction( nullptr,
+                                                                                                     std::shared_ptr<AutoAttack>(new AutoAttack(1, validAutoAttackTargets)))), nullptr);
         return;
     }
     farmResources(act, entity, m_spyCounter);

@@ -116,13 +116,16 @@ struct ExploringData
 
     bool isSafetryPosition(int x, int y) const;
 
+    void getNearestEnemyBuilder(const Entity &entity, int &x, int &y) const;
+
     void getNearestResources(const Entity &entity, int &x, int &y) const;
     bool getNearestSafertyResources(const Entity &entity, int &x, int &y) const;
 
 
+    std::vector<Vec2Int> getRouteAStar(const Entity &entity, Vec2Int dest) const;
     std::vector<Vec2Int> getRouteAStarWar(const Entity &entity, Vec2Int dest) const;
 
-    std::vector<Vec2Int> getRouteAStar(const Entity &entity, Vec2Int dest) const;
+    std::vector<Vec2Int> getRouteAStarAttackBuilder(const Entity &entity, Vec2Int dest) const;
 
     template<class F>
     std::vector<Vec2Int> getRouteAStarManual(const Entity &entity, Vec2Int dest, F func, int maxIter) const;
